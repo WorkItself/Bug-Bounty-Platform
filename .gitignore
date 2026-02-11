@@ -1,0 +1,20 @@
+# Dependencies - These are massive and we can always reinstall them
+node_modules/
+
+# Secrets - NEVER upload your passwords or API keys to GitHub
+.env
+.env.local
+
+# Build Outputs - The computer generates these, we don't need to save them
+dist/
+build/
+out/
+
+# System Junk - Mac/Windows temporary files
+.DS_Store
+Thumbs.db
+
+# Error Logs - If the server crashes, we don't need the log file in Git
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
