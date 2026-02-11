@@ -1,17 +1,47 @@
-.app-container {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+/* App-specific styles */
+
+/* Typography */
+h1, h2, h3, h4, h5, h6 {
+  line-height: 1.2;
+  letter-spacing: -0.01em;
 }
-.card {
-  background-color: #242424;
-  border-radius: 8px;
-  padding: 2rem;
-  margin-top: 2rem;
+
+p {
+  line-height: 1.6;
 }
-.status-message {
-  font-size: 1.5rem;
-  color: #646cff;
-  font-weight: bold;
+
+/* Utility Classes */
+.text-primary {
+  color: #e2e8f0;
+}
+
+.text-secondary {
+  color: #cbd5e1;
+}
+
+.text-tertiary {
+  color: #94a3b8;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }

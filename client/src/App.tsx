@@ -1,17 +1,19 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import MainLayout from './layout/MainLayout';
-// Import your real pages here
 import Dashboard from './pages/Dashboard'; 
-
-// --- REMAINING PLACEHOLDERS ---
-// We will move these to /pages one by one as we build them
-const BountyList = () => <div style={{color: 'white'}}><h1>🎯 Active Bounties</h1><p>Browse programs and start hunting.</p></div>;
-const SubmitReport = () => <div style={{color: 'white'}}><h1>🛡️ Submit Vulnerability</h1><p>Report a bug securely to the team.</p></div>;
-const AdminPanel = () => <div style={{color: 'white'}}><h1>⚙️ Restricted Admin Panel</h1><p>Authorized access only.</p></div>;
-const Leaderboard = () => <div style={{color: 'white'}}><h1>🏆 Top Hackers</h1><p>The best of the best.</p></div>;
-const KnowledgeBase = () => <div style={{color: 'white'}}><h1>📚 Resources</h1><p>Learn how to hunt.</p></div>;
-const Profile = () => <div style={{color: 'white'}}><h1>👤 My Profile</h1><p>Settings and earnings.</p></div>;
-const Login = () => <div style={{color: 'white'}}><h1>🔐 Login</h1><p>Enter your credentials.</p></div>;
+import BountyList from './pages/BountyList';
+import SubmitReport from './pages/SubmitReport';
+import AdminPanel from './pages/AdminPanel';
+import Leaderboard from './pages/Leaderboard';
+import Resources from './pages/Resources';
+import Profile from './pages/Profile';
+import Login from './pages/Login';
+import Register from './pages/Register';
+import MySubmissions from './pages/MySubmissions';
+import Notifications from './pages/Notifications';
+import Messages from './pages/Messages';
+import Analytics from './pages/Analytics';
+import Settings from './pages/Settings';
 
 function App() {
   return (
@@ -21,13 +23,18 @@ function App() {
           <Route index element={<Dashboard />} />
           <Route path="bounties" element={<BountyList />} />
           <Route path="leaderboard" element={<Leaderboard />} />
-          <Route path="kb" element={<KnowledgeBase />} />
+          <Route path="kb" element={<Resources />} />
           <Route path="submit" element={<SubmitReport />} />
-          <Route path="my-submissions" element={<div><h1>My Submissions</h1></div>} />
+          <Route path="my-submissions" element={<MySubmissions />} />
           <Route path="profile" element={<Profile />} />
-          <Route path="login" element={<Login />} />
+          <Route path="notifications" element={<Notifications />} />
+          <Route path="messages" element={<Messages />} />
+          <Route path="analytics" element={<Analytics />} />
+          <Route path="settings" element={<Settings />} />
           <Route path="admin" element={<AdminPanel />} />
         </Route>
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
       </Routes>
     </Router>
   );
