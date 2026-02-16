@@ -1,6 +1,14 @@
 import styles from './Input.module.css';
 
-const Input = ({ type = 'text', placeholder, value, onChange, name }) => {
+interface InputProps {
+  type?: string;
+  placeholder?: string;
+  value?: string | number;
+  onChange?: React.ChangeEventHandler<HTMLInputElement>;
+  name?: string;
+}
+
+const Input = ({ type = 'text', placeholder, value, onChange, name }: InputProps) => {
   return (
     <input
       type={type}

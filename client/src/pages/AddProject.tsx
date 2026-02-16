@@ -17,7 +17,7 @@ Budget: $${budget}`);
     setBudget('');
   };
 
-  const formStyle = {
+  const formStyle: React.CSSProperties = {
     maxWidth: '800px',
     margin: '0 auto',
     padding: '2rem',
@@ -26,7 +26,7 @@ Budget: $${budget}`);
     boxShadow: '0 8px 30px rgba(0,0,0,0.3)',
   };
 
-  const inputStyle = {
+  const inputStyle: React.CSSProperties = {
     width: '100%',
     padding: '0.8rem 1rem',
     marginBottom: '1.5rem',
@@ -37,13 +37,13 @@ Budget: $${budget}`);
     fontSize: '1rem',
   };
 
-  const textareaStyle = {
+  const textareaStyle: React.CSSProperties = {
     ...inputStyle,
     minHeight: '150px',
-    resize: 'vertical',
+    resize: 'vertical' as React.CSSProperties['resize'],
   };
 
-  const buttonStyle = {
+  const buttonStyle: React.CSSProperties = {
     width: '100%',
     padding: '1rem',
     background: 'linear-gradient(90deg, #00C9FF 0%, #92FE9D 100%)',
