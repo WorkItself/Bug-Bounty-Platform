@@ -4,7 +4,7 @@ import { useUser } from '../context/UserContext';
 
 const MainLayout = () => {
   const location = useLocation();
-  const { user, logout, adminEnabled } = useUser();
+  const { user, logout } = useUser();
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -77,11 +77,14 @@ const MainLayout = () => {
               <SidebarLink to="/bounties" label="Bounty Programs" isActive={location.pathname === '/bounties'} />
               <SidebarLink to="/leaderboard" label="Leaderboard" isActive={location.pathname === '/leaderboard'} />
               <SidebarLink to="/kb" label="Resources" isActive={location.pathname === '/kb'} />
+              {user.isLoggedIn && user.type !== 'admin' && (
+                <SidebarLink to="/support" label="Contact Support" isActive={location.pathname === '/support'} />
+              )}
             </div>
           </div>
 
           {/* Researcher Section */}
-          {user.isLoggedIn && (user.type === 'hacker' || user.type === 'admin') && (
+          {user.isLoggedIn && user.type === 'hacker' && (
             <div>
               <div style={{
                 fontSize: '0.7rem',
@@ -120,7 +123,7 @@ const MainLayout = () => {
           )}
 
           {/* Admin Section */}
-          {adminEnabled && user.isLoggedIn && user.type === 'admin' && (
+          {user.isLoggedIn && user.type === 'admin' && (
             <div>
               <div style={{
                 fontSize: '0.7rem',
@@ -133,6 +136,7 @@ const MainLayout = () => {
               }}>// SYSTEM</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                 <SidebarLink to="/admin" label="Admin Panel" isActive={location.pathname === '/admin'} danger />
+                <SidebarLink to="/admin/support" label="Support Requests" isActive={location.pathname === '/admin/support'} danger />
               </div>
             </div>
           )}

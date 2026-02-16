@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 const ViewReports = () => {
   const initialReports = [
@@ -19,7 +19,7 @@ const ViewReports = () => {
     ));
   };
 
-  const severityColors = {
+  const severityColors: Record<string, string> = {
     'Critical': '#ff4d4d',
     'High': '#ff8c1a',
     'Medium': '#ffcc00',

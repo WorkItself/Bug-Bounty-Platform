@@ -1,8 +1,7 @@
-import React from 'react';
 import { Link } from 'react-router-dom';
 
 const CompanyDashboard = () => {
-  const cardStyle = {
+  const cardStyle: React.CSSProperties = {
     background: 'linear-gradient(145deg, #1e2a3a, #101822)',
     borderRadius: '12px',
     padding: '2rem',
@@ -13,7 +12,7 @@ const CompanyDashboard = () => {
     textDecoration: 'none',
   };
 
-  const containerStyle = {
+  const containerStyle: React.CSSProperties = {
     display: 'grid',
     gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
     gap: '2rem',

@@ -16,7 +16,7 @@ const Leaderboard = () => {
   const topThree = hackers.slice(0, 3);
   const rest = hackers.slice(3);
 
-  const cardBaseStyle = {
+  const cardBaseStyle: React.CSSProperties = {
     background: 'linear-gradient(145deg, #1e2a3a, #101822)',
     borderRadius: '12px',
     padding: '2rem',
@@ -26,7 +26,7 @@ const Leaderboard = () => {
     transition: 'transform 0.3s ease, box-shadow 0.3s ease',
   };
   
-  const rankColors = {
+  const rankColors: Record<number, string> = {
     1: '#ffd700', // Gold
     2: '#c0c0c0', // Silver
     3: '#cd7f32', // Bronze
