@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import MainLayout from './layout/MainLayout';
-import Dashboard from './pages/Dashboard'; 
+import Dashboard from './pages/Dashboard';
 import BountyList from './pages/BountyList';
 import SubmitReport from './pages/SubmitReport';
 import AdminPanel from './pages/AdminPanel';
@@ -17,28 +17,31 @@ import Settings from './pages/Settings';
 import CompanyDashboard from './pages/CompanyDashboard';
 import AddProject from './pages/AddProject';
 import ViewReports from './pages/ViewReports';
+import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<MainLayout />}>
-          <Route index element={<Dashboard />} />
-          <Route path="bounties" element={<BountyList />} />
-          <Route path="leaderboard" element={<Leaderboard />} />
-          <Route path="kb" element={<Resources />} />
-          <Route path="submit" element={<SubmitReport />} />
-          <Route path="my-submissions" element={<MySubmissions />} />
-          <Route path="profile" element={<Profile />} />
-          <Route path="notifications" element={<Notifications />} />
-          <Route path="messages" element={<Messages />} />
-          <Route path="analytics" element={<Analytics />} />
-          <Route path="settings" element={<Settings />} />
-          <Route path="admin" element={<AdminPanel />} />
-          {/* Company Routes */}
-          <Route path="company/dashboard" element={<CompanyDashboard />} />
-          <Route path="company/add-project" element={<AddProject />} />
-          <Route path="company/reports" element={<ViewReports />} />
+        <Route element={<ProtectedRoute />}>
+          <Route path="/" element={<MainLayout />}>
+            <Route index element={<Dashboard />} />
+            <Route path="bounties" element={<BountyList />} />
+            <Route path="leaderboard" element={<Leaderboard />} />
+            <Route path="kb" element={<Resources />} />
+            <Route path="submit" element={<SubmitReport />} />
+            <Route path="my-submissions" element={<MySubmissions />} />
+            <Route path="profile" element={<Profile />} />
+            <Route path="notifications" element={<Notifications />} />
+            <Route path="messages" element={<Messages />} />
+            <Route path="analytics" element={<Analytics />} />
+            <Route path="settings" element={<Settings />} />
+            <Route path="admin" element={<AdminPanel />} />
+            {/* Company Routes */}
+            <Route path="company/dashboard" element={<CompanyDashboard />} />
+            <Route path="company/add-project" element={<AddProject />} />
+            <Route path="company/reports" element={<ViewReports />} />
+          </Route>
         </Route>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
