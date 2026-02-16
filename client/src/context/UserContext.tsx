@@ -6,24 +6,26 @@ interface User {
   id: string | null;
   type: UserType;
   name: string | null;
-  email: string | null;
   isLoggedIn: boolean;
 }
 
 interface UserContextType {
   user: User;
-  adminEnabled: boolean;
-  setAdminEnabled: (enabled: boolean) => void;
-  login: (type: UserType, name: string, email: string) => void;
+  login: (username, password) => boolean;
   logout: () => void;
-  switchUserType: (type: UserType) => void;
+  register: (name, userType) => void;
 }
+
+const mockUsers = {
+  hacker: 'hacker',
+  company: 'company',
+  admin: 'admin',
+};
 
 const defaultUser: User = {
   id: null,
   type: 'guest',
   name: null,
-  email: null,
   isLoggedIn: false
 };
 
@@ -31,19 +33,27 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User>(defaultUser);
-  const [adminEnabled, setAdminEnabled] = useState(false);
 
-  const login = (type: UserType, name: string, email: string) => {
-    const isAdmin = type === 'admin' || adminEnabled;
-    if (isAdmin) {
-      setAdminEnabled(true);
+  const login = (username, password) => {
+    const expectedPassword = mockUsers[username];
+    if (expectedPassword && expectedPassword === password) {
+      setUser({
+        id: `user-${Date.now()}`,
+        type: username as UserType,
+        name: username,
+        isLoggedIn: true
+      });
+      return true;
     }
+    return false;
+  };
+
+  const register = (name, userType) => {
     setUser({
       id: `user-${Date.now()}`,
-      type: isAdmin ? 'admin' : type,
-      name,
-      email,
-      isLoggedIn: true
+      type: userType,
+      name: name,
+      isLoggedIn: true,
     });
   };
 
@@ -51,17 +61,8 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setUser(defaultUser);
   };
 
-  const switchUserType = (type: UserType) => {
-    if (user.isLoggedIn) {
-      setUser(prev => ({
-        ...prev,
-        type: type === 'admin' && !adminEnabled ? 'guest' : type
-      }));
-    }
-  };
-
   return (
-    <UserContext.Provider value={{ user, adminEnabled, setAdminEnabled, login, logout, switchUserType }}>
+    <UserContext.Provider value={{ user, login, logout, register }}>
       {children}
     </UserContext.Provider>
   );
