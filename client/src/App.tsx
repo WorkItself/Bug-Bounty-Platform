@@ -14,6 +14,9 @@ import Notifications from './pages/Notifications';
 import Messages from './pages/Messages';
 import Analytics from './pages/Analytics';
 import Settings from './pages/Settings';
+import CompanyDashboard from './pages/CompanyDashboard';
+import AddProject from './pages/AddProject';
+import ViewReports from './pages/ViewReports';
 
 function App() {
   return (
@@ -32,6 +35,10 @@ function App() {
           <Route path="analytics" element={<Analytics />} />
           <Route path="settings" element={<Settings />} />
           <Route path="admin" element={<AdminPanel />} />
+          {/* Company Routes */}
+          <Route path="company/dashboard" element={<CompanyDashboard />} />
+          <Route path="company/add-project" element={<AddProject />} />
+          <Route path="company/reports" element={<ViewReports />} />
         </Route>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
