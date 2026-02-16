@@ -112,8 +112,9 @@ const MainLayout = () => {
                 fontFamily: 'monospace'
               }}>// COMPANY</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                <SidebarLink to="/submit" label="Create Program" isActive={location.pathname === '/submit'} accent />
-                <SidebarLink to="/my-submissions" label="Reports" isActive={location.pathname === '/my-submissions'} />
+                <SidebarLink to="/company/dashboard" label="Company Dashboard" isActive={location.pathname === '/company/dashboard'} />
+                <SidebarLink to="/company/add-project" label="Add Bounty Program" isActive={location.pathname === '/company/add-project'} accent />
+                <SidebarLink to="/company/reports" label="View Reports" isActive={location.pathname === '/company/reports'} />
               </div>
             </div>
           )}
