@@ -1,7 +1,9 @@
 import { useUser } from '../context/UserContext';
+import { useState } from 'react';
 
 const AdminPanel = () => {
-  const { user, adminEnabled, setAdminEnabled } = useUser();
+  const { user } = useUser();
+  const [adminEnabled, setAdminEnabled] = useState(false);
 
   if (!user.isLoggedIn || user.type !== 'admin') {
     return (
