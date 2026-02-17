@@ -97,6 +97,13 @@
     line-height: 1.4;
 }
 
+.error {
+  color: #ef4444;
+  text-align: center;
+  margin-top: -0.5rem;
+  margin-bottom: 0.5rem;
+}
+
 .loginLinkWrapper {
     margin-top: 2rem;
     text-align: center;

@@ -1,4 +1,18 @@
+import { useNavigate } from 'react-router-dom';
+import { useUser } from '../context/UserContext';
+
 const Dashboard = () => {
+  const navigate = useNavigate();
+  const { user } = useUser();
+
+  const handleStartHunting = () => {
+    if (user.isLoggedIn) {
+      navigate('/bounties');
+    } else {
+      navigate('/login');
+    }
+  };
+
   return (
     <div style={{ maxWidth: '1400px' }}>
       {/* Hero Section */}
@@ -44,7 +58,7 @@ const Dashboard = () => {
             Join the world's most trusted ethical hackers. Discover vulnerabilities in top-tier infrastructure and earn substantial rewards while securing the digital ecosystem.
           </p>
           
-          <button style={{
+          <button onClick={handleStartHunting} style={{
             padding: '0.75rem 1.75rem',
             background: '#009B77',
             color: '#FFFFFF',
