@@ -1,0 +1,89 @@
+.container {
+  max-width: 600px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 200px);
+}
+
+.formWrapper {
+  width: 100%;
+  background: linear-gradient(135deg, #1B3A57 0%, #0C1A30 100%);
+  padding: 2.5rem;
+  border-radius: 0.75rem;
+  border: 1px solid #009B77;
+}
+
+.title {
+  font-size: 2rem;
+  font-weight: 800;
+  margin-bottom: 0.5rem;
+  letter-spacing: -0.02em;
+  color: #FFFFFF;
+}
+
+.subtitle {
+  color: #A2DFF7;
+  margin-bottom: 2rem;
+  font-size: 1rem;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.label {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #FFFFFF;
+}
+
+.input {
+  width: 100%;
+  padding: 0.75rem;
+  background: #0C1A30;
+  border: 1px solid #009B77;
+  border-radius: 0.5rem;
+  color: #FFFFFF;
+  font-size: 1rem;
+  font-family: inherit;
+}
+
+.button {
+  padding: 0.75rem 1.5rem;
+  background: #009B77;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.button:hover {
+  background: #007A60;
+  transform: translateY(-2px);
+}
+
+.registerLink {
+  text-align: center;
+  color: #A2DFF7;
+  margin: 1rem 0 0 0;
+  font-size: 0.9rem;
+}
+
+.registerLink a {
+  color: #009B77;
+  text-decoration: none;
+}
+
+.error {
+    color: red;
+    margin: 0;
+}
