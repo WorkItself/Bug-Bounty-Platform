@@ -8,7 +8,14 @@ import Input from '../components/Input';
 const Register = () => {
   const { register } = useUser();
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({ name: '', email: '', userType: 'hacker' as 'hacker' | 'company' });
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+    userType: 'hacker' as 'hacker' | 'company',
+  });
+  const [error, setError] = useState('');
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target as HTMLInputElement;
@@ -17,7 +24,12 @@ const Register = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (formData.email && formData.name) {
+    if (formData.password !== formData.confirmPassword) {
+      setError('Passwords do not match');
+      return;
+    }
+    if (formData.email && formData.name && formData.password) {
+      setError('');
       register(formData.name, formData.userType);
       navigate('/');
     }
@@ -48,6 +60,28 @@ const Register = () => {
               value={formData.email}
               onChange={handleChange}
               placeholder="your@email.com"
+            />
+          </div>
+
+          <div>
+            <label className={styles.label}>Password</label>
+            <Input
+              type="password"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              placeholder="Enter your password"
+            />
+          </div>
+
+          <div>
+            <label className={styles.label}>Confirm Password</label>
+            <Input
+              type="password"
+              name="confirmPassword"
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              placeholder="Confirm your password"
             />
           </div>
 
@@ -87,6 +121,8 @@ const Register = () => {
               </label>
             </div>
           </div>
+
+          {error && <p className={styles.error}>{error}</p>}
 
           <Button type="submit">
             Create Account

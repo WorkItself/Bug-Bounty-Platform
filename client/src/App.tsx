@@ -34,12 +34,14 @@ function App() {
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route element={<MainLayout />}>
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/bounties" element={<BountyList />} />
+          <Route path="/leaderboard" element={<Leaderboard />} />
+          <Route path="/kb" element={<Resources />} />
+        </Route>
         <Route element={<ProtectedRoute />}>
           <Route element={<MainLayout />}>
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/bounties" element={<BountyList />} />
-            <Route path="/leaderboard" element={<Leaderboard />} />
-            <Route path="/kb" element={<Resources />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/notifications" element={<Notifications />} />
@@ -73,4 +75,3 @@ function App() {
 }
 
 export default App;
-
