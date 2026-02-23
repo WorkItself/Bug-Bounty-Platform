@@ -1,3 +1,5 @@
+import { useNavigate } from 'react-router-dom';
+
 const programs = [
   {
     id: 1,
@@ -45,8 +47,10 @@ const getTierColor = (tier: string): { bg: string; text: string; border: string 
 };
 
 const BountyList = () => {
+  const navigate = useNavigate();
+
   return (
-    <div style={{ maxWidth: '1400px' }}>
+    <div style={{ width: '100%', maxWidth: '1400px', margin: '0 auto' }}>
       {/* Header */}
       <header style={{ marginBottom: '2.5rem' }}>
         <h1 style={{
@@ -177,7 +181,9 @@ const BountyList = () => {
                     color: '#009B77'
                   }}>{program.reward}</span>
                 </div>
-                <button style={{
+                <button 
+                onClick={() => navigate(`/bounties/${program.id}`)}
+                style={{
                   background: '#009B77',
                   color: '#FFFFFF',
                   border: 'none',

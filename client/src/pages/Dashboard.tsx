@@ -14,7 +14,7 @@ const Dashboard = () => {
   };
 
   return (
-    <div style={{ maxWidth: '1400px' }}>
+    <div style={{ width: '100%', maxWidth: '1400px', margin: '0 auto' }}>
       {/* Hero Section */}
       <section style={{
         marginBottom: '3rem',

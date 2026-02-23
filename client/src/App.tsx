@@ -12,6 +12,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import BountyList from './pages/BountyList';
+import BountyDetail from './pages/BountyDetail';
 import Leaderboard from './pages/Leaderboard';
 import Resources from './pages/Resources';
 import SubmitReport from './pages/SubmitReport';
@@ -27,18 +28,27 @@ import Messages from './pages/Messages';
 import Analytics from './pages/Analytics';
 import ContactSupport from './pages/ContactSupport';
 import SupportRequests from './pages/SupportRequests';
+import BugBountyBasics from './pages/BugBountyBasics';
+import VulnerabilityReporting from './pages/VulnerabilityReporting';
+import ToolsUtilities from './pages/ToolsUtilities';
+import ForgotPassword from './pages/ForgotPassword';
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<Login />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/register" element={<Register />} />
         <Route element={<MainLayout />}>
           <Route path="/" element={<Dashboard />} />
           <Route path="/bounties" element={<BountyList />} />
+          <Route path="/bounties/:id" element={<BountyDetail />} />
           <Route path="/leaderboard" element={<Leaderboard />} />
           <Route path="/kb" element={<Resources />} />
+          <Route path="/resources/bug-bounty-basics" element={<BugBountyBasics />} />
+          <Route path="/resources/vulnerability-reporting" element={<VulnerabilityReporting />} />
+          <Route path="/resources/tools" element={<ToolsUtilities />} />
         </Route>
         <Route element={<ProtectedRoute />}>
           <Route element={<MainLayout />}>

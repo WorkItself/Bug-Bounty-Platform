@@ -4,7 +4,7 @@ const Settings = () => {
   useUser(); // Hook for future use
 
   return (
-    <div style={{ maxWidth: '1000px' }}>
+    <div style={{ width: '100%', maxWidth: '1000px', margin: '0 auto' }}>
       <h1 style={{
         fontSize: '2.2rem',
         fontWeight: '800',
