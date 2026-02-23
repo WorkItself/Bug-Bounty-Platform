@@ -18,7 +18,7 @@ const CompanyDashboard = () => {
   ];
 
   return (
-    <div style={{ maxWidth: '1200px' }}>
+    <div style={{ width: '100%', maxWidth: '1200px', margin: '0 auto' }}>
       <h1 style={{
         fontSize: '2.2rem',
         fontWeight: '800',
@@ -32,39 +32,6 @@ const CompanyDashboard = () => {
         marginBottom: '2rem',
         fontWeight: '500'
       }}>Welcome back, {user.name}!</p>
-
-      {/* Company Info Card */}
-      {user.companyDetails && (
-        <div style={{
-          background: 'linear-gradient(135deg, #1B3A57 0%, #0C1A30 100%)',
-          padding: '2rem',
-          borderRadius: '0.75rem',
-          border: '1px solid #009B77',
-          marginBottom: '2rem'
-        }}>
-          <h2 style={{ fontSize: '1.5rem', fontWeight: '700', marginTop: 0, marginBottom: '1rem', color: '#FFFFFF' }}>
-            {user.companyDetails.companyName}
-          </h2>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1.5rem' }}>
-            <div>
-              <p style={{ color: '#A2DFF7', fontSize: '0.9rem', marginBottom: '0.25rem' }}>Registration Number</p>
-              <p style={{ color: '#FFFFFF', margin: 0, fontWeight: '600' }}>{user.companyDetails.registrationNumber}</p>
-            </div>
-            <div>
-              <p style={{ color: '#A2DFF7', fontSize: '0.9rem', marginBottom: '0.25rem' }}>Tax ID</p>
-              <p style={{ color: '#FFFFFF', margin: 0, fontWeight: '600' }}>{user.companyDetails.taxId}</p>
-            </div>
-            <div>
-              <p style={{ color: '#A2DFF7', fontSize: '0.9rem', marginBottom: '0.25rem' }}>Contact Person</p>
-              <p style={{ color: '#FFFFFF', margin: 0, fontWeight: '600' }}>{user.companyDetails.contactPerson}</p>
-            </div>
-            <div>
-              <p style={{ color: '#A2DFF7', fontSize: '0.9rem', marginBottom: '0.25rem' }}>Phone</p>
-              <p style={{ color: '#FFFFFF', margin: 0, fontWeight: '600' }}>{user.companyDetails.phone}</p>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Stats Grid */}
       <div style={{

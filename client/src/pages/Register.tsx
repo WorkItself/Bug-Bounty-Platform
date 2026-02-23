@@ -1,10 +1,16 @@
 import { useState } from 'react';
 import { useUser } from '../context/UserContext';
 import { useNavigate } from 'react-router-dom';
-import { CompanyDetails } from '../context/UserContext';
 import styles from './Register.module.css';
 import Button from '../components/Button';
 import Input from '../components/Input';
+
+interface CompanyDetails {
+  legalName: string;
+  registrationNumber: string;
+  jurisdiction: string;
+  taxId: string;
+}
 
 const Register = () => {
   const { register } = useUser();
@@ -15,20 +21,23 @@ const Register = () => {
     password: '',
     confirmPassword: '',
     userType: 'hacker' as 'hacker' | 'company',
-    // Company-specific fields
-    companyName: '',
+  });
+  const [companyDetails, setCompanyDetails] = useState<CompanyDetails>({
+    legalName: '',
     registrationNumber: '',
-    taxId: '',
-    address: '',
-    country: '',
-    contactPerson: '',
-    phone: '',
+    jurisdiction: '',
+    taxId: ''
   });
   const [error, setError] = useState('');
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleCompanyDetailsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setCompanyDetails((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -39,26 +48,16 @@ const Register = () => {
     }
 
     if (formData.userType === 'company') {
-      if (!formData.companyName || !formData.registrationNumber || !formData.taxId || !formData.address || !formData.country || !formData.contactPerson || !formData.phone) {
-        setError('Please fill in all company details');
+      if (!companyDetails.legalName || !companyDetails.registrationNumber || 
+          !companyDetails.jurisdiction || !companyDetails.taxId) {
+        setError('All company details are required');
         return;
       }
     }
 
     if (formData.email && formData.name && formData.password) {
       setError('');
-      
-      const companyDetails: CompanyDetails | undefined = formData.userType === 'company' ? {
-        companyName: formData.companyName,
-        registrationNumber: formData.registrationNumber,
-        taxId: formData.taxId,
-        address: formData.address,
-        country: formData.country,
-        contactPerson: formData.contactPerson,
-        phone: formData.phone,
-      } : undefined;
-
-      register(formData.userType === 'company' ? formData.companyName : formData.name, formData.userType, companyDetails);
+      register(formData.name, formData.userType, formData.userType === 'company' ? companyDetails : undefined);
       navigate('/');
     }
   };
@@ -150,78 +149,63 @@ const Register = () => {
             </div>
           </div>
 
-          {/* Company Details - Only show if userType is 'company' */}
           {formData.userType === 'company' && (
-            <div style={{ marginTop: '2rem', padding: '1.5rem', background: '#0C1A30', borderRadius: '0.5rem', border: '1px solid #009B77' }}>
-              <h3 style={{ color: '#FFFFFF', marginTop: 0, marginBottom: '1rem' }}>Company Information</h3>
+            <div style={{ 
+              background: 'linear-gradient(135deg, #1B3A57 0%, #0C1A30 100%)',
+              padding: '1.5rem',
+              borderRadius: '0.75rem',
+              border: '1px solid #009B77',
+              marginBottom: '1rem'
+            }}>
+              <h3 style={{ color: '#FFFFFF', marginBottom: '1rem', fontSize: '1.1rem', fontWeight: '600' }}>
+                Legal Entity Information
+              </h3>
               
-              <div>
-                <label className={styles.label}>Company Name</label>
+              <div style={{ marginBottom: '1rem' }}>
+                <label style={{ color: '#A2DFF7', display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
+                  Legal Company Name
+                </label>
                 <Input
-                  name="companyName"
-                  value={formData.companyName}
-                  onChange={handleChange}
-                  placeholder="Your company name"
+                  name="legalName"
+                  value={companyDetails.legalName}
+                  onChange={handleCompanyDetailsChange}
+                  placeholder="e.g., TechCorp Inc."
                 />
               </div>
 
-              <div>
-                <label className={styles.label}>Registration Number</label>
+              <div style={{ marginBottom: '1rem' }}>
+                <label style={{ color: '#A2DFF7', display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
+                  Business Registration Number
+                </label>
                 <Input
                   name="registrationNumber"
-                  value={formData.registrationNumber}
-                  onChange={handleChange}
-                  placeholder="Company registration number"
+                  value={companyDetails.registrationNumber}
+                  onChange={handleCompanyDetailsChange}
+                  placeholder="e.g., REG-2025-001"
+                />
+              </div>
+
+              <div style={{ marginBottom: '1rem' }}>
+                <label style={{ color: '#A2DFF7', display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
+                  Jurisdiction
+                </label>
+                <Input
+                  name="jurisdiction"
+                  value={companyDetails.jurisdiction}
+                  onChange={handleCompanyDetailsChange}
+                  placeholder="e.g., United States"
                 />
               </div>
 
               <div>
-                <label className={styles.label}>Tax ID</label>
+                <label style={{ color: '#A2DFF7', display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
+                  Tax ID / EIN
+                </label>
                 <Input
                   name="taxId"
-                  value={formData.taxId}
-                  onChange={handleChange}
-                  placeholder="Tax identification number"
-                />
-              </div>
-
-              <div>
-                <label className={styles.label}>Address</label>
-                <Input
-                  name="address"
-                  value={formData.address}
-                  onChange={handleChange}
-                  placeholder="Company address"
-                />
-              </div>
-
-              <div>
-                <label className={styles.label}>Country</label>
-                <Input
-                  name="country"
-                  value={formData.country}
-                  onChange={handleChange}
-                  placeholder="Country"
-                />
-              </div>
-
-              <div>
-                <label className={styles.label}>Contact Person</label>
-                <Input
-                  name="contactPerson"
-                  value={formData.contactPerson}
-                  onChange={handleChange}
-                  placeholder="Contact person name"
-                />
-              </div>
-
-              <div>
-                <label className={styles.label}>Phone</label>
-                <Input
-                  name="phone"
-                  value={formData.phone}
-                  onChange={handleChange}
-                  placeholder="Contact phone number"
+                  value={companyDetails.taxId}
+                  onChange={handleCompanyDetailsChange}
+                  placeholder="e.g., 12-3456789"
                 />
               </div>
             </div>

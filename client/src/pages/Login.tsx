@@ -31,7 +31,7 @@ const Login = () => {
   return (
     <div className={styles.container}>
       <div className={styles.formWrapper}>
-        <h1 className={styles.title}>Access Granted</h1>
+        <h1 className={styles.title}>Secure Access</h1>
         <p className={styles.subtitle}>Enter your credentials to continue</p>
 
         <form onSubmit={handleSubmit} className={styles.form}>

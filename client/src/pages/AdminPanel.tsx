@@ -1,12 +1,23 @@
-import { useUser } from '../context/UserContext';
 import { useState } from 'react';
-import { RegisteredUser } from '../context/UserContext';
+import { useUser } from '../context/UserContext';
+
+interface PlatformUser {
+  id: string;
+  name: string;
+  type: string;
+  email: string;
+  isBanned: boolean;
+  warnings: Array<{ id: string; reason: string; date: string }>;
+  dateJoined: string;
+}
 
 const AdminPanel = () => {
-  const { user, getAllUsers, updateUserStatus } = useUser();
+  const { user, getAllUsers, searchUsers, banUser, unbanUser, warnUser } = useUser();
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedUser, setSelectedUser] = useState<RegisteredUser | null>(null);
-  const [users, setUsers] = useState<RegisteredUser[]>(getAllUsers());
+  const [selectedUser, setSelectedUser] = useState<PlatformUser | null>(null);
+  const [warnReason, setWarnReason] = useState('');
+  const [showWarnForm, setShowWarnForm] = useState(false);
+  const [users, setUsers] = useState<PlatformUser[]>(getAllUsers());
 
   if (!user.isLoggedIn || user.type !== 'admin') {
     return (
@@ -20,67 +31,53 @@ const AdminPanel = () => {
     );
   }
 
-  const filteredUsers = users.filter(u => 
-    u.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    u.email.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const handleSearch = (query: string) => {
+    setSearchQuery(query);
+    if (query.trim()) {
+      const results = searchUsers(query);
+      setUsers(results);
+    } else {
+      setUsers(getAllUsers());
+    }
+    setSelectedUser(null);
+  };
 
-  const handleWarnUser = (userId: string) => {
-    const updatedUsers = users.map(u => 
-      u.id === userId 
-        ? { ...u, warnings: u.warnings + 1 }
-        : u
-    );
-    setUsers(updatedUsers);
-    updateUserStatus(userId, 'warned', updatedUsers.find(u => u.id === userId)?.warnings || 0);
-    
-    const updatedUser = updatedUsers.find(u => u.id === userId);
-    if (updatedUser) {
-      setSelectedUser(updatedUser);
+  const handleSelectUser = (u: PlatformUser) => {
+    setSelectedUser(u);
+    setShowWarnForm(false);
+  };
+
+  const handleBanUser = () => {
+    if (selectedUser) {
+      banUser(selectedUser.id);
+      setUsers(getAllUsers());
+      setSelectedUser({ ...selectedUser, isBanned: true });
     }
   };
 
-  const handleBanUser = (userId: string) => {
-    const updatedUsers = users.map(u => 
-      u.id === userId ? { ...u, status: 'banned' } : u
-    );
-    setUsers(updatedUsers);
-    updateUserStatus(userId, 'banned', updatedUsers.find(u => u.id === userId)?.warnings || 0);
-    
-    const updatedUser = updatedUsers.find(u => u.id === userId);
-    if (updatedUser) {
-      setSelectedUser(updatedUser);
+  const handleUnbanUser = () => {
+    if (selectedUser) {
+      unbanUser(selectedUser.id);
+      setUsers(getAllUsers());
+      setSelectedUser({ ...selectedUser, isBanned: false });
     }
   };
 
-  const handleUnbanUser = (userId: string) => {
-    const updatedUsers = users.map(u => 
-      u.id === userId ? { ...u, status: 'active', warnings: 0 } : u
-    );
-    setUsers(updatedUsers);
-    updateUserStatus(userId, 'active', 0);
-    
-    const updatedUser = updatedUsers.find(u => u.id === userId);
-    if (updatedUser) {
-      setSelectedUser(updatedUser);
-    }
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'active':
-        return '#10b981';
-      case 'warned':
-        return '#f59e0b';
-      case 'banned':
-        return '#ef4444';
-      default:
-        return '#6b7280';
+  const handleWarnUser = () => {
+    if (selectedUser && warnReason.trim()) {
+      warnUser(selectedUser.id, warnReason);
+      setUsers(getAllUsers());
+      const updatedUser = getAllUsers().find(u => u.id === selectedUser.id);
+      if (updatedUser) {
+        setSelectedUser(updatedUser);
+      }
+      setWarnReason('');
+      setShowWarnForm(false);
     }
   };
 
   return (
-    <div style={{ maxWidth: '1400px' }}>
+    <div style={{ width: '100%', maxWidth: '1400px', margin: '0 auto', padding: '2rem' }}>
       <h1 style={{
         fontSize: '2.2rem',
         fontWeight: '800',
@@ -93,224 +90,258 @@ const AdminPanel = () => {
         fontSize: '1rem',
         marginBottom: '2rem',
         fontWeight: '500'
-      }}>User management and system administration.</p>
+      }}>System administration, user management, and oversight.</p>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.2fr', gap: '2rem' }}>
-        {/* User Search and List */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
+        {/* Left Panel - User Search */}
         <div>
-          <h2 style={{ fontSize: '1.3rem', fontWeight: '700', marginBottom: '1rem', color: '#FFFFFF' }}>Search Users</h2>
-          
-          <input
-            type="text"
-            placeholder="Search by name or email..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            style={{
-              width: '100%',
-              padding: '0.75rem',
-              marginBottom: '1rem',
-              background: '#0C1A30',
-              border: '1px solid #009B77',
-              borderRadius: '0.5rem',
-              color: '#FFFFFF',
-              fontSize: '1rem',
-              boxSizing: 'border-box'
-            }}
-          />
-
           <div style={{
             background: 'linear-gradient(135deg, #1B3A57 0%, #0C1A30 100%)',
+            padding: '1.5rem',
             borderRadius: '0.75rem',
-            border: '1px solid #009B77',
-            maxHeight: '600px',
-            overflowY: 'auto'
+            border: '1px solid #009B77'
           }}>
-            {filteredUsers.length === 0 ? (
-              <div style={{ padding: '1.5rem', textAlign: 'center', color: '#A2DFF7' }}>
-                No users found
-              </div>
-            ) : (
-              filteredUsers.map(u => (
+            <h2 style={{ fontSize: '1.3rem', fontWeight: '700', marginBottom: '1rem', color: '#FFFFFF' }}>
+              User Search & Management
+            </h2>
+
+            <input
+              type="text"
+              placeholder="Search by name, email, or ID..."
+              value={searchQuery}
+              onChange={(e) => handleSearch(e.target.value)}
+              style={{
+                width: '100%',
+                padding: '0.75rem',
+                borderRadius: '0.5rem',
+                border: '1px solid #009B77',
+                background: '#0C1A30',
+                color: '#FFFFFF',
+                marginBottom: '1.5rem',
+                fontSize: '1rem'
+              }}
+            />
+
+            <div style={{
+              maxHeight: '500px',
+              overflowY: 'auto',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '0.75rem'
+            }}>
+              {users.map((u) => (
                 <div
                   key={u.id}
-                  onClick={() => setSelectedUser(u)}
+                  onClick={() => handleSelectUser(u)}
                   style={{
-                    padding: '1rem',
-                    borderBottom: '1px solid #0C1A30',
+                    padding: '0.75rem',
+                    background: selectedUser?.id === u.id ? '#009B77' : '#1e2a3a',
+                    borderRadius: '0.5rem',
                     cursor: 'pointer',
-                    background: selectedUser?.id === u.id ? '#0C1A30' : 'transparent',
-                    transition: 'background-color 0.2s',
+                    border: `1px solid ${selectedUser?.id === u.id ? '#00FF7F' : '#333'}`,
+                    transition: 'all 0.2s ease',
+                    color: selectedUser?.id === u.id ? '#000000' : '#FFFFFF'
                   }}
                   onMouseEnter={(e) => {
                     if (selectedUser?.id !== u.id) {
-                      (e.currentTarget as HTMLElement).style.background = '#0C1A3080';
+                      (e.currentTarget as HTMLElement).style.background = '#0c1a2e';
+                      (e.currentTarget as HTMLElement).style.borderColor = '#009B77';
                     }
                   }}
                   onMouseLeave={(e) => {
                     if (selectedUser?.id !== u.id) {
-                      (e.currentTarget as HTMLElement).style.background = 'transparent';
+                      (e.currentTarget as HTMLElement).style.background = '#1e2a3a';
+                      (e.currentTarget as HTMLElement).style.borderColor = '#333';
                     }
                   }}
                 >
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-                    <p style={{ color: '#FFFFFF', fontWeight: '600', margin: 0 }}>{u.name}</p>
-                    <div style={{
-                      padding: '0.25rem 0.75rem',
-                      background: getStatusColor(u.status),
-                      color: '#FFFFFF',
-                      borderRadius: '0.25rem',
-                      fontSize: '0.8rem',
-                      fontWeight: '600',
-                      textTransform: 'uppercase'
-                    }}>
-                      {u.status}
-                    </div>
+                  <div style={{ fontWeight: 'bold', marginBottom: '0.25rem' }}>{u.name}</div>
+                  <div style={{ fontSize: '0.85rem', opacity: 0.8 }}>{u.email}</div>
+                  <div style={{ fontSize: '0.8rem', marginTop: '0.25rem' }}>
+                    Type: {u.type} {u.isBanned && <span style={{ color: '#ff4d4d' }}>❌ BANNED</span>}
                   </div>
-                  <p style={{ color: '#A2DFF7', fontSize: '0.85rem', margin: 0 }}>{u.email}</p>
                 </div>
-              ))
-            )}
+              ))}
+            </div>
           </div>
         </div>
 
-        {/* User Details */}
+        {/* Right Panel - User Details & Actions */}
         <div>
-          <h2 style={{ fontSize: '1.3rem', fontWeight: '700', marginBottom: '1rem', color: '#FFFFFF' }}>User Management</h2>
-          
           {selectedUser ? (
             <div style={{
               background: 'linear-gradient(135deg, #1B3A57 0%, #0C1A30 100%)',
-              padding: '1.75rem',
+              padding: '1.5rem',
               borderRadius: '0.75rem',
               border: '1px solid #009B77'
             }}>
-              <div style={{ marginBottom: '1.5rem', textAlign: 'center' }}>
-                <img 
-                  src={selectedUser.avatar} 
-                  alt={`${selectedUser.name}'s avatar`}
-                  style={{ width: '80px', height: '80px', borderRadius: '50%', marginBottom: '1rem' }}
-                />
-              </div>
+              <h2 style={{ fontSize: '1.3rem', fontWeight: '700', marginBottom: '1rem', color: '#FFFFFF' }}>
+                User Details
+              </h2>
 
               <div style={{ marginBottom: '1.5rem' }}>
-                <p style={{ color: '#A2DFF7', fontSize: '0.9rem', marginBottom: '0.25rem' }}>Name</p>
-                <p style={{ color: '#FFFFFF', fontSize: '1.1rem', margin: 0, fontWeight: '600' }}>{selectedUser.name}</p>
-              </div>
-
-              <div style={{ marginBottom: '1.5rem' }}>
-                <p style={{ color: '#A2DFF7', fontSize: '0.9rem', marginBottom: '0.25rem' }}>Email</p>
-                <p style={{ color: '#FFFFFF', fontSize: '1.1rem', margin: 0 }}>{selectedUser.email}</p>
-              </div>
-
-              <div style={{ marginBottom: '1.5rem' }}>
-                <p style={{ color: '#A2DFF7', fontSize: '0.9rem', marginBottom: '0.25rem' }}>Account Type</p>
-                <p style={{ color: '#FFFFFF', fontSize: '1.1rem', margin: 0, textTransform: 'capitalize' }}>
-                  {selectedUser.type === 'hacker' ? 'Bug Bounty Hunter' : selectedUser.type}
-                </p>
-              </div>
-
-              <div style={{ marginBottom: '1.5rem' }}>
-                <p style={{ color: '#A2DFF7', fontSize: '0.9rem', marginBottom: '0.25rem' }}>Status</p>
-                <div style={{
-                  padding: '0.5rem 1rem',
-                  background: getStatusColor(selectedUser.status),
-                  color: '#FFFFFF',
-                  borderRadius: '0.5rem',
-                  fontSize: '0.95rem',
-                  fontWeight: '600',
-                  textTransform: 'uppercase',
-                  display: 'inline-block'
-                }}>
-                  {selectedUser.status}
+                <label style={{ color: '#A2DFF7', display: 'block', marginBottom: '0.25rem' }}>
+                  Username
+                </label>
+                <div style={{ color: '#FFFFFF', fontSize: '1.1rem', fontWeight: '600' }}>
+                  {selectedUser.name}
                 </div>
               </div>
 
-              <div style={{ marginBottom: '2rem' }}>
-                <p style={{ color: '#A2DFF7', fontSize: '0.9rem', marginBottom: '0.5rem' }}>Warnings: <span style={{ color: '#FFFFFF', fontWeight: '600' }}>{selectedUser.warnings}</span></p>
+              <div style={{ marginBottom: '1.5rem' }}>
+                <label style={{ color: '#A2DFF7', display: 'block', marginBottom: '0.25rem' }}>
+                  Email
+                </label>
+                <div style={{ color: '#FFFFFF' }}>{selectedUser.email}</div>
               </div>
 
-              <div style={{ display: 'flex', gap: '0.75rem', flexDirection: 'column' }}>
-                {selectedUser.status === 'active' && (
-                  <>
-                    <button
-                      onClick={() => handleWarnUser(selectedUser.id)}
-                      style={{
-                        padding: '0.75rem 1.5rem',
-                        background: '#f59e0b',
+              <div style={{ marginBottom: '1.5rem' }}>
+                <label style={{ color: '#A2DFF7', display: 'block', marginBottom: '0.25rem' }}>
+                  User Type
+                </label>
+                <div style={{ color: '#FFFFFF' }}>{selectedUser.type}</div>
+              </div>
+
+              <div style={{ marginBottom: '1.5rem' }}>
+                <label style={{ color: '#A2DFF7', display: 'block', marginBottom: '0.25rem' }}>
+                  Account Status
+                </label>
+                <div style={{ color: selectedUser.isBanned ? '#ff4d4d' : '#4caf50', fontSize: '1.1rem', fontWeight: '600' }}>
+                  {selectedUser.isBanned ? '🚫 BANNED' : '✓ ACTIVE'}
+                </div>
+              </div>
+
+              <div style={{ marginBottom: '1.5rem' }}>
+                <label style={{ color: '#A2DFF7', display: 'block', marginBottom: '0.25rem' }}>
+                  Warnings ({selectedUser.warnings.length})
+                </label>
+                {selectedUser.warnings.length > 0 ? (
+                  <div style={{ maxHeight: '150px', overflowY: 'auto' }}>
+                    {selectedUser.warnings.map((warn) => (
+                      <div key={warn.id} style={{
+                        background: '#0C1A30',
+                        padding: '0.5rem',
+                        borderRadius: '0.25rem',
+                        marginBottom: '0.5rem',
+                        borderLeft: '3px solid #ffaa00',
                         color: '#FFFFFF',
-                        border: 'none',
-                        borderRadius: '0.5rem',
-                        fontWeight: '600',
-                        cursor: 'pointer',
-                        transition: 'all 0.2s ease'
-                      }}
-                      onMouseEnter={(e) => {
-                        (e.target as HTMLElement).style.transform = 'translateY(-2px)';
-                      }}
-                      onMouseLeave={(e) => {
-                        (e.target as HTMLElement).style.transform = 'translateY(0)';
-                      }}
-                    >
-                      Issue Warning
-                    </button>
-                    <button
-                      onClick={() => handleBanUser(selectedUser.id)}
-                      style={{
-                        padding: '0.75rem 1.5rem',
-                        background: '#ef4444',
-                        color: '#FFFFFF',
-                        border: 'none',
-                        borderRadius: '0.5rem',
-                        fontWeight: '600',
-                        cursor: 'pointer',
-                        transition: 'all 0.2s ease'
-                      }}
-                      onMouseEnter={(e) => {
-                        (e.target as HTMLElement).style.transform = 'translateY(-2px)';
-                      }}
-                      onMouseLeave={(e) => {
-                        (e.target as HTMLElement).style.transform = 'translateY(0)';
-                      }}
-                    >
-                      Ban User
-                    </button>
-                  </>
+                        fontSize: '0.9rem'
+                      }}>
+                        <div style={{ fontWeight: '600' }}>{warn.reason}</div>
+                        <div style={{ fontSize: '0.8rem', color: '#A2DFF7' }}>{warn.date}</div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div style={{ color: '#A2DFF7' }}>No warnings</div>
                 )}
-                {selectedUser.status === 'banned' && (
-                  <button
-                    onClick={() => handleUnbanUser(selectedUser.id)}
-                    style={{
-                      padding: '0.75rem 1.5rem',
-                      background: '#009B77',
-                      color: '#FFFFFF',
-                      border: 'none',
-                      borderRadius: '0.5rem',
-                      fontWeight: '600',
-                      cursor: 'pointer',
-                      transition: 'all 0.2s ease'
-                    }}
-                    onMouseEnter={(e) => {
-                      (e.target as HTMLElement).style.transform = 'translateY(-2px)';
-                    }}
-                    onMouseLeave={(e) => {
-                      (e.target as HTMLElement).style.transform = 'translateY(0)';
-                    }}
-                  >
-                    Unban User
-                  </button>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                <button
+                  onClick={() => (selectedUser.isBanned ? handleUnbanUser() : handleBanUser())}
+                  style={{
+                    padding: '0.75rem',
+                    background: selectedUser.isBanned ? '#4caf50' : '#ff4d4d',
+                    color: '#FFFFFF',
+                    border: 'none',
+                    borderRadius: '0.5rem',
+                    cursor: 'pointer',
+                    fontWeight: '600',
+                    transition: 'opacity 0.2s ease'
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget as HTMLElement).style.opacity = '0.8'}
+                  onMouseLeave={(e) => (e.currentTarget as HTMLElement).style.opacity = '1'}
+                >
+                  {selectedUser.isBanned ? '🔓 Unban User' : '🔒 Ban User'}
+                </button>
+
+                <button
+                  onClick={() => setShowWarnForm(!showWarnForm)}
+                  style={{
+                    padding: '0.75rem',
+                    background: '#ffaa00',
+                    color: '#000000',
+                    border: 'none',
+                    borderRadius: '0.5rem',
+                    cursor: 'pointer',
+                    fontWeight: '600',
+                    transition: 'opacity 0.2s ease'
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget as HTMLElement).style.opacity = '0.8'}
+                  onMouseLeave={(e) => (e.currentTarget as HTMLElement).style.opacity = '1'}
+                >
+                  ⚠️ Issue Warning
+                </button>
+
+                {showWarnForm && (
+                  <div style={{
+                    background: '#0C1A30',
+                    padding: '1rem',
+                    borderRadius: '0.5rem',
+                    border: '1px solid #ffaa00'
+                  }}>
+                    <textarea
+                      placeholder="Enter warning reason..."
+                      value={warnReason}
+                      onChange={(e) => setWarnReason(e.target.value)}
+                      style={{
+                        width: '100%',
+                        padding: '0.5rem',
+                        borderRadius: '0.25rem',
+                        border: '1px solid #009B77',
+                        background: '#1e2a3a',
+                        color: '#FFFFFF',
+                        marginBottom: '0.5rem',
+                        minHeight: '80px',
+                        resize: 'vertical'
+                      }}
+                    />
+                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                      <button
+                        onClick={handleWarnUser}
+                        style={{
+                          flex: 1,
+                          padding: '0.5rem',
+                          background: '#ffaa00',
+                          color: '#000000',
+                          border: 'none',
+                          borderRadius: '0.25rem',
+                          cursor: 'pointer',
+                          fontWeight: '600'
+                        }}
+                      >
+                        Send Warning
+                      </button>
+                      <button
+                        onClick={() => setShowWarnForm(false)}
+                        style={{
+                          flex: 1,
+                          padding: '0.5rem',
+                          background: '#666',
+                          color: '#FFFFFF',
+                          border: 'none',
+                          borderRadius: '0.25rem',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
                 )}
               </div>
             </div>
           ) : (
             <div style={{
               background: 'linear-gradient(135deg, #1B3A57 0%, #0C1A30 100%)',
-              padding: '2rem',
+              padding: '1.5rem',
               borderRadius: '0.75rem',
               border: '1px solid #009B77',
               textAlign: 'center',
               color: '#A2DFF7'
             }}>
-              <p>Select a user from the list to manage their account</p>
+              <p>Select a user from the list to view and manage their account.</p>
             </div>
           )}
         </div>
@@ -320,3 +351,4 @@ const AdminPanel = () => {
 };
 
 export default AdminPanel;
+

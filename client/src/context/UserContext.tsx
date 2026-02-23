@@ -3,6 +3,31 @@ import { getDefaultAvatarUrl } from '../utils/avatarUtils';
 
 export type UserType = 'guest' | 'hacker' | 'company' | 'admin';
 
+interface CompanyDetails {
+  legalName: string;
+  registrationNumber: string;
+  jurisdiction: string;
+  taxId: string;
+}
+
+interface Warning {
+  id: string;
+  reason: string;
+  date: string;
+}
+
+interface PlatformUser {
+  id: string;
+  name: string;
+  type: UserType;
+  email: string;
+  avatar: string;
+  isBanned: boolean;
+  warnings: Warning[];
+  dateJoined: string;
+  companyDetails?: CompanyDetails;
+}
+
 interface User {
   id: string | null;
   type: UserType;
@@ -11,26 +36,8 @@ interface User {
   isLoggedIn: boolean;
   avatar?: string | null;
   companyDetails?: CompanyDetails | null;
-}
-
-export interface CompanyDetails {
-  companyName: string;
-  registrationNumber: string;
-  taxId: string;
-  address: string;
-  country: string;
-  contactPerson: string;
-  phone: string;
-}
-
-export interface RegisteredUser {
-  id: string;
-  name: string;
-  email: string;
-  type: UserType;
-  avatar: string;
-  status: 'active' | 'warned' | 'banned';
-  warnings: number;
+  warnings?: Warning[];
+  isBanned?: boolean;
 }
 
 interface UserContextType {
@@ -38,8 +45,11 @@ interface UserContextType {
   login: (username: string, password: string) => boolean;
   logout: () => void;
   register: (name: string, userType: UserType, companyDetails?: CompanyDetails) => void;
-  getAllUsers: () => RegisteredUser[];
-  updateUserStatus: (userId: string, status: 'active' | 'warned' | 'banned', warnings?: number) => void;
+  getAllUsers: () => PlatformUser[];
+  searchUsers: (query: string) => PlatformUser[];
+  banUser: (userId: string) => void;
+  unbanUser: (userId: string) => void;
+  warnUser: (userId: string, reason: string) => void;
 }
 
 const mockUsers: Record<string, string> = {
@@ -48,6 +58,46 @@ const mockUsers: Record<string, string> = {
   admin: 'admin',
 };
 
+// Mock user database
+const mockUserDatabase: PlatformUser[] = [
+  {
+    id: 'user-admin',
+    name: 'admin',
+    type: 'admin',
+    email: 'admin@platform.com',
+    avatar: '/fsociety.jpg',
+    isBanned: false,
+    warnings: [],
+    dateJoined: '2025-01-01'
+  },
+  {
+    id: 'user-hacker',
+    name: 'hacker',
+    type: 'hacker',
+    email: 'hacker@exploit.com',
+    avatar: 'https://i.pravatar.cc/150?u=hacker',
+    isBanned: false,
+    warnings: [],
+    dateJoined: '2025-01-15'
+  },
+  {
+    id: 'user-company',
+    name: 'company',
+    type: 'company',
+    email: 'security@company.com',
+    avatar: 'https://i.pravatar.cc/150?u=company',
+    isBanned: false,
+    warnings: [],
+    dateJoined: '2025-01-10',
+    companyDetails: {
+      legalName: 'TechCorp Inc.',
+      registrationNumber: 'TC-2025-001',
+      jurisdiction: 'US',
+      taxId: '12-3456789'
+    }
+  }
+];
+
 const defaultUser: User = {
   id: null,
   type: 'guest',
@@ -55,33 +105,33 @@ const defaultUser: User = {
   isLoggedIn: false
 };
 
-const initialRegisteredUsers: RegisteredUser[] = [
-  { id: 'user-1', name: 'CyberWraith', email: 'cyber@example.com', type: 'hacker', avatar: 'https://i.pravatar.cc/150?u=CyberWraith', status: 'active', warnings: 0 },
-  { id: 'user-2', name: 'DataDragon', email: 'dragon@example.com', type: 'hacker', avatar: 'https://i.pravatar.cc/150?u=DataDragon', status: 'active', warnings: 0 },
-  { id: 'user-3', name: 'TechCorp', email: 'tech@corp.com', type: 'company', avatar: 'https://ui-avatars.com/api/?name=TechCorp&background=0d9488&color=ffffff&size=150', status: 'active', warnings: 0 },
-  { id: 'user-4', name: 'HexHammer', email: 'hex@example.com', type: 'hacker', avatar: 'https://i.pravatar.cc/150?u=HexHammer', status: 'warned', warnings: 1 },
-  { id: 'user-5', name: 'SecureInc', email: 'secure@inc.com', type: 'company', avatar: 'https://ui-avatars.com/api/?name=SecureInc&background=0d9488&color=ffffff&size=150', status: 'active', warnings: 0 },
-];
-
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User>(defaultUser);
-  const [registeredUsers, setRegisteredUsers] = useState<RegisteredUser[]>(initialRegisteredUsers);
+  const [allUsers, setAllUsers] = useState<PlatformUser[]>(mockUserDatabase);
 
   const login = (username: string, password: string) => {
     const expectedPassword = mockUsers[username];
     if (expectedPassword && expectedPassword === password) {
+      const dbUser = allUsers.find(u => u.name === username);
       const avatarUrl = username === 'admin' 
-        ? 'https://i.pravatar.cc/150?img=33'
-        : getDefaultAvatarUrl(true, username);
+        ? '/fsociety.jpg'
+        : (dbUser?.avatar || getDefaultAvatarUrl(true, username));
+      
+      if (dbUser?.isBanned) {
+        return false; // User is banned
+      }
       
       setUser({
         id: `user-${Date.now()}`,
         type: username as UserType,
         name: username,
-        email: `${username}@example.com`,
+        email: dbUser?.email || `${username}@example.com`,
         avatar: avatarUrl,
+        companyDetails: dbUser?.companyDetails,
+        warnings: dbUser?.warnings,
+        isBanned: dbUser?.isBanned,
         isLoggedIn: true
       });
       return true;
@@ -90,47 +140,91 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const register = (name: string, userType: UserType, companyDetails?: CompanyDetails) => {
-    const newUser: User = {
+    const newPlatformUser: PlatformUser = {
       id: `user-${Date.now()}`,
+      name,
+      type: userType,
+      email: `${name}@example.com`,
+      avatar: getDefaultAvatarUrl(true, name),
+      isBanned: false,
+      warnings: [],
+      dateJoined: new Date().toISOString().split('T')[0],
+      companyDetails
+    };
+    
+    setAllUsers([...allUsers, newPlatformUser]);
+    
+    const newUser: User = {
+      id: newPlatformUser.id,
       type: userType,
       name: name,
-      email: null,
-      avatar: getDefaultAvatarUrl(true, name),
+      email: newPlatformUser.email,
+      avatar: newPlatformUser.avatar,
+      companyDetails: companyDetails,
+      warnings: [],
+      isBanned: false,
       isLoggedIn: true,
-      companyDetails: companyDetails || null,
     };
     
     setUser(newUser);
-    
-    // Add to registered users list
-    const registeredUser: RegisteredUser = {
-      id: newUser.id!,
-      name: name,
-      email: companyDetails?.contactPerson || name,
-      type: userType,
-      avatar: newUser.avatar!,
-      status: 'active',
-      warnings: 0
-    };
-    setRegisteredUsers([...registeredUsers, registeredUser]);
   };
 
   const logout = () => {
     setUser(defaultUser);
   };
 
-  const getAllUsers = () => {
-    return registeredUsers;
+  const getAllUsers = (): PlatformUser[] => {
+    return allUsers;
   };
 
-  const updateUserStatus = (userId: string, status: 'active' | 'warned' | 'banned', warnings = 0) => {
-    setRegisteredUsers(registeredUsers.map(u => 
-      u.id === userId ? { ...u, status, warnings } : u
+  const searchUsers = (query: string): PlatformUser[] => {
+    const lowerQuery = query.toLowerCase();
+    return allUsers.filter(u => 
+      u.name.toLowerCase().includes(lowerQuery) || 
+      u.email.toLowerCase().includes(lowerQuery) ||
+      u.id.toLowerCase().includes(lowerQuery)
+    );
+  };
+
+  const banUser = (userId: string) => {
+    setAllUsers(allUsers.map(u => 
+      u.id === userId ? { ...u, isBanned: true } : u
+    ));
+  };
+
+  const unbanUser = (userId: string) => {
+    setAllUsers(allUsers.map(u => 
+      u.id === userId ? { ...u, isBanned: false } : u
+    ));
+  };
+
+  const warnUser = (userId: string, reason: string) => {
+    setAllUsers(allUsers.map(u => 
+      u.id === userId 
+        ? { 
+            ...u, 
+            warnings: [...u.warnings, {
+              id: `warn-${Date.now()}`,
+              reason,
+              date: new Date().toISOString().split('T')[0]
+            }]
+          } 
+        : u
     ));
   };
 
   return (
-    <UserContext.Provider value={{ user, login, logout, register, getAllUsers, updateUserStatus }}>
+    <UserContext.Provider value={{ 
+      user, 
+      login, 
+      logout, 
+      register,
+      getAllUsers,
+      searchUsers,
+      banUser,
+      unbanUser,
+      warnUser
+    }}>
       {children}
     </UserContext.Provider>
   );

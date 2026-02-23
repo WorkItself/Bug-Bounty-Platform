@@ -165,7 +165,7 @@ const BountyDetail = () => {
 
   if (!program) {
     return (
-      <div style={{ maxWidth: '1000px', textAlign: 'center', padding: '3rem' }}>
+      <div style={{ width: '100%', maxWidth: '1000px', margin: '0 auto', textAlign: 'center', padding: '3rem' }}>
         <h1 style={{ color: '#ef4444' }}>Program Not Found</h1>
         <button
           onClick={() => navigate('/bounties')}
@@ -188,7 +188,7 @@ const BountyDetail = () => {
   const tierColor = getTierColor(program.tier);
 
   return (
-    <div style={{ maxWidth: '1000px' }}>
+    <div style={{ width: '100%', maxWidth: '1000px', margin: '0 auto' }}>
       <button
         onClick={() => navigate('/bounties')}
         style={{
