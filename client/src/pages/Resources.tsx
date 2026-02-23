@@ -35,7 +35,7 @@ const Resources = () => {
   ];
 
   return (
-    <div style={{ maxWidth: '1200px' }}>
+    <div style={{ width: '100%', maxWidth: '1200px', margin: '0 auto' }}>
       <h1 style={{
         fontSize: '2.2rem',
         fontWeight: '800',

@@ -8,7 +8,7 @@ const SupportRequests = () => {
   }
 
   return (
-    <div style={{ maxWidth: '1200px' }}>
+    <div style={{ width: '100%', maxWidth: '1200px', margin: '0 auto' }}>
       <h1 style={{ color: '#FFFFFF', fontSize: '2rem' }}>Support Requests</h1>
       <p style={{ color: '#A2DFF7' }}>All incoming support requests from users.</p>
 

@@ -37,7 +37,7 @@ const ToolsUtilities = () => {
   ];
 
   return (
-    <div style={{ maxWidth: '900px' }}>
+    <div style={{ width: '100%', maxWidth: '1200px', margin: '0 auto' }}>
       <button 
         onClick={() => navigate('/kb')}
         style={{

@@ -50,7 +50,7 @@ const BountyList = () => {
   const navigate = useNavigate();
 
   return (
-    <div style={{ maxWidth: '1400px' }}>
+    <div style={{ width: '100%', maxWidth: '1400px', margin: '0 auto' }}>
       {/* Header */}
       <header style={{ marginBottom: '2.5rem' }}>
         <h1 style={{

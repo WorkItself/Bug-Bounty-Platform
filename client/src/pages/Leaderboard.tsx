@@ -1,19 +1,19 @@
 const Leaderboard = () => {
   const hackers = [
-    { rank: 1, name: 'CyberWraith', bugs: 112, avatar: 'https://i.pravatar.cc/150?img=32' },
-    { rank: 2, name: 'DataDragon', bugs: 98, avatar: 'https://i.pravatar.cc/150?u=DataDragon' },
-    { rank: 3, name: 'HexHammer', bugs: 85, avatar: 'https://i.pravatar.cc/150?u=HexHammer' },
-    { rank: 4, name: 'Glitch', bugs: 72, avatar: 'https://i.pravatar.cc/150?u=Glitch' },
-    { rank: 5, name: 'Phant0m', bugs: 68, avatar: 'https://i.pravatar.cc/150?u=Phant0m' },
-    { rank: 6, name: 'ZeroCool', bugs: 65, avatar: 'https://i.pravatar.cc/150?u=ZeroCool' },
-    { rank: 7, name: 'Nyx', bugs: 59, avatar: 'https://i.pravatar.cc/150?u=Nyx' },
-    { rank: 8, name: 'ShadowByte', bugs: 52, avatar: 'https://i.pravatar.cc/150?u=ShadowByte' },
-    { rank: 9, name: 'Cable', bugs: 48, avatar: 'https://i.pravatar.cc/150?u=Cable' },
-    { rank: 10, name: 'Proxy', bugs: 45, avatar: 'https://i.pravatar.cc/150?u=Proxy' },
+    { rank: 1, name: 'fsociety', bugs: 156, avatar: '/fsociety.jpg' },
+    { rank: 2, name: 'CyberWraith', bugs: 112, avatar: 'https://i.pravatar.cc/150?img=32' },
+    { rank: 3, name: 'DataDragon', bugs: 98, avatar: 'https://i.pravatar.cc/150?u=DataDragon' },
+    { rank: 4, name: 'HexHammer', bugs: 85, avatar: 'https://i.pravatar.cc/150?u=HexHammer' },
+    { rank: 5, name: 'Glitch', bugs: 72, avatar: 'https://i.pravatar.cc/150?u=Glitch' },
+    { rank: 6, name: 'Phant0m', bugs: 68, avatar: 'https://i.pravatar.cc/150?u=Phant0m' },
+    { rank: 7, name: 'ZeroCool', bugs: 65, avatar: 'https://i.pravatar.cc/150?u=ZeroCool' },
+    { rank: 8, name: 'Nyx', bugs: 59, avatar: 'https://i.pravatar.cc/150?u=Nyx' },
+    { rank: 9, name: 'ShadowByte', bugs: 52, avatar: 'https://i.pravatar.cc/150?u=ShadowByte' },
+    { rank: 10, name: 'Cable', bugs: 48, avatar: 'https://i.pravatar.cc/150?u=Cable' },
   ];
 
   return (
-    <div style={{ maxWidth: '1200px' }}>
+    <div style={{ width: '100%', maxWidth: '1200px', margin: '0 auto' }}>
       <h1 style={{
         fontSize: '2.2rem',
         fontWeight: '800',
