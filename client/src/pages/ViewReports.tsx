@@ -29,7 +29,7 @@ const ViewReports = () => {
   const filteredReports = reports.filter(report => filter === 'All' || report.status === filter);
 
   return (
-    <div style={{ padding: '2rem', color: '#e0e0e0' }}>
+    <div style={{ width: '100%', maxWidth: '1400px', margin: '0 auto', padding: '2rem', color: '#e0e0e0' }}>
       <h1 style={{ textAlign: 'center', fontSize: '3rem', fontWeight: 'bold', marginBottom: '1rem' }}>
         Submitted Bug Reports
       </h1>

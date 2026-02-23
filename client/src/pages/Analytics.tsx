@@ -1,6 +1,6 @@
 const Analytics = () => {
   return (
-    <div style={{ maxWidth: '1400px' }}>
+    <div style={{ width: '100%', maxWidth: '1400px', margin: '0 auto' }}>
       <h1 style={{
         fontSize: '2.2rem',
         fontWeight: '800',
