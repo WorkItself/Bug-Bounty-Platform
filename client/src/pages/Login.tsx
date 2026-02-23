@@ -62,6 +62,26 @@ const Login = () => {
             Login
           </Button>
 
+          <div style={{ textAlign: 'center', marginTop: '1rem' }}>
+            <a 
+              href="/forgot-password" 
+              style={{
+                color: '#A2DFF7',
+                textDecoration: 'none',
+                fontSize: '0.9rem',
+                transition: 'color 0.2s ease'
+              }}
+              onMouseEnter={(e) => {
+                (e.currentTarget as HTMLElement).style.color = '#FFFFFF';
+              }}
+              onMouseLeave={(e) => {
+                (e.currentTarget as HTMLElement).style.color = '#A2DFF7';
+              }}
+            >
+              Forgot your password?
+            </a>
+          </div>
+
           <p className={styles.registerLink}>
             Don't have an account? <a href="/register">Register here</a>
           </p>
