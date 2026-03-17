@@ -1,328 +1,201 @@
-import { Link, Outlet, useLocation } from 'react-router-dom';
+import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useState, useRef, useEffect } from 'react';
 import { useUser } from '../context/UserContext';
+import {
+  LayoutDashboard, Globe, BarChart2, BookOpen,
+  Shield, FileText, Users, Settings, ShieldAlert, Bell,
+} from 'lucide-react';
+
+const SB = {
+  bg: '#1C1F35',
+  active: '#1DBCA7',
+  muted: '#A0A3B8',
+  border: '#2E3150',
+};
 
 const MainLayout = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const { user, logout } = useUser();
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
-  // Close menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
         setProfileMenuOpen(false);
       }
     };
-
-    if (profileMenuOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
+    if (profileMenuOpen) document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [profileMenuOpen]);
 
+  const coreNav = [
+    { icon: LayoutDashboard, to: '/dashboard',  label: 'Dashboard' },
+    { icon: Globe,           to: '/bounties',   label: 'Programs' },
+    { icon: BarChart2,       to: '/leaderboard',label: 'Leaderboard' },
+    { icon: BookOpen,        to: '/kb',         label: 'Resources' },
+  ];
+  const hackerNav = user.isLoggedIn && user.type === 'hacker' ? [
+    { icon: Shield,   to: '/submit',          label: 'Submit Report' },
+    { icon: FileText, to: '/my-submissions',  label: 'My Submissions' },
+  ] : [];
+  const companyNav = user.isLoggedIn && user.type === 'company' ? [
+    { icon: Users,           to: '/company/dashboard',   label: 'Company' },
+    { icon: LayoutDashboard, to: '/company/add-project', label: 'Add Program' },
+    { icon: FileText,        to: '/company/reports',     label: 'Reports' },
+  ] : [];
+  const adminNav = user.isLoggedIn && user.type === 'admin' ? [
+    { icon: ShieldAlert, to: '/admin',         label: 'Admin Panel' },
+    { icon: Settings,    to: '/admin/support', label: 'Support Requests' },
+  ] : [];
+  const allNav = [...coreNav, ...hackerNav, ...companyNav, ...adminNav];
+
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: '#0C1A30', color: '#FFFFFF', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif' }}>
-      {/* Sidebar */}
-      <nav style={{
-        width: '280px',
-        background: 'linear-gradient(180deg, #0C1A30 0%, #1B3A57 100%)',
-        padding: '2rem 1.5rem',
-        borderRight: '2px solid #009B77',
-        display: 'flex',
-        flexDirection: 'column',
-        position: 'sticky',
-        top: 0,
-        height: '100vh',
-        overflowY: 'auto'
+    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif' }}>
+
+      {/* ── Top announcement banner ── */}
+      <div style={{
+        height: '38px', background: '#EBF0FF', borderBottom: '1px solid #C7D2FE',
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        padding: '0 1.25rem',
+        position: 'fixed', top: 0, left: 0, right: 0, zIndex: 200,
       }}>
-        {/* Logo with Cybersec Theme */}
-        <div style={{ marginBottom: '2.5rem', paddingBottom: '1.5rem', borderBottom: '1px solid #009B77', opacity: 0.9 }}>
-          <div style={{
-            fontSize: '0.65rem',
-            fontWeight: '900',
-            letterSpacing: '0.2em',
-            color: '#009B77',
-            marginBottom: '0.5rem',
-            fontFamily: 'monospace'
-          }}>[ SECURE ]</div>
-          <div style={{
-            fontSize: '1.2rem',
-            fontWeight: '900',
-            color: '#FFFFFF',
-            letterSpacing: '0.05em',
-            fontFamily: 'monospace'
-          }}>BOUNTY OS</div>
+        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem' }}>
+          <span style={{ fontSize: '0.8rem', color: '#4F46E5' }}>ⓘ</span>
+          <span style={{ fontSize: '0.78rem', color: '#3730A3', fontWeight: 500 }}>
+            Learn more about BountyOS — the trusted bug bounty platform
+          </span>
         </div>
-        
-        {/* Navigation Sections */}
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
-          {/* Core Navigation */}
-          <div>
+        {!user.isLoggedIn ? (
+          <Link to="/login" style={{
+            background: '#3F3AFC', color: '#fff', borderRadius: '4px',
+            padding: '3px 14px', fontSize: '0.75rem', fontWeight: 600, textDecoration: 'none',
+          }}>Log in</Link>
+        ) : (
+          <span style={{ fontSize: '0.75rem', color: '#3730A3', fontWeight: 600 }}>{user.name}</span>
+        )}
+      </div>
+
+      <div style={{ display: 'flex', marginTop: '38px', minHeight: 'calc(100vh - 38px)' }}>
+
+        {/* ── Icon-rail sidebar ── */}
+        <nav style={{
+          width: '52px', background: SB.bg, borderRight: `1px solid ${SB.border}`,
+          position: 'fixed', top: '38px', left: 0, bottom: 0, zIndex: 100,
+          display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '10px 0',
+        }}>
+          {/* Logo */}
+          <Link to="/" style={{ textDecoration: 'none', marginBottom: '14px' }}>
             <div style={{
-              fontSize: '0.7rem',
-              fontWeight: '900',
-              letterSpacing: '0.15em',
-              color: '#009B77',
-              marginBottom: '1rem',
-              textTransform: 'uppercase',
-              fontFamily: 'monospace'
-            }}>// NAVIGATION</div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-              <SidebarLink to="/" label="Dashboard" isActive={location.pathname === '/'} />
-              <SidebarLink to="/bounties" label="Bounty Programs" isActive={location.pathname === '/bounties'} />
-              <SidebarLink to="/leaderboard" label="Leaderboard" isActive={location.pathname === '/leaderboard'} />
-              <SidebarLink to="/kb" label="Resources" isActive={location.pathname === '/kb'} />
-              {user.isLoggedIn && user.type !== 'admin' && (
-                <SidebarLink to="/support" label="Contact Support" isActive={location.pathname === '/support'} />
-              )}
-            </div>
+              width: '34px', height: '34px',
+              background: 'linear-gradient(135deg, #3F3AFC, #E81C79)',
+              borderRadius: '7px', display: 'flex', alignItems: 'center',
+              justifyContent: 'center', fontWeight: 900, color: '#fff', fontSize: '15px',
+            }}>B</div>
+          </Link>
+
+          {/* Nav icons */}
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px', width: '100%' }}>
+            {allNav.map(({ icon: Icon, to, label }) => {
+              const isActive = location.pathname === to || (to !== '/dashboard' && location.pathname.startsWith(to));
+              return (
+                <NavIcon key={to} to={to} label={label} isActive={isActive}>
+                  <Icon size={20} strokeWidth={isActive ? 2.1 : 1.7} />
+                </NavIcon>
+              );
+            })}
           </div>
 
-          {/* Researcher Section */}
-          {user.isLoggedIn && user.type === 'hacker' && (
-            <div>
-              <div style={{
-                fontSize: '0.7rem',
-                fontWeight: '900',
-                letterSpacing: '0.15em',
-                color: '#A2DFF7',
-                marginBottom: '1rem',
-                textTransform: 'uppercase',
-                fontFamily: 'monospace'
-              }}>// RESEARCHER</div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                <SidebarLink to="/submit" label="Submit Report" isActive={location.pathname === '/submit'} accent />
-                <SidebarLink to="/my-submissions" label="Submissions" isActive={location.pathname === '/my-submissions'} />
-              </div>
-            </div>
+          {/* Divider */}
+          <div style={{ width: '30px', height: '1px', background: SB.border, margin: '8px 0' }} />
+
+          {/* Bell */}
+          {user.isLoggedIn && (
+            <NavIcon to="/notifications" label="Notifications" isActive={location.pathname === '/notifications'}>
+              <Bell size={20} strokeWidth={1.7} />
+            </NavIcon>
           )}
 
-          {/* Company Section */}
-          {user.isLoggedIn && user.type === 'company' && (
-            <div>
-              <div style={{
-                fontSize: '0.7rem',
-                fontWeight: '900',
-                letterSpacing: '0.15em',
-                color: '#A2DFF7',
-                marginBottom: '1rem',
-                textTransform: 'uppercase',
-                fontFamily: 'monospace'
-              }}>// COMPANY</div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                <SidebarLink to="/company/dashboard" label="Company Dashboard" isActive={location.pathname === '/company/dashboard'} />
-                <SidebarLink to="/company/add-project" label="Add Bounty Program" isActive={location.pathname === '/company/add-project'} accent />
-                <SidebarLink to="/company/reports" label="View Reports" isActive={location.pathname === '/company/reports'} />
-              </div>
-            </div>
-          )}
-
-          {/* Admin Section */}
-          {user.isLoggedIn && user.type === 'admin' && (
-            <div>
-              <div style={{
-                fontSize: '0.7rem',
-                fontWeight: '900',
-                letterSpacing: '0.15em',
-                color: '#ef4444',
-                marginBottom: '1rem',
-                textTransform: 'uppercase',
-                fontFamily: 'monospace'
-              }}>// SYSTEM</div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                <SidebarLink to="/admin" label="Admin Panel" isActive={location.pathname === '/admin'} danger />
-                <SidebarLink to="/admin/support" label="Support Requests" isActive={location.pathname === '/admin/support'} danger />
-              </div>
-            </div>
-          )}
-        </div>
-      </nav>
-
-      {/* Main Layout */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-        {/* Top Bar */}
-        <div style={{
-          background: 'linear-gradient(90deg, #1B3A57 0%, #0C1A30 100%)',
-          borderBottom: '1px solid #1B3A57',
-          padding: '1rem 2rem',
-          display: 'flex',
-          justifyContent: 'flex-end',
-          alignItems: 'center',
-          position: 'relative'
-        }}>
-          {/* Profile Circle Menu */}
-          <div ref={menuRef} style={{ position: 'relative' }}>
+          {/* Profile avatar */}
+          <div ref={menuRef} style={{ marginTop: 'auto', position: 'relative', paddingBottom: '8px' }}>
             <button
-              onClick={() => setProfileMenuOpen(!profileMenuOpen)}
+              onClick={() => setProfileMenuOpen(p => !p)}
+              title={user.isLoggedIn ? user.name || 'Profile' : 'Guest'}
               style={{
-                width: '44px',
-                height: '44px',
-                borderRadius: '50%',
-                background: user.isLoggedIn ? 'linear-gradient(135deg, #009B77 0%, #007A60 100%)' : '#1B3A57',
-                color: '#FFFFFF',
-                border: '2px solid #009B77',
-                fontSize: '1.2rem',
-                fontWeight: '700',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                transition: 'all 0.2s ease'
-              }}
-              onMouseEnter={(e) => {
-                (e.target as HTMLElement).style.boxShadow = '0 0 15px rgba(0, 155, 119, 0.4)';
-              }}
-              onMouseLeave={(e) => {
-                (e.target as HTMLElement).style.boxShadow = 'none';
+                width: '34px', height: '34px', borderRadius: '50%',
+                background: user.isLoggedIn ? SB.active : SB.border,
+                color: '#fff', border: 'none', fontWeight: 700, fontSize: '0.82rem',
+                cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
               }}
             >
-              {user.isLoggedIn ? user.name?.charAt(0).toUpperCase() : 'G'}
+              {user.isLoggedIn ? (user.name?.charAt(0).toUpperCase() ?? 'U') : 'G'}
             </button>
 
-            {/* Dropdown Menu */}
             {profileMenuOpen && (
               <div style={{
-                position: 'absolute',
-                top: '100%',
-                right: 0,
-                marginTop: '0.5rem',
-                background: 'linear-gradient(135deg, #0C1A30 0%, #1B3A57 100%)',
-                border: '2px solid #009B77',
-                borderRadius: '0.75rem',
-                minWidth: '220px',
-                boxShadow: '0 10px 25px rgba(0, 155, 119, 0.2)',
-                zIndex: 1000
+                position: 'absolute', bottom: '100%', left: '52px',
+                marginBottom: '4px', marginLeft: '-4px',
+                background: SB.bg, border: `1px solid ${SB.border}`,
+                borderRadius: '10px', minWidth: '200px',
+                boxShadow: '0 8px 30px rgba(0,0,0,0.45)', zIndex: 1000,
               }}>
-                <div style={{ padding: '1rem', borderBottom: '1px solid #1B3A57' }}>
-                  <p style={{ margin: '0 0 0.25rem 0', color: '#FFFFFF', fontWeight: '600', fontSize: '0.9rem' }}>
+                <div style={{ padding: '0.75rem 1rem', borderBottom: `1px solid ${SB.border}` }}>
+                  <p style={{ margin: 0, color: '#fff', fontWeight: 600, fontSize: '0.88rem' }}>
                     {user.isLoggedIn ? user.name : 'Guest'}
                   </p>
-                  <p style={{
-                    margin: 0,
-                    color: '#A2DFF7',
-                    fontSize: '0.8rem',
-                    textTransform: 'capitalize'
-                  }}>
+                  <p style={{ margin: '2px 0 0', color: SB.muted, fontSize: '0.75rem', textTransform: 'capitalize' }}>
                     {user.isLoggedIn ? (user.type === 'hacker' ? 'Bug Bounty Hunter' : user.type) : 'Not logged in'}
                   </p>
                 </div>
 
-                {user.isLoggedIn && (
+                {user.isLoggedIn ? (
                   <>
-                    <Link
-                      to="/profile"
-                      style={{
-                        display: 'block',
-                        padding: '0.75rem 1rem',
-                        color: '#A2DFF7',
-                        textDecoration: 'none',
-                        borderBottom: '1px solid #1B3A57',
-                        transition: 'all 0.2s ease',
-                        fontSize: '0.9rem'
+                    {[
+                      { label: 'Profile',       to: '/profile' },
+                      { label: 'Settings',      to: '/settings' },
+                      { label: 'Notifications', to: '/notifications' },
+                      { label: 'Messages',      to: '/messages' },
+                      { label: 'Analytics',     to: '/analytics' },
+                    ].map(l => (
+                      <Link key={l.label} to={l.to} onClick={() => setProfileMenuOpen(false)} style={{
+                        display: 'block', padding: '0.55rem 1rem', color: SB.muted,
+                        textDecoration: 'none', fontSize: '0.84rem', borderBottom: `1px solid ${SB.border}`,
+                        transition: 'color 0.15s',
                       }}
-                      onMouseEnter={(e) => {
-                        (e.currentTarget as HTMLElement).style.background = '#009B77';
-                        (e.currentTarget as HTMLElement).style.color = '#0C1A30';
-                      }}
-                      onMouseLeave={(e) => {
-                        (e.currentTarget as HTMLElement).style.background = 'transparent';
-                        (e.currentTarget as HTMLElement).style.color = '#A2DFF7';
-                      }}
-                      onClick={() => setProfileMenuOpen(false)}
-                    >
-                      Profile
-                    </Link>
-                    <Link
-                      to="/settings"
-                      style={{
-                        display: 'block',
-                        padding: '0.75rem 1rem',
-                        color: '#A2DFF7',
-                        textDecoration: 'none',
-                        borderBottom: '1px solid #1B3A57',
-                        transition: 'all 0.2s ease',
-                        fontSize: '0.9rem'
-                      }}
-                      onMouseEnter={(e) => {
-                        (e.currentTarget as HTMLElement).style.background = '#009B77';
-                        (e.currentTarget as HTMLElement).style.color = '#0C1A30';
-                      }}
-                      onMouseLeave={(e) => {
-                        (e.currentTarget as HTMLElement).style.background = 'transparent';
-                        (e.currentTarget as HTMLElement).style.color = '#A2DFF7';
-                      }}
-                      onClick={() => setProfileMenuOpen(false)}
-                    >
-                      Settings
-                    </Link>
+                        onMouseEnter={e => (e.currentTarget as HTMLElement).style.color = '#fff'}
+                        onMouseLeave={e => (e.currentTarget as HTMLElement).style.color = SB.muted}
+                      >{l.label}</Link>
+                    ))}
                     <button
-                      onClick={() => {
-                        logout();
-                        setProfileMenuOpen(false);
-                      }}
+                      onClick={() => { logout(); setProfileMenuOpen(false); navigate('/'); }}
                       style={{
-                        width: '100%',
-                        padding: '0.75rem 1rem',
-                        background: 'transparent',
-                        color: '#ef4444',
-                        border: 'none',
-                        textAlign: 'left',
-                        cursor: 'pointer',
-                        fontSize: '0.9rem',
-                        fontWeight: '600',
-                        transition: 'all 0.2s ease'
+                        width: '100%', padding: '0.55rem 1rem', background: 'transparent',
+                        color: '#ef4444', border: 'none', textAlign: 'left',
+                        cursor: 'pointer', fontSize: '0.84rem', fontWeight: 600,
                       }}
-                      onMouseEnter={(e) => {
-                        (e.currentTarget as HTMLElement).style.background = '#7f1d1d';
-                        (e.currentTarget as HTMLElement).style.color = '#fca5a5';
-                      }}
-                      onMouseLeave={(e) => {
-                        (e.currentTarget as HTMLElement).style.background = 'transparent';
-                        (e.currentTarget as HTMLElement).style.color = '#ef4444';
-                      }}
-                    >
-                      Logout
-                    </button>
+                      onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = 'rgba(239,68,68,0.08)'}
+                      onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = 'transparent'}
+                    >Logout</button>
                   </>
-                )}
-
-                {!user.isLoggedIn && (
-                  <Link
-                    to="/login"
-                    style={{
-                      display: 'block',
-                      padding: '0.75rem 1rem',
-                      color: '#009B77',
-                      textDecoration: 'none',
-                      fontWeight: '600',
-                      transition: 'all 0.2s ease',
-                      fontSize: '0.9rem'
-                    }}
-                    onMouseEnter={(e) => {
-                      (e.currentTarget as HTMLElement).style.background = '#009B77';
-                      (e.currentTarget as HTMLElement).style.color = '#0C1A30';
-                    }}
-                    onMouseLeave={(e) => {
-                      (e.currentTarget as HTMLElement).style.background = 'transparent';
-                      (e.currentTarget as HTMLElement).style.color = '#009B77';
-                    }}
-                    onClick={() => setProfileMenuOpen(false)}
-                  >
-                    Login
-                  </Link>
+                ) : (
+                  <Link to="/login" onClick={() => setProfileMenuOpen(false)} style={{
+                    display: 'block', padding: '0.55rem 1rem', color: SB.active,
+                    textDecoration: 'none', fontWeight: 600, fontSize: '0.84rem',
+                  }}>Login</Link>
                 )}
               </div>
             )}
           </div>
-        </div>
+        </nav>
 
-        {/* Main Content */}
-        <main style={{ flex: 1, padding: '2rem', background: '#0C1A30', overflowY: 'auto' }}>
+        {/* ── Main content ── */}
+        <main style={{
+          marginLeft: '52px', flex: 1,
+          background: '#F7F9FC',
+          minHeight: 'calc(100vh - 38px)',
+          overflowY: 'auto',
+        }}>
           <Outlet />
         </main>
       </div>
@@ -330,63 +203,45 @@ const MainLayout = () => {
   );
 };
 
-const SidebarLink = ({ to, label, isActive, accent, danger }: {
-  to: string;
-  label: string;
-  isActive: boolean;
-  accent?: boolean;
-  danger?: boolean;
-}) => {
-  let backgroundColor = 'transparent';
-  let color = '#A2DFF7';
-  let borderLeft = '2px solid transparent';
-
-  if (isActive) {
-    backgroundColor = '#009B77';
-    color = '#FFFFFF';
-    borderLeft = '2px solid #009B77';
-  } else if (accent) {
-    color = '#A2DFF7';
-  } else if (danger) {
-    color = '#ef4444';
-    borderLeft = '2px solid #ef4444';
-  }
-
+/* Reusable icon nav link */
+function NavIcon({ to, label, isActive, children }: {
+  to: string; label: string; isActive: boolean; children: React.ReactNode;
+}) {
   return (
-    <Link to={to} style={{
-      color,
-      textDecoration: 'none',
-      padding: '0.75rem 0.875rem',
-      borderRadius: '0.4rem',
-      fontSize: '0.9rem',
-      fontWeight: '500',
-      display: 'block',
-      backgroundColor,
-      transition: 'all 0.2s ease',
-      cursor: 'pointer',
-      borderLeft,
-      fontFamily: 'monospace'
-    }}
-    onMouseEnter={(e) => {
-      if (!isActive) {
-        (e.currentTarget as HTMLElement).style.backgroundColor = '#1B3A57';
-        if (danger) {
-          (e.currentTarget as HTMLElement).style.borderLeftColor = '#ef4444';
-        } else {
-          (e.currentTarget as HTMLElement).style.borderLeftColor = '#009B77';
+    <Link
+      to={to}
+      title={label}
+      style={{
+        width: '40px', height: '40px',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        borderRadius: '8px', textDecoration: 'none',
+        background: isActive ? 'rgba(29,188,167,0.15)' : 'transparent',
+        color: isActive ? '#1DBCA7' : '#A0A3B8',
+        transition: 'all 0.15s ease',
+        position: 'relative',
+      }}
+      onMouseEnter={e => {
+        if (!isActive) {
+          (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.07)';
+          (e.currentTarget as HTMLElement).style.color = '#fff';
         }
-      }
-    }}
-    onMouseLeave={(e) => {
-      if (!isActive) {
-        (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent';
-        (e.currentTarget as HTMLElement).style.borderLeftColor = 'transparent';
-      }
-    }}
+      }}
+      onMouseLeave={e => {
+        if (!isActive) {
+          (e.currentTarget as HTMLElement).style.background = 'transparent';
+          (e.currentTarget as HTMLElement).style.color = '#A0A3B8';
+        }
+      }}
     >
-      {label}
+      {isActive && (
+        <span style={{
+          position: 'absolute', left: 0, top: '50%', transform: 'translateY(-50%)',
+          width: '3px', height: '18px', background: '#1DBCA7', borderRadius: '0 2px 2px 0',
+        }} />
+      )}
+      {children}
     </Link>
   );
-};
+}
 
-export default MainLayout;
+export default MainLayout;
