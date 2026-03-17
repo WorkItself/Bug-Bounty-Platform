@@ -31,7 +31,7 @@ const Register = () => {
     if (formData.email && formData.name && formData.password) {
       setError('');
       register(formData.name, formData.userType);
-      navigate('/');
+      navigate('/dashboard');
     }
   };
 

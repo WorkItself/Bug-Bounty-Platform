@@ -9,14 +9,26 @@ export interface SupportRequest {
   userId: string | null;
   userName: string | null;
   userEmail?: string | null;
+  company?: string | null;
+  jobTitle?: string | null;
+  securityObjective?: string | null;
   message: string;
   status: SupportStatus;
   createdAt: string;
+  source?: 'contact_form' | 'support_page';
+}
+
+export interface GuestContactInfo {
+  name: string;
+  email: string;
+  company?: string;
+  jobTitle?: string;
+  securityObjective?: string;
 }
 
 interface SupportContextType {
   requests: SupportRequest[];
-  submitRequest: (message: string) => void;
+  submitRequest: (message: string, guest?: GuestContactInfo) => void;
   updateStatus: (id: string, status: SupportStatus) => void;
   clearAll?: () => void;
 }
@@ -46,15 +58,19 @@ export const SupportProvider: React.FC<{ children: ReactNode }> = ({ children })
     }
   }, [requests]);
 
-  const submitRequest = (message: string) => {
+  const submitRequest = (message: string, guest?: GuestContactInfo) => {
     const r: SupportRequest = {
       id: `sr_${Date.now()}_${Math.floor(Math.random() * 10000)}`,
-      userId: user.id,
-      userName: user.name,
-      userEmail: (user as any).email ?? null,
+      userId: guest ? null : user.id,
+      userName: guest ? guest.name : user.name,
+      userEmail: guest ? guest.email : (user as any).email ?? null,
+      company: guest?.company ?? null,
+      jobTitle: guest?.jobTitle ?? null,
+      securityObjective: guest?.securityObjective ?? null,
       message,
       status: 'Open',
       createdAt: new Date().toISOString(),
+      source: guest ? 'contact_form' : 'support_page',
     };
     setRequests((prev) => [r, ...prev]);
   };

@@ -8,6 +8,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import RoleBasedRoute from './components/RoleBasedRoute';
 
 // Pages
+import LandingPage from './pages/LandingPage';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
@@ -32,10 +33,11 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
+        <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route element={<MainLayout />}>
-          <Route path="/" element={<Dashboard />} />
+          <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/bounties" element={<BountyList />} />
           <Route path="/leaderboard" element={<Leaderboard />} />
           <Route path="/kb" element={<Resources />} />

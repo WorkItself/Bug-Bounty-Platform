@@ -21,7 +21,7 @@ const Login = () => {
     if (formData.username && formData.password) {
       const loggedIn = login(formData.username, formData.password);
       if (loggedIn) {
-        navigate('/');
+        navigate('/dashboard');
       } else {
         setError('Invalid username or password');
       }
