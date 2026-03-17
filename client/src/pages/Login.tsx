@@ -31,7 +31,7 @@ const Login = () => {
   return (
     <div className={styles.container}>
       <div className={styles.formWrapper}>
-        <h1 className={styles.title}>Access Granted</h1>
+        <h1 className={styles.title}>Secure Access</h1>
         <p className={styles.subtitle}>Enter your credentials to continue</p>
 
         <form onSubmit={handleSubmit} className={styles.form}>
@@ -61,6 +61,26 @@ const Login = () => {
           <Button type="submit">
             Login
           </Button>
+
+          <div style={{ textAlign: 'center', marginTop: '1rem' }}>
+            <a 
+              href="/forgot-password" 
+              style={{
+                color: '#A2DFF7',
+                textDecoration: 'none',
+                fontSize: '0.9rem',
+                transition: 'color 0.2s ease'
+              }}
+              onMouseEnter={(e) => {
+                (e.currentTarget as HTMLElement).style.color = '#FFFFFF';
+              }}
+              onMouseLeave={(e) => {
+                (e.currentTarget as HTMLElement).style.color = '#A2DFF7';
+              }}
+            >
+              Forgot your password?
+            </a>
+          </div>
 
           <p className={styles.registerLink}>
             Don't have an account? <a href="/register">Register here</a>

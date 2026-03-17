@@ -1,4 +1,5 @@
 import { useUser } from '../context/UserContext';
+import { getDefaultAvatarUrl } from '../utils/avatarUtils';
 
 const Profile = () => {
   const { user } = useUser();
@@ -14,8 +15,10 @@ const Profile = () => {
     );
   }
 
+  const avatarUrl = user.avatar || getDefaultAvatarUrl(true, user.name);
+
   return (
-    <div style={{ maxWidth: '1000px' }}>
+    <div style={{ width: '100%', maxWidth: '1000px', margin: '0 auto' }}>
       <h1 style={{
         fontSize: '2.2rem',
         fontWeight: '800',
@@ -30,6 +33,21 @@ const Profile = () => {
         borderRadius: '0.75rem',
         border: '1px solid #009B77'
       }}>
+        <div style={{ marginBottom: '2rem', textAlign: 'center' }}>
+          <img 
+            src={avatarUrl} 
+            alt={`${user.name}'s avatar`} 
+            style={{ 
+              width: '100px', 
+              height: '100px', 
+              borderRadius: '50%', 
+              border: '3px solid #009B77',
+              marginBottom: '1rem'
+            }} 
+          />
+          <p style={{ color: '#A2DFF7', fontSize: '0.9rem' }}>Profile Picture</p>
+        </div>
+
         <div style={{ marginBottom: '1.5rem' }}>
           <p style={{ color: '#A2DFF7', fontSize: '0.9rem', marginBottom: '0.25rem' }}>Name</p>
           <p style={{ color: '#FFFFFF', fontSize: '1.1rem', margin: 0 }}>{user.name}</p>
