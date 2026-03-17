@@ -55,11 +55,16 @@ const Dashboard = () => {
   const [search, setSearch] = useState('disclosed:true');
 
   return (
-    <div style={{ minHeight: '100%', background: '#fff' }}>
-      {/* Dark hero banner */}
-      <div style={{
-        background: '#1C1F35', padding: '3.5rem 3rem',
-        position: 'relative', overflow: 'hidden',
+    <div style={{ width: '100%', maxWidth: '1400px', margin: '0 auto' }}>
+      {/* Hero Section */}
+      <section style={{
+        marginBottom: '3rem',
+        padding: '3rem 2rem',
+        background: 'linear-gradient(135deg, #1B3A57 0%, #0C1A30 100%)',
+        borderRadius: '0.75rem',
+        border: '1px solid #009B77',
+        position: 'relative',
+        overflow: 'hidden'
       }}>
         <div style={{ position: 'absolute', top: '-30px', right: '3%', opacity: 0.07, fontSize: '14rem', lineHeight: 1, userSelect: 'none', pointerEvents: 'none' }}>🛡</div>
         <h1 style={{

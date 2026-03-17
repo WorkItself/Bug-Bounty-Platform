@@ -26,7 +26,7 @@ const ContactSupport = () => {
   };
 
   return (
-    <div style={{ maxWidth: '900px' }}>
+    <div style={{ width: '100%', maxWidth: '1000px', margin: '0 auto' }}>
       <h1 style={{ color: '#FFFFFF', fontSize: '2rem' }}>Contact Support</h1>
       <p style={{ color: '#A2DFF7' }}>Describe your issue and our team will respond.</p>
 
