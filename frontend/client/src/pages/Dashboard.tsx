@@ -78,7 +78,7 @@ const Dashboard = () => {
             padding: '0.05em 0.2em', borderRadius: '3px', fontStyle: 'italic',
           }}>for security vulnerabilities.</span>
         </h1>
-      </div>
+      </section>
 
       {/* Content */}
       <div style={{ maxWidth: '960px', margin: '0 auto', padding: '2rem 1.5rem' }}>
