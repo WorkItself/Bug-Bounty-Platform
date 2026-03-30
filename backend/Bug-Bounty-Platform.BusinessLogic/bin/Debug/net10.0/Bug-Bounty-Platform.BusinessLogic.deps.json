@@ -1,0 +1,56 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v10.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v10.0": {
+      "Bug-Bounty-Platform.BusinessLogic/1.0.0": {
+        "dependencies": {
+          "Bug-Bounty-Platform.Domain": "1.0.0",
+          "Bug-Bounty-Platform.Helpers": "1.0.0"
+        },
+        "runtime": {
+          "Bug-Bounty-Platform.BusinessLogic.dll": {}
+        }
+      },
+      "Bug-Bounty-Platform.Domain/1.0.0": {
+        "dependencies": {
+          "Bug-Bounty-Platform.Helpers": "1.0.0"
+        },
+        "runtime": {
+          "Bug-Bounty-Platform.Domain.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      },
+      "Bug-Bounty-Platform.Helpers/1.0.0": {
+        "runtime": {
+          "Bug-Bounty-Platform.Helpers.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      }
+    }
+  },
+  "libraries": {
+    "Bug-Bounty-Platform.BusinessLogic/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Bug-Bounty-Platform.Domain/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Bug-Bounty-Platform.Helpers/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}

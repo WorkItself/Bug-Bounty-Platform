@@ -1,0 +1,12 @@
+D:\Proiect\Bug-Bounty-Platform\backend\Bug-Bounty-Platform.Helpers\bin\Debug\net10.0\Bug-Bounty-Platform.Helpers.deps.json
+D:\Proiect\Bug-Bounty-Platform\backend\Bug-Bounty-Platform.Helpers\bin\Debug\net10.0\Bug-Bounty-Platform.Helpers.dll
+D:\Proiect\Bug-Bounty-Platform\backend\Bug-Bounty-Platform.Helpers\bin\Debug\net10.0\Bug-Bounty-Platform.Helpers.pdb
+D:\Proiect\Bug-Bounty-Platform\backend\Bug-Bounty-Platform.Helpers\obj\Debug\net10.0\Bug-Bounty-Platform.Helpers.GeneratedMSBuildEditorConfig.editorconfig
+D:\Proiect\Bug-Bounty-Platform\backend\Bug-Bounty-Platform.Helpers\obj\Debug\net10.0\Bug-Bounty-Platform.Helpers.AssemblyInfoInputs.cache
+D:\Proiect\Bug-Bounty-Platform\backend\Bug-Bounty-Platform.Helpers\obj\Debug\net10.0\Bug-Bounty-Platform.Helpers.AssemblyInfo.cs
+D:\Proiect\Bug-Bounty-Platform\backend\Bug-Bounty-Platform.Helpers\obj\Debug\net10.0\Bug-Bounty-Platform.Helpers.csproj.CoreCompileInputs.cache
+D:\Proiect\Bug-Bounty-Platform\backend\Bug-Bounty-Platform.Helpers\obj\Debug\net10.0\Bug-Bounty-Platform.Helpers.sourcelink.json
+D:\Proiect\Bug-Bounty-Platform\backend\Bug-Bounty-Platform.Helpers\obj\Debug\net10.0\Bug-Bounty-Platform.Helpers.dll
+D:\Proiect\Bug-Bounty-Platform\backend\Bug-Bounty-Platform.Helpers\obj\Debug\net10.0\refint\Bug-Bounty-Platform.Helpers.dll
+D:\Proiect\Bug-Bounty-Platform\backend\Bug-Bounty-Platform.Helpers\obj\Debug\net10.0\Bug-Bounty-Platform.Helpers.pdb
+D:\Proiect\Bug-Bounty-Platform\backend\Bug-Bounty-Platform.Helpers\obj\Debug\net10.0\ref\Bug-Bounty-Platform.Helpers.dll
