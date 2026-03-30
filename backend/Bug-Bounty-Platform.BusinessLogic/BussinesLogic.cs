@@ -8,5 +8,10 @@ namespace Bug_Bounty_Platform.BusinessLogic
         {
             return new SessionBL();
         }
+
+        public IUser GetUserBL()
+        {
+            return new UserBL();
+        }
     }
 }
