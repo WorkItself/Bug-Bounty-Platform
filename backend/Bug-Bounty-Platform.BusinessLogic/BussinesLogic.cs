@@ -13,5 +13,15 @@ namespace Bug_Bounty_Platform.BusinessLogic
         {
             return new UserBL();
         }
+
+        public IBountyProgram GetBountyProgramBL()
+        {
+            return new BountyProgramBL();
+        }
+
+        public IBugReport GetBugReportBL()
+        {
+            return new BugReportBL();
+        }
     }
 }

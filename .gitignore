@@ -1,24 +1,62 @@
-# Dependencies - These are massive and we can always reinstall them
+# =====================
+# Node / Frontend
+# =====================
 node_modules/
-
-# Secrets - NEVER upload your passwords or API keys to GitHub
-.env
-.env.local
-
-# Build Outputs - The computer generates these, we don't need to save them
 dist/
 build/
 out/
+.vite/
+*.local
 
-# .NET Build Outputs
-backend/**/bin/
-backend/**/obj/
-
-# System Junk - Mac/Windows temporary files
-.DS_Store
-Thumbs.db
-
-# Error Logs - If the server crashes, we don't need the log file in Git
+# Logs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+pnpm-debug.log*
+
+# =====================
+# .NET / Backend
+# =====================
+backend/**/bin/
+backend/**/obj/
+
+# User-specific Visual Studio files
+*.user
+*.suo
+*.userosscache
+*.sln.docobj
+.vs/
+
+# Publish output
+**/publish/
+**/PublishProfiles/
+
+# NuGet
+*.nupkg
+*.snupkg
+**/packages/
+!**/packages/build/
+nuget.config
+
+# EF Core Migrations temp
+# (keep Migrations folder — DO NOT ignore)
+
+# =====================
+# Secrets — NEVER upload
+# =====================
+.env
+.env.local
+.env.*.local
+appsettings.Development.json
+**/appsettings.Production.json
+**/secrets.json
+
+# =====================
+# IDE / OS junk
+# =====================
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.idea/
+*.iml

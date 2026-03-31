@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, SlidersHorizontal, ArrowDownUp, ThumbsUp } from 'lucide-react';
+import { useAxios } from '../context/AxiosContext';
 
 const REPORTS = [
   {
@@ -53,9 +54,36 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const [tab, setTab] = useState<'disclosed' | 'undisclosed'>('disclosed');
   const [search, setSearch] = useState('disclosed:true');
+  const { axios } = useAxios();
+  const [healthStatus, setHealthStatus] = useState<string | null>(null);
+  const [healthColor, setHealthColor] = useState('#6b7280');
+
+  const testBackend = async () => {
+    setHealthStatus('Se testează...');
+    setHealthColor('#d97706');
+    try {
+      const res = await axios.get('/health');
+      setHealthStatus(`✓ Backend OK — ${res.data.status} (${new Date(res.data.timestamp).toLocaleTimeString()})`);
+      setHealthColor('#16a34a');
+    } catch (err: any) {
+      const code = err.response?.status ?? 'N/A';
+      setHealthStatus(`✗ Eroare ${code} — backend indisponibil`);
+      setHealthColor('#dc2626');
+    }
+  };
 
   return (
     <div style={{ width: '100%', maxWidth: '1400px', margin: '0 auto' }}>
+      {/* Backend Health Check */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '1rem', padding: '10px 16px', background: '#0C1A30', borderRadius: '8px', border: '1px solid #1B3A57' }}>
+        <button onClick={testBackend} style={{ padding: '6px 16px', background: '#009B77', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 600, fontSize: '13px' }}>
+          Test Backend
+        </button>
+        {healthStatus && (
+          <span style={{ fontSize: '13px', color: healthColor, fontWeight: 500 }}>{healthStatus}</span>
+        )}
+      </div>
+
       {/* Hero Section */}
       <section style={{
         marginBottom: '3rem',
