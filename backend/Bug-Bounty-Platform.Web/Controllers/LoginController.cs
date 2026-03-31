@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
 using Bug_Bounty_Platform.BusinessLogic;
-using Bug_Bounty_Platform.BusinessLogic.Interfaces;
 using Bug_Bounty_Platform.Domain.Entities.User;
 using System;
 
@@ -8,11 +7,13 @@ namespace Bug_Bounty_Platform.Web.Controllers
 {
     public class UserLoginModel
     {
-        public string Credential { get; set; }
-        public string Password { get; set; }
+        public string Credential { get; set; } = string.Empty;
+        public string Password { get; set; } = string.Empty;
     }
 
-    public class LoginController : Controller
+    [ApiController]
+    [Route("api/[controller]")]
+    public class LoginController : ControllerBase
     {
         private readonly Bug_Bounty_Platform.BusinessLogic.Interfaces.ISession _session;
 
@@ -22,40 +23,23 @@ namespace Bug_Bounty_Platform.Web.Controllers
             _session = bl.GetSessionBL();
         }
 
-        // GET: Login
-        public ActionResult Index()
-        {
-            return View();
-        }
-
+        // POST api/login
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Index(UserLoginModel login)
+        public IActionResult Login([FromBody] UserLoginModel login)
         {
-            if (ModelState.IsValid)
+            ULoginData data = new ULoginData
             {
-                ULoginData data = new ULoginData
-                {
-                    Credential = login.Credential,
-                    Password = login.Password,
-                    LoginIp = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "0.0.0.0",
-                    LoginDateTime = DateTime.Now
-                };
+                Credential = login.Credential,
+                Password = login.Password,
+                LoginIp = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "0.0.0.0",
+                LoginDateTime = DateTime.Now
+            };
 
-                var userLogin = _session.UserLogin(data);
-                if (userLogin.Status)
-                {
-                    //ADD COOKIE
-                    return RedirectToAction("Index", "Home");
-                }
-                else
-                {
-                    ModelState.AddModelError("", userLogin.StatusMsg);
-                    return View();
-                }
-            }
-            
-            return View();
+            var result = _session.UserLogin(data);
+            if (!result.Status)
+                return Unauthorized(new { message = result.StatusMsg });
+
+            return Ok(result);
         }
     }
 }
