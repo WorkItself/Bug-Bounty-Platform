@@ -2,15 +2,14 @@ import { useState } from 'react';
 import { useUser } from '../context/UserContext';
 import { useNavigate } from 'react-router-dom';
 import styles from './Register.module.css';
-import Button from '../components/Button';
-import Input from '../components/Input';
 
-interface CompanyDetails {
-  legalName: string;
-  registrationNumber: string;
-  jurisdiction: string;
-  taxId: string;
-}
+const inputStyle: React.CSSProperties = {
+  width: '100%', padding: '0.7rem 0.85rem',
+  background: '#fff', border: '1.5px solid #D1D5DB',
+  borderRadius: '8px', color: '#111', fontSize: '0.95rem',
+  fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box',
+  transition: 'border-color 0.2s',
+};
 
 const Register = () => {
   const { register } = useUser();
@@ -20,24 +19,12 @@ const Register = () => {
     email: '',
     password: '',
     confirmPassword: '',
-    userType: 'hacker' as 'hacker' | 'company',
-  });
-  const [companyDetails, setCompanyDetails] = useState<CompanyDetails>({
-    legalName: '',
-    registrationNumber: '',
-    jurisdiction: '',
-    taxId: ''
   });
   const [error, setError] = useState('');
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleCompanyDetailsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setCompanyDetails((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -47,175 +34,59 @@ const Register = () => {
       return;
     }
 
-    if (formData.userType === 'company') {
-      if (!companyDetails.legalName || !companyDetails.registrationNumber || 
-          !companyDetails.jurisdiction || !companyDetails.taxId) {
-        setError('All company details are required');
-        return;
-      }
-    }
-
     if (formData.email && formData.name && formData.password) {
       setError('');
-      register(formData.name, formData.userType, formData.userType === 'company' ? companyDetails : undefined);
+      register(formData.name, 'hacker');
       navigate('/');
     }
   };
+
+  const focusHandler = (e: React.FocusEvent<HTMLInputElement>) => e.currentTarget.style.borderColor = '#3F3AFC';
+  const blurHandler = (e: React.FocusEvent<HTMLInputElement>) => e.currentTarget.style.borderColor = '#D1D5DB';
 
   return (
     <div className={styles.container}>
       <div className={styles.formWrapper}>
         <h1 className={styles.title}>Create Account</h1>
-        <p className={styles.subtitle}>Join the bug bounty platform today</p>
+        <p className={styles.subtitle}>Join BountyOS as a security researcher</p>
 
         <form onSubmit={handleSubmit} className={styles.form}>
           <div>
             <label className={styles.label}>Full Name</label>
-            <Input
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              placeholder="Enter your full name"
-            />
+            <input name="name" value={formData.name} onChange={handleChange} placeholder="Enter your full name" style={inputStyle} onFocus={focusHandler} onBlur={blurHandler} />
           </div>
 
           <div>
             <label className={styles.label}>Email</label>
-            <Input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              placeholder="your@email.com"
-            />
+            <input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="your@email.com" style={inputStyle} onFocus={focusHandler} onBlur={blurHandler} />
           </div>
 
           <div>
             <label className={styles.label}>Password</label>
-            <Input
-              type="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              placeholder="Enter your password"
-            />
+            <input type="password" name="password" value={formData.password} onChange={handleChange} placeholder="Enter your password" style={inputStyle} onFocus={focusHandler} onBlur={blurHandler} />
           </div>
 
           <div>
             <label className={styles.label}>Confirm Password</label>
-            <Input
-              type="password"
-              name="confirmPassword"
-              value={formData.confirmPassword}
-              onChange={handleChange}
-              placeholder="Confirm your password"
-            />
+            <input type="password" name="confirmPassword" value={formData.confirmPassword} onChange={handleChange} placeholder="Confirm your password" style={inputStyle} onFocus={focusHandler} onBlur={blurHandler} />
           </div>
-
-          <div>
-            <label className={styles.label}>Account Type</label>
-            <div className={styles.radioGrid}>
-              <label className={styles.radioLabel}>
-                <input
-                  type="radio"
-                  name="userType"
-                  value="hacker"
-                  checked={formData.userType === 'hacker'}
-                  onChange={handleChange}
-                  className={styles.radioInput}
-                />
-                <div className={`${styles.radioCard} ${formData.userType === 'hacker' ? styles.radioCardActive : ''}`}>
-                  <div className={styles.radioIcon}>🎯</div>
-                  <h3 className={styles.radioTitle}>Bug Bounty Hunter</h3>
-                  <p className={styles.radioSubtitle}>Find vulnerabilities and earn rewards</p>
-                </div>
-              </label>
-
-              <label className={styles.radioLabel}>
-                <input
-                  type="radio"
-                  name="userType"
-                  value="company"
-                  checked={formData.userType === 'company'}
-                  onChange={handleChange}
-                  className={styles.radioInput}
-                />
-                <div className={`${styles.radioCard} ${formData.userType === 'company' ? styles.radioCardActive : ''}`}>
-                  <div className={styles.radioIcon}>🏢</div>
-                  <h3 className={styles.radioTitle}>Company</h3>
-                  <p className={styles.radioSubtitle}>Create a bounty program</p>
-                </div>
-              </label>
-            </div>
-          </div>
-
-          {formData.userType === 'company' && (
-            <div style={{ 
-              background: 'linear-gradient(135deg, #1B3A57 0%, #0C1A30 100%)',
-              padding: '1.5rem',
-              borderRadius: '0.75rem',
-              border: '1px solid #009B77',
-              marginBottom: '1rem'
-            }}>
-              <h3 style={{ color: '#FFFFFF', marginBottom: '1rem', fontSize: '1.1rem', fontWeight: '600' }}>
-                Legal Entity Information
-              </h3>
-              
-              <div style={{ marginBottom: '1rem' }}>
-                <label style={{ color: '#A2DFF7', display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
-                  Legal Company Name
-                </label>
-                <Input
-                  name="legalName"
-                  value={companyDetails.legalName}
-                  onChange={handleCompanyDetailsChange}
-                  placeholder="e.g., TechCorp Inc."
-                />
-              </div>
-
-              <div style={{ marginBottom: '1rem' }}>
-                <label style={{ color: '#A2DFF7', display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
-                  Business Registration Number
-                </label>
-                <Input
-                  name="registrationNumber"
-                  value={companyDetails.registrationNumber}
-                  onChange={handleCompanyDetailsChange}
-                  placeholder="e.g., REG-2025-001"
-                />
-              </div>
-
-              <div style={{ marginBottom: '1rem' }}>
-                <label style={{ color: '#A2DFF7', display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
-                  Jurisdiction
-                </label>
-                <Input
-                  name="jurisdiction"
-                  value={companyDetails.jurisdiction}
-                  onChange={handleCompanyDetailsChange}
-                  placeholder="e.g., United States"
-                />
-              </div>
-
-              <div>
-                <label style={{ color: '#A2DFF7', display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
-                  Tax ID / EIN
-                </label>
-                <Input
-                  name="taxId"
-                  value={companyDetails.taxId}
-                  onChange={handleCompanyDetailsChange}
-                  placeholder="e.g., 12-3456789"
-                />
-              </div>
-            </div>
-          )}
 
           {error && <p className={styles.error}>{error}</p>}
 
-          <Button type="submit">
+          <button
+            type="submit"
+            style={{
+              padding: '0.7rem 1.5rem',
+              background: '#3F3AFC', color: '#fff',
+              border: 'none', borderRadius: '8px',
+              fontWeight: 600, fontSize: '0.95rem',
+              cursor: 'pointer', transition: 'all 0.2s ease',
+            }}
+            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#2F2AEC'; (e.currentTarget as HTMLElement).style.transform = 'translateY(-1px)'; }}
+            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = '#3F3AFC'; (e.currentTarget as HTMLElement).style.transform = 'translateY(0)'; }}
+          >
             Create Account
-          </Button>
+          </button>
         </form>
 
         <div className={styles.loginLinkWrapper}>

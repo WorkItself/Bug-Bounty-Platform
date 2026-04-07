@@ -2,8 +2,6 @@ import { useState } from 'react';
 import { useUser } from '../context/UserContext';
 import { useNavigate } from 'react-router-dom';
 import styles from './Login.module.css';
-import Button from '../components/Button';
-import Input from '../components/Input';
 
 const Login = () => {
   const { login } = useUser();
@@ -37,53 +35,82 @@ const Login = () => {
         <form onSubmit={handleSubmit} className={styles.form}>
           <div>
             <label className={styles.label}>Username</label>
-            <Input
+            <input
               name="username"
               value={formData.username}
               onChange={handleChange}
               placeholder="Your username"
+              style={{
+                width: '100%', padding: '0.7rem 0.85rem',
+                background: '#fff', border: '1.5px solid #D1D5DB',
+                borderRadius: '8px', color: '#111', fontSize: '0.95rem',
+                fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box',
+                transition: 'border-color 0.2s',
+              }}
+              onFocus={e => e.currentTarget.style.borderColor = '#3F3AFC'}
+              onBlur={e => e.currentTarget.style.borderColor = '#D1D5DB'}
             />
           </div>
 
           <div>
             <label className={styles.label}>Password</label>
-            <Input
+            <input
               type="password"
               name="password"
               value={formData.password}
               onChange={handleChange}
               placeholder="Your password"
+              style={{
+                width: '100%', padding: '0.7rem 0.85rem',
+                background: '#fff', border: '1.5px solid #D1D5DB',
+                borderRadius: '8px', color: '#111', fontSize: '0.95rem',
+                fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box',
+                transition: 'border-color 0.2s',
+              }}
+              onFocus={e => e.currentTarget.style.borderColor = '#3F3AFC'}
+              onBlur={e => e.currentTarget.style.borderColor = '#D1D5DB'}
             />
           </div>
 
           {error && <p className={styles.error}>{error}</p>}
 
-          <Button type="submit">
+          <button
+            type="submit"
+            style={{
+              padding: '0.7rem 1.5rem',
+              background: '#3F3AFC', color: '#fff',
+              border: 'none', borderRadius: '8px',
+              fontWeight: 600, fontSize: '0.95rem',
+              cursor: 'pointer', transition: 'all 0.2s ease',
+            }}
+            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#2F2AEC'; (e.currentTarget as HTMLElement).style.transform = 'translateY(-1px)'; }}
+            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = '#3F3AFC'; (e.currentTarget as HTMLElement).style.transform = 'translateY(0)'; }}
+          >
             Login
-          </Button>
+          </button>
 
-          <div style={{ textAlign: 'center', marginTop: '1rem' }}>
-            <a 
-              href="/forgot-password" 
+          <div style={{ textAlign: 'center', marginTop: '0.5rem' }}>
+            <a
+              href="/forgot-password"
               style={{
-                color: '#A2DFF7',
+                color: '#3F3AFC',
                 textDecoration: 'none',
-                fontSize: '0.9rem',
-                transition: 'color 0.2s ease'
+                fontSize: '0.88rem',
+                fontWeight: 500,
+                transition: 'opacity 0.2s',
               }}
-              onMouseEnter={(e) => {
-                (e.currentTarget as HTMLElement).style.color = '#FFFFFF';
-              }}
-              onMouseLeave={(e) => {
-                (e.currentTarget as HTMLElement).style.color = '#A2DFF7';
-              }}
+              onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.opacity = '0.7'; }}
+              onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.opacity = '1'; }}
             >
               Forgot your password?
             </a>
           </div>
 
           <p className={styles.registerLink}>
-            Don't have an account? <a href="/register">Register here</a>
+            Don't have an account?{' '}
+            <button type="button" onClick={() => navigate('/choose-role')}>
+              Register here
+            </button>
           </p>
         </form>
       </div>
