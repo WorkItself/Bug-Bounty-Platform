@@ -33,6 +33,8 @@ import BugBountyBasics from './pages/BugBountyBasics';
 import VulnerabilityReporting from './pages/VulnerabilityReporting';
 import ToolsUtilities from './pages/ToolsUtilities';
 import ForgotPassword from './pages/ForgotPassword';
+import ContactUs from './pages/ContactUs';
+import ChooseRole from './pages/ChooseRole';
 
 function App() {
   return (
@@ -42,6 +44,8 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/choose-role" element={<ChooseRole />} />
+        <Route path="/contact-us" element={<ContactUs />} />
         <Route element={<MainLayout />}>
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/bounties" element={<BountyList />} />

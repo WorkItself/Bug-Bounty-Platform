@@ -116,7 +116,7 @@ export default function LandingPage() {
               { label: 'Bug Bounties',  to: '/bounties'    },
               { label: 'Leaderboard',   to: '/leaderboard' },
               { label: 'Resources',     to: '/kb'          },
-              { label: 'Researchers',   to: '/register'    },
+              { label: 'Researchers',   to: '/choose-role' },
             ].map(({ label, to }) => (
               <Link key={label} to={to} style={{
                 padding: '0.4rem 0.9rem',
@@ -136,7 +136,7 @@ export default function LandingPage() {
               onMouseEnter={e => (e.currentTarget as HTMLElement).style.color = '#fff'}
               onMouseLeave={e => (e.currentTarget as HTMLElement).style.color = C.textMuted}
             >Login</Link>
-            <Link to="/register" style={{ ...btn(C.trustedBlue, C.trustedBlueHover), fontSize: '0.88rem', padding: '0.5rem 1.2rem' }}
+            <Link to="/choose-role" style={{ ...btn(C.trustedBlue, C.trustedBlueHover), fontSize: '0.88rem', padding: '0.5rem 1.2rem' }}
               onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = C.trustedBlueHover}
               onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = C.trustedBlue}
             >Get Started →</Link>
@@ -166,7 +166,7 @@ export default function LandingPage() {
               { label: 'Leaderboard',  to: '/leaderboard' },
               { label: 'Resources',    to: '/kb' },
               { label: 'Login',        to: '/login' },
-              { label: 'Get Started',  to: '/register' },
+              { label: 'Get Started',  to: '/choose-role' },
             ].map(({ label, to }) => (
               <Link key={label} to={to} onClick={() => setMobileOpen(false)} style={{
                 display: 'block', padding: '0.65rem 0',
@@ -210,7 +210,7 @@ export default function LandingPage() {
               Connect ethical hackers with organisations that care about security. Find vulnerabilities, submit reports, and get paid — all on one trusted platform.
             </p>
             <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center' }}>
-              <button onClick={() => navigate('/register')} style={{ ...btn(C.trustedBlue, C.trustedBlueHover), fontSize: '0.95rem', padding: '0.7rem 1.6rem' }}
+              <button onClick={() => navigate('/choose-role')} style={{ ...btn(C.trustedBlue, C.trustedBlueHover), fontSize: '0.95rem', padding: '0.7rem 1.6rem' }}
                 onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = C.trustedBlueHover; (e.currentTarget as HTMLElement).style.transform = 'translateY(-1px)'; }}
                 onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = C.trustedBlue; (e.currentTarget as HTMLElement).style.transform = 'translateY(0)'; }}
               >Get Started →</button>
@@ -357,7 +357,7 @@ export default function LandingPage() {
               ))}
             </ul>
             <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-              <button onClick={() => navigate('/register')} style={{ ...btn(C.trustedBlue, C.trustedBlueHover) }}
+              <button onClick={() => navigate('/choose-role')} style={{ ...btn(C.trustedBlue, C.trustedBlueHover) }}
                 onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = C.trustedBlueHover; (e.currentTarget as HTMLElement).style.transform = 'translateY(-1px)'; }}
                 onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = C.trustedBlue; (e.currentTarget as HTMLElement).style.transform = 'translateY(0)'; }}
               >Start Hacking →</button>
@@ -393,7 +393,7 @@ export default function LandingPage() {
                 </li>
               ))}
             </ul>
-            <button onClick={() => navigate('/register')} style={{ ...btn(C.pink, '#C8195F') }}
+            <button onClick={() => navigate('/choose-role')} style={{ ...btn(C.pink, '#C8195F') }}
               onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#C8195F'; (e.currentTarget as HTMLElement).style.transform = 'translateY(-1px)'; }}
               onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = C.pink; (e.currentTarget as HTMLElement).style.transform = 'translateY(0)'; }}
             >Create a Program →</button>
@@ -439,7 +439,7 @@ export default function LandingPage() {
             Join thousands of security researchers and forward-thinking organisations already on BountyOS.
           </p>
           <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', flexWrap: 'wrap' }}>
-            <button onClick={() => navigate('/register')} style={{ ...btn(C.trustedBlue, C.trustedBlueHover), fontSize: '0.98rem', padding: '0.75rem 1.8rem' }}
+            <button onClick={() => navigate('/choose-role')} style={{ ...btn(C.trustedBlue, C.trustedBlueHover), fontSize: '0.98rem', padding: '0.75rem 1.8rem' }}
               onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = C.trustedBlueHover; (e.currentTarget as HTMLElement).style.transform = 'translateY(-1px)'; }}
               onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = C.trustedBlue; (e.currentTarget as HTMLElement).style.transform = 'translateY(0)'; }}
             >Create Free Account →</button>
