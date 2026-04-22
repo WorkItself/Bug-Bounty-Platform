@@ -1,0 +1,85 @@
+@api_HostAddress = http://localhost:5094
+
+GET {{api_HostAddress}}/api/health
+Accept: application/json
+
+###
+
+POST {{api_HostAddress}}/api/reg
+Content-Type: application/json
+
+{
+  "firstName": "John",
+  "lastName": "Doe",
+  "userName": "johndoe",
+  "email": "john@example.com",
+  "password": "Password123",
+  "phone": "0712345678"
+}
+
+###
+
+POST {{api_HostAddress}}/api/session/auth
+Content-Type: application/json
+
+{
+  "credential": "johndoe",
+  "password": "Password123"
+}
+
+###
+
+GET {{api_HostAddress}}/api/program/getAll
+Accept: application/json
+
+###
+
+POST {{api_HostAddress}}/api/program
+Content-Type: application/json
+
+{
+  "programName": "Acme Web Bounty",
+  "programDescription": "Find vulnerabilities in acme.example.com",
+  "programScope": "*.acme.example.com",
+  "minReward": 50,
+  "maxReward": 5000,
+  "ownerId": 1,
+  "isActive": true
+}
+
+###
+
+GET {{api_HostAddress}}/api/report/getAll
+Accept: application/json
+
+###
+
+POST {{api_HostAddress}}/api/report
+Content-Type: application/json
+
+{
+  "title": "XSS in login form",
+  "description": "Stored XSS on the username field of /login.",
+  "severity": 3,
+  "status": 1,
+  "programId": 1,
+  "reporterId": 1
+}
+
+###
+
+POST {{api_HostAddress}}/api/contact
+Content-Type: application/json
+
+{
+  "firstName": "Jane",
+  "lastName": "Smith",
+  "email": "jane@company.com",
+  "company": "Acme",
+  "jobTitle": "CTO",
+  "securityObjective": "Run a bounty program",
+  "country": "MD",
+  "message": "Please contact me."
+}
+
+###

@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="Bug-Bounty-Platform.Api/Bug-Bounty-Platform.Api.csproj" />
+  <Project Path="Bug-Bounty-Platform.BusinessLogic/Bug-Bounty-Platform.BusinessLogic.csproj" />
+  <Project Path="Bug-Bounty-Platform.DataAccess/Bug-Bounty-Platform.DataAccess.csproj" />
+  <Project Path="Bug-Bounty-Platform.Domain/Bug-Bounty-Platform.Domain.csproj" />
+</Solution>
