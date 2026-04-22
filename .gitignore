@@ -11,6 +11,8 @@ out/
 
 # Logs
 *.log
+
+# Logs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
@@ -49,6 +51,7 @@ nuget.config
 .env
 .env.local
 .env.*.local
+appsettings.Development.json
 **/appsettings.Production.json
 **/secrets.json
 
