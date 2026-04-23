@@ -13,6 +13,8 @@ namespace Bug_Bounty_Platform.DataAccess.Context
         public DbSet<UserData> Users { get; set; }
         public DbSet<BountyProgramData> BountyPrograms { get; set; }
         public DbSet<BugReportData> BugReports { get; set; }
+        public DbSet<BugReportComment> BugReportComments { get; set; }
+        public DbSet<BugReportAttachment> BugReportAttachments { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

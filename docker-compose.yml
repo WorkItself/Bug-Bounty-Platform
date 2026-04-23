@@ -1,17 +1,17 @@
 services:
   db:
     image: postgres:16-alpine
-    container_name: bbp-db
+    container_name: postgres-db
     environment:
       POSTGRES_DB: bugbountyplatform
-      POSTGRES_USER: bbp
-      POSTGRES_PASSWORD: "YourStrong!Passw0rd"
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: "postgres_dev_password"
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U bbp -d bugbountyplatform"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d bugbountyplatform"]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -21,10 +21,10 @@ services:
     build:
       context: ./backend
       dockerfile: Bug-Bounty-Platform.Api/Dockerfile
-    container_name: bbp-api
+    container_name: postgres-api
     environment:
       ASPNETCORE_ENVIRONMENT: Development
-      ConnectionStrings__DefaultConnection: "Host=db;Port=5432;Database=bugbountyplatform;Username=bbp;Password=YourStrong!Passw0rd"
+      ConnectionStrings__DefaultConnection: "Host=db;Port=5432;Database=bugbountyplatform;Username=postgres;Password=postgres_dev_password"
     ports:
       - "5094:8080"
     depends_on:

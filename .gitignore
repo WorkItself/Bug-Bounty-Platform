@@ -44,12 +44,19 @@ nuget.config
 # (keep Migrations folder — DO NOT ignore)
 
 # =====================
+# Logs
+# =====================
+**/logs/
+
+# =====================
 # Secrets — NEVER upload
 # =====================
 .env
 .env.local
 .env.*.local
 **/appsettings.Production.json
+**/appsettings.Development.json
+**/appsettings.Local.json
 **/secrets.json
 
 # =====================
