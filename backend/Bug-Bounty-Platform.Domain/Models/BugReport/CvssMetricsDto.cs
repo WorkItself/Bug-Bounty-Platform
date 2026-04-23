@@ -22,7 +22,7 @@ namespace Bug_Bounty_Platform.Domain.Models.BugReport
     public class CvssResultDto
     {
         public double BaseScore { get; set; }
-        public string Severity { get; set; }
-        public string VectorString { get; set; }
+        public string Severity { get; set; } = string.Empty;
+        public string VectorString { get; set; } = string.Empty;
     }
 }

@@ -10,26 +10,26 @@ namespace Bug_Bounty_Platform.Domain.Entities.User
         public int Id { get; set; }
 
         [StringLength(30)]
-        public string FirstName { get; set; }
+        public string? FirstName { get; set; }
 
         [StringLength(30)]
-        public string LastName { get; set; }
+        public string? LastName { get; set; }
 
         [Required]
         [StringLength(30, MinimumLength = 4)]
-        public string UserName { get; set; }
+        public string UserName { get; set; } = string.Empty;
 
         [Required]
         [StringLength(60)]
         [DataType(DataType.EmailAddress)]
-        public string Email { get; set; }
+        public string Email { get; set; } = string.Empty;
 
         [Required]
         [StringLength(64, MinimumLength = 8)]
-        public string Password { get; set; }
+        public string Password { get; set; } = string.Empty;
 
         [StringLength(15)]
-        public string Phone { get; set; }
+        public string? Phone { get; set; }
 
         public UserRole Role { get; set; }
 

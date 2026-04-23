@@ -4,6 +4,6 @@ namespace Bug_Bounty_Platform.BusinessLogic.Interfaces
 {
     public interface IUserLoginAction
     {
-        public object UserLoginDataValidation(UserLoginDto udata);
+        public object? UserLoginDataValidation(UserLoginDto udata);
     }
 }
