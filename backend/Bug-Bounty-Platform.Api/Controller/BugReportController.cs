@@ -1,6 +1,7 @@
 using Bug_Bounty_Platform.BusinessLogic.Interfaces;
 using Bug_Bounty_Platform.Domain.Models.BugReport;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 
 namespace Bug_Bounty_Platform.Api.Controller
 {
@@ -9,9 +10,9 @@ namespace Bug_Bounty_Platform.Api.Controller
     public class BugReportController : ControllerBase
     {
         private IBugReportAction _report;
-        public BugReportController()
+        public BugReportController(IConfiguration configuration)
         {
-            var bl = new BusinessLogic.BusinessLogic();
+            var bl = new BusinessLogic.BusinessLogic(configuration);
             _report = bl.BugReportAction();
         }
 
