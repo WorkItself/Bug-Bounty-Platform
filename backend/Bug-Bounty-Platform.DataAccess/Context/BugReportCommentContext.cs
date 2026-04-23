@@ -3,9 +3,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Bug_Bounty_Platform.DataAccess.Context
 {
-    public class BugReportContext : DbContext
+    public class BugReportCommentContext : DbContext
     {
-        public DbSet<BugReportData> BugReports { get; set; }
+        public DbSet<BugReportComment> BugReportComments { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

@@ -1,3 +1,5 @@
+using AutoMapper;
+using Bug_Bounty_Platform.BusinessLogic.Mappings;
 using Bug_Bounty_Platform.DataAccess.Context;
 using Bug_Bounty_Platform.Domain.Entities.BountyProgram;
 using Bug_Bounty_Platform.Domain.Models.BountyProgram;
@@ -7,6 +9,8 @@ namespace Bug_Bounty_Platform.BusinessLogic.Core
 {
     public class BountyProgramActions
     {
+        private readonly IMapper _mapper = MapperConfig.Mapper;
+
         protected BountyProgramActions()
         {
         }
@@ -22,21 +26,7 @@ namespace Bug_Bounty_Platform.BusinessLogic.Core
             }
 
             if (bpData.Count <= 0) return data;
-            foreach (var item in bpData)
-            {
-                data.Add(new BountyProgramDto
-                {
-                    Id = item.Id,
-                    ProgramName = item.ProgramName,
-                    ProgramDescription = item.ProgramDescription,
-                    ProgramScope = item.ProgramScope,
-                    MinReward = item.MinReward,
-                    MaxReward = item.MaxReward,
-                    OwnerId = item.OwnerId,
-                    IsActive = item.IsActive
-                });
-            }
-
+            data = _mapper.Map<List<BountyProgramDto>>(bpData);
             return data;
         }
 
@@ -51,18 +41,7 @@ namespace Bug_Bounty_Platform.BusinessLogic.Core
             }
 
             if (bpData == null) return null;
-            var data = new BountyProgramDto
-            {
-                Id = bpData.Id,
-                ProgramName = bpData.ProgramName,
-                ProgramDescription = bpData.ProgramDescription,
-                ProgramScope = bpData.ProgramScope,
-                MinReward = bpData.MinReward,
-                MaxReward = bpData.MaxReward,
-                OwnerId = bpData.OwnerId,
-                IsActive = bpData.IsActive
-            };
-            return data;
+            return _mapper.Map<BountyProgramDto>(bpData);
         }
 
         protected ActionResponce CreateBountyProgramActionExecution(BountyProgramDto data)
