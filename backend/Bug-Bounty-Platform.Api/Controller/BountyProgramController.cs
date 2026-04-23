@@ -1,21 +1,25 @@
 using Bug_Bounty_Platform.BusinessLogic.Interfaces;
 using Bug_Bounty_Platform.Domain.Models.BountyProgram;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 
 namespace Bug_Bounty_Platform.Api.Controller
 {
     [Route("api/program")]
     [ApiController]
+    [Authorize]
     public class BountyProgramController : ControllerBase
     {
         private IBountyProgramAction _program;
-        public BountyProgramController()
+        public BountyProgramController(IConfiguration configuration)
         {
-            var bl = new BusinessLogic.BusinessLogic();
+            var bl = new BusinessLogic.BusinessLogic(configuration);
             _program = bl.BountyProgramAction();
         }
 
         [HttpGet("getAll")]
+        [AllowAnonymous]
         public IActionResult GetAll()
         {
             var programs = _program.GetAllBountyProgramAction();
@@ -23,6 +27,7 @@ namespace Bug_Bounty_Platform.Api.Controller
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public IActionResult Get(int id)
         {
             var program = _program.GetBountyProgramByIdAction(id);
@@ -30,6 +35,7 @@ namespace Bug_Bounty_Platform.Api.Controller
         }
 
         [HttpPost]
+        [Authorize(Roles = "Company,Admin")]
         public IActionResult Create([FromBody] BountyProgramDto data)
         {
             var responce = _program.CreateBountyProgramAction(data);
@@ -37,6 +43,7 @@ namespace Bug_Bounty_Platform.Api.Controller
         }
 
         [HttpPut]
+        [Authorize(Roles = "Company,Admin")]
         public IActionResult Update([FromBody] BountyProgramDto data)
         {
             var responce = _program.UpdateBountyProgramAction(data);
@@ -44,6 +51,7 @@ namespace Bug_Bounty_Platform.Api.Controller
         }
 
         [HttpDelete]
+        [Authorize(Roles = "Company,Admin")]
         public IActionResult Delete(int id)
         {
             var responce = _program.DeleteBountyProgramAction(id);

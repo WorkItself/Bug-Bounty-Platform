@@ -1,11 +1,13 @@
 using Bug_Bounty_Platform.Domain.Models.Contact;
 using Bug_Bounty_Platform.Domain.Models.Responces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Bug_Bounty_Platform.Api.Controller
 {
     [Route("api/contact")]
     [ApiController]
+    [AllowAnonymous]
     public class ContactController : ControllerBase
     {
         [HttpPost]

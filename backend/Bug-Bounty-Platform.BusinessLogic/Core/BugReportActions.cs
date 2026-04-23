@@ -1,3 +1,5 @@
+using AutoMapper;
+using Bug_Bounty_Platform.BusinessLogic.Mappings;
 using Bug_Bounty_Platform.DataAccess.Context;
 using Bug_Bounty_Platform.Domain.Entities.BugReport;
 using Bug_Bounty_Platform.Domain.Models.BugReport;
@@ -7,6 +9,8 @@ namespace Bug_Bounty_Platform.BusinessLogic.Core
 {
     public class BugReportActions
     {
+        private readonly IMapper _mapper = MapperConfig.Mapper;
+
         protected BugReportActions()
         {
         }
@@ -22,20 +26,7 @@ namespace Bug_Bounty_Platform.BusinessLogic.Core
             }
 
             if (brData.Count <= 0) return data;
-            foreach (var item in brData)
-            {
-                data.Add(new BugReportDto
-                {
-                    Id = item.Id,
-                    Title = item.Title,
-                    Description = item.Description,
-                    Severity = item.Severity,
-                    Status = item.Status,
-                    ProgramId = item.ProgramId,
-                    ReporterId = item.ReporterId
-                });
-            }
-
+            data = _mapper.Map<List<BugReportDto>>(brData);
             return data;
         }
 
@@ -50,17 +41,7 @@ namespace Bug_Bounty_Platform.BusinessLogic.Core
             }
 
             if (brData == null) return null;
-            var data = new BugReportDto
-            {
-                Id = brData.Id,
-                Title = brData.Title,
-                Description = brData.Description,
-                Severity = brData.Severity,
-                Status = brData.Status,
-                ProgramId = brData.ProgramId,
-                ReporterId = brData.ReporterId
-            };
-            return data;
+            return _mapper.Map<BugReportDto>(brData);
         }
 
         protected ActionResponce CreateBugReportActionExecution(BugReportDto data)
@@ -78,7 +59,7 @@ namespace Bug_Bounty_Platform.BusinessLogic.Core
                     Title = data.Title,
                     Description = data.Description,
                     Severity = data.Severity,
-                    Status = BugStatus.Pending,
+                    Status = BugStatus.New,
                     ProgramId = data.ProgramId,
                     ReporterId = data.ReporterId,
                     SubmittedAt = DateTime.Now
