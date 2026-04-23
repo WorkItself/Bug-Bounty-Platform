@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState } from 'react';
 import { getDefaultAvatarUrl } from '../utils/avatarUtils';
 
-export type UserType = 'guest' | 'hacker' | 'company' | 'admin';
+export type UserType = 'guest' | 'user' | 'company' | 'admin';
 
 interface CompanyDetails {
   legalName: string;
@@ -53,7 +53,7 @@ interface UserContextType {
 }
 
 const mockUsers: Record<string, string> = {
-  hacker: 'hacker',
+  user: 'user',
   company: 'company',
   admin: 'admin',
 };
@@ -72,8 +72,8 @@ const mockUserDatabase: PlatformUser[] = [
   },
   {
     id: 'user-hacker',
-    name: 'hacker',
-    type: 'hacker',
+    name: 'user',
+    type: 'user',
     email: 'hacker@exploit.com',
     avatar: 'https://i.pravatar.cc/150?u=hacker',
     isBanned: false,
