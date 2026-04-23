@@ -1,6 +1,7 @@
 using Bug_Bounty_Platform.BusinessLogic.Interfaces;
 using Bug_Bounty_Platform.Domain.Models.BountyProgram;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 
 namespace Bug_Bounty_Platform.Api.Controller
 {
@@ -9,9 +10,9 @@ namespace Bug_Bounty_Platform.Api.Controller
     public class BountyProgramController : ControllerBase
     {
         private IBountyProgramAction _program;
-        public BountyProgramController()
+        public BountyProgramController(IConfiguration configuration)
         {
-            var bl = new BusinessLogic.BusinessLogic();
+            var bl = new BusinessLogic.BusinessLogic(configuration);
             _program = bl.BountyProgramAction();
         }
 
