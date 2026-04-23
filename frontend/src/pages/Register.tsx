@@ -36,7 +36,7 @@ const Register = () => {
 
     if (formData.email && formData.name && formData.password) {
       setError('');
-      register(formData.name, 'hacker');
+      register(formData.name, 'user');
       navigate('/');
     }
   };

@@ -65,7 +65,7 @@ namespace Bug_Bounty_Platform.BusinessLogic.Core
                 Password = uReg.Password,
                 UserName = uReg.UserName,
                 Phone = uReg.Phone,
-                Role = UserRole.Hunter,
+                Role = UserRole.User,
                 RegisteredOn = DateTime.Now
             };
 
