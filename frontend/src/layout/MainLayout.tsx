@@ -36,7 +36,7 @@ const MainLayout = () => {
     { icon: BarChart2,       to: '/leaderboard',label: 'Leaderboard' },
     { icon: BookOpen,        to: '/kb',         label: 'Resources' },
   ];
-  const hackerNav = user.isLoggedIn && user.type === 'hacker' ? [
+  const hackerNav = user.isLoggedIn && user.type === 'user' ? [
     { icon: Shield,   to: '/submit',          label: 'Submit Report' },
     { icon: FileText, to: '/my-submissions',  label: 'My Submissions' },
   ] : [];
@@ -145,7 +145,7 @@ const MainLayout = () => {
                     {user.isLoggedIn ? user.name : 'Guest'}
                   </p>
                   <p style={{ margin: '2px 0 0', color: SB.muted, fontSize: '0.75rem', textTransform: 'capitalize' }}>
-                    {user.isLoggedIn ? (user.type === 'hacker' ? 'Bug Bounty Hunter' : user.type) : 'Not logged in'}
+                    {user.isLoggedIn ? (user.type === 'user' ? 'Bug Bounty Hunter' : user.type) : 'Not logged in'}
                   </p>
                 </div>
 
@@ -244,4 +244,4 @@ function NavIcon({ to, label, isActive, children }: {
   );
 }
 
-export default MainLayout;
+export default MainLayout;
