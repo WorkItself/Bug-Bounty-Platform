@@ -26,6 +26,9 @@ namespace Bug_Bounty_Platform.BusinessLogic.Mappings
                 .ForMember(dest => dest.UpdatedAt,  opt => opt.Ignore())
                 .ForMember(dest => dest.IsDeleted,  opt => opt.Ignore());
 
+            // BugReportComment
+            CreateMap<BugReportComment, BugReportCommentDto>();
+
             // User registration: DTO → Entity (Role and RegisteredOn set manually after mapping)
             CreateMap<UserRegisterDto, UserData>()
                 .ForMember(dest => dest.Id,           opt => opt.Ignore())

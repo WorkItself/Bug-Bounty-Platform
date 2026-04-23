@@ -1,10 +1,18 @@
 using System.Text;
 using Bug_Bounty_Platform.DataAccess.Context;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Serilog;
+
+Log.Logger = new LoggerConfiguration()
+    .WriteTo.Console()
+    .WriteTo.File("logs/api-.log", rollingInterval: RollingInterval.Day)
+    .CreateLogger();
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Host.UseSerilog();
 
 Bug_Bounty_Platform.DataAccess.DbSession.ConnectionString =
     builder.Configuration.GetConnectionString("DefaultConnection");
@@ -77,7 +85,7 @@ var app = builder.Build();
 // ── Database init ────────────────────────────────────────────────────────────
 using (var db = new AppInitContext())
 {
-    db.Database.EnsureCreated();
+    db.Database.Migrate();
 }
 
 // ── Middleware pipeline ──────────────────────────────────────────────────────
@@ -88,7 +96,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors("FrontendPolicy");
-app.UseAuthentication();   // must come before UseAuthorization
+app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 
