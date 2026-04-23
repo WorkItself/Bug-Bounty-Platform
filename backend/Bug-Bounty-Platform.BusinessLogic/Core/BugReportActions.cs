@@ -78,7 +78,7 @@ namespace Bug_Bounty_Platform.BusinessLogic.Core
                     Title = data.Title,
                     Description = data.Description,
                     Severity = data.Severity,
-                    Status = BugStatus.Pending,
+                    Status = BugStatus.New,
                     ProgramId = data.ProgramId,
                     ReporterId = data.ReporterId,
                     SubmittedAt = DateTime.Now
