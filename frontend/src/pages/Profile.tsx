@@ -61,7 +61,7 @@ const Profile = () => {
         <div style={{ marginBottom: '1.5rem' }}>
           <p style={{ color: '#A2DFF7', fontSize: '0.9rem', marginBottom: '0.25rem' }}>Account Type</p>
           <p style={{ color: '#FFFFFF', fontSize: '1.1rem', margin: 0, textTransform: 'capitalize' }}>
-            {user.type === 'hacker' ? 'Bug Bounty Hunter' : user.type}
+            {user.type === 'user' ? 'Bug Bounty Hunter' : user.type}
           </p>
         </div>
       </div>
