@@ -1,5 +1,6 @@
 using Bug_Bounty_Platform.BusinessLogic.Interfaces;
 using Bug_Bounty_Platform.Domain.Models.User;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 
@@ -7,6 +8,7 @@ namespace Bug_Bounty_Platform.Api.Controller
 {
     [Route("api/reg")]
     [ApiController]
+    [AllowAnonymous]
     public class RegisterController : ControllerBase
     {
         internal IUserRegAction _userReg;
