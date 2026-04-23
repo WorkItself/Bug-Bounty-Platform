@@ -65,7 +65,7 @@ function App() {
             <Route path="/analytics" element={<Analytics />} />
 
             {/* Hacker Routes */}
-            <Route element={<RoleBasedRoute allowedRoles={['hacker']} />}>
+            <Route element={<RoleBasedRoute allowedRoles={['user']} />}>
               <Route path="/submit" element={<SubmitReport />} />
               <Route path="/my-submissions" element={<MySubmissions />} />
             </Route>

@@ -2,8 +2,8 @@ namespace Bug_Bounty_Platform.Domain.Entities.User
 {
     public enum UserRole
     {
-        Hunter = 1,
-        Manager = 20,
+        User = 1,
+        Company = 20,
         Admin = 30
     }
 }
