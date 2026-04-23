@@ -1,3 +1,5 @@
+using AutoMapper;
+using Bug_Bounty_Platform.BusinessLogic.Mappings;
 using Bug_Bounty_Platform.BusinessLogic.Structure;
 using Bug_Bounty_Platform.DataAccess.Context;
 using Bug_Bounty_Platform.Domain.Entities.User;
@@ -10,6 +12,7 @@ namespace Bug_Bounty_Platform.BusinessLogic.Core
     public class UserActions
     {
         private readonly IConfiguration _configuration;
+        private readonly IMapper _mapper = MapperConfig.Mapper;
 
         public UserActions(IConfiguration configuration)
         {
@@ -72,17 +75,9 @@ namespace Bug_Bounty_Platform.BusinessLogic.Core
                 };
             }
 
-            user = new UserData
-            {
-                FirstName = uReg.FirstName,
-                LastName = uReg.LastName,
-                Email = uReg.Email,
-                Password = uReg.Password,
-                UserName = uReg.UserName,
-                Phone = uReg.Phone,
-                Role = UserRole.User,
-                RegisteredOn = DateTime.Now
-            };
+            user = _mapper.Map<UserData>(uReg);
+            user.Role = UserRole.User;
+            user.RegisteredOn = DateTime.Now;
 
             using (var db = new UserContext())
             {

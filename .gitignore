@@ -68,3 +68,10 @@ Thumbs.db
 .idea/
 *.iml
 .vscode/
+.continue/
+
+# =====================
+# Local dev secrets — override appsettings without committing credentials
+# =====================
+**/appsettings.Local.json
+**/appsettings.Development.json

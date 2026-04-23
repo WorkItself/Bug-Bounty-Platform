@@ -1,10 +1,12 @@
 using Bug_Bounty_Platform.BusinessLogic.Structure;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Bug_Bounty_Platform.Api.Controller
 {
     [Route("api/upload")]
     [ApiController]
+    [Authorize]
     public class FileUploadController : ControllerBase
     {
         private readonly FileUploadService _service;
@@ -14,8 +16,8 @@ namespace Bug_Bounty_Platform.Api.Controller
             _service = new FileUploadService(env.ContentRootPath);
         }
 
-        // POST api/upload/{bugReportId}
         [HttpPost("{bugReportId}")]
+        [Authorize(Roles = "User,Admin")]
         public async Task<IActionResult> Upload(int bugReportId, IFormFile file)
         {
             if (file == null || file.Length == 0)
@@ -33,16 +35,16 @@ namespace Bug_Bounty_Platform.Api.Controller
             return Ok(attachment);
         }
 
-        // GET api/upload/{bugReportId}
         [HttpGet("{bugReportId}")]
+        [Authorize(Roles = "User,Company,Admin")]
         public IActionResult GetAttachments(int bugReportId)
         {
             var attachments = _service.GetAttachmentsForReport(bugReportId);
             return Ok(attachments);
         }
 
-        // DELETE api/upload/{attachmentId}
         [HttpDelete("{attachmentId}")]
+        [Authorize(Roles = "Company,Admin")]
         public IActionResult Delete(int attachmentId)
         {
             var result = _service.DeleteAttachment(attachmentId);
