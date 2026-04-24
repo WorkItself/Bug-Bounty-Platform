@@ -37,5 +37,10 @@ namespace Bug_Bounty_Platform.BusinessLogic
         {
             return new BugReportCommentExecution();
         }
+
+        public ICompanyProfileAction CompanyProfileAction()
+        {
+            return new CompanyProfileExecution();
+        }
     }
 }

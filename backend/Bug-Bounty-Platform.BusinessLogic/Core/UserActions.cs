@@ -19,23 +19,35 @@ namespace Bug_Bounty_Platform.BusinessLogic.Core
             _configuration = configuration;
         }
 
+        internal bool IsAdminLogin(UserLoginDto udata)
+        {
+            var adminUser = _configuration["Admin:UserName"];
+            var adminPass = _configuration["Admin:Password"];
+            return udata.Credential == adminUser && udata.Password == adminPass;
+        }
+
+        internal string AdminTokenGeneration()
+        {
+            var adminUser = _configuration["Admin:UserName"]!;
+            var adminData = new UserData
+            {
+                Id = 0,
+                UserName = adminUser,
+                Email = string.Empty,
+                Password = string.Empty,
+                Role = UserRole.Admin,
+                RegisteredOn = DateTime.MinValue
+            };
+
+            return BuildToken(adminData);
+        }
+
         internal bool UserLoginDataValidationExecution(UserLoginDto udata)
         {
-            UserData? user;
-            using (var db = new UserContext())
-            {
-                user = db.Users.
-                    FirstOrDefault(x =>
-                        (x.UserName == udata.Credential || x.Email == udata.Credential) &&
-                        x.Password == udata.Password);
-            }
-
-            if (user != null)
-            {
-                return true;
-            }
-
-            return false;
+            using var db = new UserContext();
+            return db.Users.Any(x =>
+                (x.UserName == udata.Credential || x.Email == udata.Credential) &&
+                x.Password == udata.Password);
         }
 
         internal string UserTokenGeneration(UserLoginDto udata)
@@ -47,6 +59,11 @@ namespace Bug_Bounty_Platform.BusinessLogic.Core
                     x.UserName == udata.Credential || x.Email == udata.Credential);
             }
 
+            return BuildToken(user);
+        }
+
+        private string BuildToken(UserData user)
+        {
             var secretKey = _configuration["Jwt:SecretKey"]!;
             var issuer = _configuration["Jwt:Issuer"]!;
             var audience = _configuration["Jwt:Audience"]!;
@@ -61,9 +78,8 @@ namespace Bug_Bounty_Platform.BusinessLogic.Core
             UserData? user;
             using (var db = new UserContext())
             {
-                user = db.Users.
-                    FirstOrDefault(x =>
-                        x.Email == uReg.Email || x.UserName == uReg.UserName);
+                user = db.Users.FirstOrDefault(x =>
+                    x.Email == uReg.Email || x.UserName == uReg.UserName);
             }
 
             if (user != null)
@@ -75,8 +91,14 @@ namespace Bug_Bounty_Platform.BusinessLogic.Core
                 };
             }
 
+            var role = uReg.Role?.Trim().ToLower() switch
+            {
+                "company" => UserRole.Company,
+                _ => UserRole.User
+            };
+
             user = _mapper.Map<UserData>(uReg);
-            user.Role = UserRole.User;
+            user.Role = role;
             user.RegisteredOn = DateTime.Now;
 
             using (var db = new UserContext())

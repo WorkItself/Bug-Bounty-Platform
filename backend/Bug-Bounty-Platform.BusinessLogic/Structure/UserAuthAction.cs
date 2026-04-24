@@ -11,12 +11,11 @@ namespace Bug_Bounty_Platform.BusinessLogic.Structure
 
         public object? UserLoginDataValidation(UserLoginDto udata)
         {
-            var isValid = UserLoginDataValidationExecution(udata);
-            if (isValid)
-            {
-                var token = UserTokenGeneration(udata);
-                return token;
-            }
+            if (IsAdminLogin(udata))
+                return AdminTokenGeneration();
+
+            if (UserLoginDataValidationExecution(udata))
+                return UserTokenGeneration(udata);
 
             return null;
         }
