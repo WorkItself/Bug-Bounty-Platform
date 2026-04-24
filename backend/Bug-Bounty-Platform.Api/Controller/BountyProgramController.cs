@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Bug_Bounty_Platform.BusinessLogic.Interfaces;
 using Bug_Bounty_Platform.Domain.Models.BountyProgram;
 using Microsoft.AspNetCore.Authorization;
@@ -11,11 +12,14 @@ namespace Bug_Bounty_Platform.Api.Controller
     [Authorize]
     public class BountyProgramController : ControllerBase
     {
-        private IBountyProgramAction _program;
+        private readonly IBountyProgramAction _program;
+        private readonly ICompanyProfileAction _companyProfile;
+
         public BountyProgramController(IConfiguration configuration)
         {
             var bl = new BusinessLogic.BusinessLogic(configuration);
             _program = bl.BountyProgramAction();
+            _companyProfile = bl.CompanyProfileAction();
         }
 
         [HttpGet("getAll")]
@@ -38,6 +42,7 @@ namespace Bug_Bounty_Platform.Api.Controller
         [Authorize(Roles = "Company,Admin")]
         public IActionResult Create([FromBody] BountyProgramDto data)
         {
+            if (!IsAdminOrVerified()) return Forbid();
             var responce = _program.CreateBountyProgramAction(data);
             return Ok(responce);
         }
@@ -46,6 +51,7 @@ namespace Bug_Bounty_Platform.Api.Controller
         [Authorize(Roles = "Company,Admin")]
         public IActionResult Update([FromBody] BountyProgramDto data)
         {
+            if (!IsAdminOrVerified()) return Forbid();
             var responce = _program.UpdateBountyProgramAction(data);
             return Ok(responce);
         }
@@ -54,8 +60,18 @@ namespace Bug_Bounty_Platform.Api.Controller
         [Authorize(Roles = "Company,Admin")]
         public IActionResult Delete(int id)
         {
+            if (!IsAdminOrVerified()) return Forbid();
             var responce = _program.DeleteBountyProgramAction(id);
             return Ok(responce);
+        }
+
+        private bool IsAdminOrVerified()
+        {
+            var role = User.FindFirst(ClaimTypes.Role)?.Value;
+            if (role == "Admin") return true;
+
+            var claim = User.FindFirst(ClaimTypes.NameIdentifier) ?? User.FindFirst("sub");
+            return claim != null && int.TryParse(claim.Value, out var id) && _companyProfile.IsVerifiedAction(id);
         }
     }
 }
