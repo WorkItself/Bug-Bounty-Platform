@@ -9,7 +9,6 @@ namespace Bug_Bounty_Platform.Domain.Models.User
         public string City { get; set; } = string.Empty;
         public string Country { get; set; } = string.Empty;
         public string? PostalCode { get; set; }
-        public string? TaxId { get; set; }
         public string? Website { get; set; }
         public string? Description { get; set; }
         public bool IsVerified { get; set; }

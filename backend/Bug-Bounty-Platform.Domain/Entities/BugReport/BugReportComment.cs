@@ -21,7 +21,7 @@ namespace Bug_Bounty_Platform.Domain.Entities.BugReport
 
         public bool IsInternal { get; set; }
 
-        public bool IsDeleted { get; set; }
+        public bool IsHidden { get; set; }
 
         [DataType(DataType.Date)]
         public DateTime CreatedAt { get; set; }

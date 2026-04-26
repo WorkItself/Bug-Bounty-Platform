@@ -18,14 +18,14 @@ namespace Bug_Bounty_Platform.BusinessLogic.Core
         protected List<BugReportDto> GetByReporterExecution(int reporterId)
         {
             using var db = new BugReportContext();
-            var data = db.BugReports.Where(x => x.ReporterId == reporterId && !x.IsDeleted).ToList();
+            var data = db.BugReports.Where(x => x.ReporterId == reporterId && !x.IsHidden).ToList();
             return _mapper.Map<List<BugReportDto>>(data);
         }
 
         protected List<BugReportDto> GetByProgramExecution(int programId)
         {
             using var db = new BugReportContext();
-            var data = db.BugReports.Where(x => x.ProgramId == programId && !x.IsDeleted).ToList();
+            var data = db.BugReports.Where(x => x.ProgramId == programId && !x.IsHidden).ToList();
             return _mapper.Map<List<BugReportDto>>(data);
         }
 
@@ -36,7 +36,7 @@ namespace Bug_Bounty_Platform.BusinessLogic.Core
             using (var db = new BugReportContext())
             {
                 brData = db.BugReports.
-                    Where(x => !x.IsDeleted).ToList();
+                    Where(x => !x.IsHidden).ToList();
             }
 
             if (brData.Count <= 0) return data;
@@ -51,7 +51,7 @@ namespace Bug_Bounty_Platform.BusinessLogic.Core
             {
                 brData = db.BugReports
                     .FirstOrDefault(x =>
-                        x.Id == id && !x.IsDeleted);
+                        x.Id == id && !x.IsHidden);
             }
 
             if (brData == null) return null;
@@ -135,7 +135,7 @@ namespace Bug_Bounty_Platform.BusinessLogic.Core
                 };
             }
 
-            localData.IsDeleted = true;
+            localData.IsHidden = true;
 
             using (var db = new BugReportContext())
             {
@@ -177,7 +177,7 @@ namespace Bug_Bounty_Platform.BusinessLogic.Core
                 .FirstOrDefault(x =>
                         x.Title.ToLower() == data.Title.ToLower() &&
                         x.ProgramId == data.ProgramId &&
-                        !x.IsDeleted);
+                        !x.IsHidden);
             }
 
             if (localData != null)

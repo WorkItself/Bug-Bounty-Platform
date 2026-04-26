@@ -116,7 +116,6 @@ export default function LandingPage() {
             {[
               { label: 'Bug Bounties', to: '/bounties'    },
               { label: 'Leaderboard',  to: '/leaderboard' },
-              { label: 'Researchers',  to: '/choose-role' },
             ].map(({ label, to }) => (
               <Link key={label} to={to} style={{
                 padding: '0.4rem 0.9rem',
@@ -577,7 +576,7 @@ export default function LandingPage() {
             {/* Platform col */}
             <div>
               <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#fff', letterSpacing: '0.06em', textTransform: 'capitalize', marginBottom: '1rem' }}>Platform</div>
-              {[{ label: 'Bug Bounties', to: '/bounties' }, { label: 'Submit Report', to: '/submit' }, { label: 'Leaderboard', to: '/leaderboard' }, { label: 'Researchers', to: '/register' }].map(l => (
+              {[{ label: 'Bug Bounties', to: '/bounties' }, { label: 'Leaderboard', to: '/leaderboard' }].map(l => (
                 <Link key={l.label} to={l.to} style={{ display: 'block', color: C.textMuted, textDecoration: 'none', fontSize: '0.88rem', marginBottom: '0.55rem', transition: 'color 0.2s' }}
                   onMouseEnter={e => (e.currentTarget as HTMLElement).style.color = '#fff'}
                   onMouseLeave={e => (e.currentTarget as HTMLElement).style.color = C.textMuted}

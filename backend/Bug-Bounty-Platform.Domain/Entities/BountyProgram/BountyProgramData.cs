@@ -19,19 +19,26 @@ namespace Bug_Bounty_Platform.Domain.Entities.BountyProgram
         [StringLength(500)]
         public string? ProgramScope { get; set; }
 
-        [Required]
         [Column(TypeName = "decimal(18,2)")]
-        public decimal MinReward { get; set; }
+        public decimal? RewardCritical { get; set; }
 
-        [Required]
         [Column(TypeName = "decimal(18,2)")]
-        public decimal MaxReward { get; set; }
+        public decimal? RewardHigh { get; set; }
+
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal? RewardMedium { get; set; }
+
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal? RewardLow { get; set; }
+
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal? RewardInformational { get; set; }
 
         public int OwnerId { get; set; }
 
         public bool IsActive { get; set; }
 
-        public bool IsDeleted { get; set; }
+        public bool IsHidden { get; set; }
 
         [DataType(DataType.Date)]
         public DateTime CreatedAt { get; set; }

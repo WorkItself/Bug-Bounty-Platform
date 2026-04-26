@@ -49,7 +49,6 @@ namespace Bug_Bounty_Platform.BusinessLogic.Core
             profile.City = dto.City;
             profile.Country = dto.Country;
             profile.PostalCode = dto.PostalCode;
-            profile.TaxId = dto.TaxId;
             profile.Website = dto.Website;
             profile.Description = dto.Description;
 
