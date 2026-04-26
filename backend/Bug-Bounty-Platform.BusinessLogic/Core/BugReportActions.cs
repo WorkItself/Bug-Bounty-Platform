@@ -15,6 +15,20 @@ namespace Bug_Bounty_Platform.BusinessLogic.Core
         {
         }
 
+        protected List<BugReportDto> GetByReporterExecution(int reporterId)
+        {
+            using var db = new BugReportContext();
+            var data = db.BugReports.Where(x => x.ReporterId == reporterId && !x.IsDeleted).ToList();
+            return _mapper.Map<List<BugReportDto>>(data);
+        }
+
+        protected List<BugReportDto> GetByProgramExecution(int programId)
+        {
+            using var db = new BugReportContext();
+            var data = db.BugReports.Where(x => x.ProgramId == programId && !x.IsDeleted).ToList();
+            return _mapper.Map<List<BugReportDto>>(data);
+        }
+
         protected List<BugReportDto> GetAllBugReportActionExecution()
         {
             var data = new List<BugReportDto>();

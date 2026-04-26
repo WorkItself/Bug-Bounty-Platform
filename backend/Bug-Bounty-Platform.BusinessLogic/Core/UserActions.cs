@@ -19,6 +19,19 @@ namespace Bug_Bounty_Platform.BusinessLogic.Core
             _configuration = configuration;
         }
 
+        public List<object> GetAllUsersExecution()
+        {
+            using var db = new UserContext();
+            return db.Users.Select(u => (object)new
+            {
+                u.Id,
+                u.UserName,
+                u.Email,
+                Role = u.Role.ToString(),
+                u.RegisteredOn
+            }).ToList();
+        }
+
         internal bool IsAdminLogin(UserLoginDto udata)
         {
             var adminUser = _configuration["Admin:UserName"];

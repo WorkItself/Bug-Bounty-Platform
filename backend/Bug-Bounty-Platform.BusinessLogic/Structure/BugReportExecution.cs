@@ -17,6 +17,9 @@ namespace Bug_Bounty_Platform.BusinessLogic.Structure
             return DeleteBugReportActionExecution(id);
         }
 
+        public List<BugReportDto> GetByReporterAction(int reporterId) => GetByReporterExecution(reporterId);
+        public List<BugReportDto> GetByProgramAction(int programId) => GetByProgramExecution(programId);
+
         public List<BugReportDto> GetAllBugReportAction()
         {
             return GetAllBugReportActionExecution();
