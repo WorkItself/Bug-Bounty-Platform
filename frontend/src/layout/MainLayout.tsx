@@ -3,7 +3,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useUser } from '../context/UserContext';
 import {
   LayoutDashboard, Globe, BarChart2,
-  FileText, Users, Settings, ShieldAlert,
+  FileText, Users, ShieldAlert,
 } from 'lucide-react';
 
 const SB = {
@@ -44,8 +44,7 @@ const MainLayout = () => {
     { icon: FileText,        to: '/company/reports',     label: 'Reports' },
   ] : [];
   const adminNav = user.isLoggedIn && user.type === 'admin' ? [
-    { icon: ShieldAlert, to: '/admin',         label: 'Admin Panel' },
-    { icon: Settings,    to: '/admin/support', label: 'Support Requests' },
+    { icon: ShieldAlert, to: '/admin', label: 'Admin Panel' },
   ] : [];
   const allNav = [...coreNav, ...hackerNav, ...companyNav, ...adminNav];
 

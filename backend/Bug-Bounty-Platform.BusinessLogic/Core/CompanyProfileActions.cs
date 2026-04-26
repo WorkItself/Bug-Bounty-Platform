@@ -72,6 +72,19 @@ namespace Bug_Bounty_Platform.BusinessLogic.Core
             return new ActionResponce { IsSuccess = true, Message = "Company verified." };
         }
 
+        protected ActionResponce RevokeVerificationExecution(int userId)
+        {
+            using var db = new CompanyProfileContext();
+            var profile = db.CompanyProfiles.FirstOrDefault(x => x.UserId == userId);
+            if (profile == null)
+                return new ActionResponce { IsSuccess = false, Message = "Profile not found." };
+            profile.IsVerified = false;
+            profile.VerifiedAt = null;
+            db.SaveChanges();
+
+            return new ActionResponce { IsSuccess = true, Message = "Verification revoked." };
+        }
+
         protected bool IsVerifiedExecution(int userId)
         {
             using var db = new CompanyProfileContext();

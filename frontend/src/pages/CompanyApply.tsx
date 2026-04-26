@@ -21,7 +21,7 @@ const CompanyApply = () => {
   const [form, setForm] = useState({
     userName: '', email: '', password: '', confirmPassword: '',
     legalName: '', displayName: '', legalAddress: '', city: '', country: '',
-    postalCode: '', taxId: '', website: '', description: '',
+    postalCode: '', website: '', description: '',
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -37,15 +37,14 @@ const CompanyApply = () => {
     if (form.password !== form.confirmPassword) { setError('Passwords do not match.'); return; }
     setLoading(true); setError('');
     try {
-      const res = await axiosInstance.post('/company/apply', {
+      await axiosInstance.post('/company/apply', {
         userName: form.userName, email: form.email, password: form.password,
         legalName: form.legalName, displayName: form.displayName || null,
         legalAddress: form.legalAddress, city: form.city, country: form.country,
-        postalCode: form.postalCode || null, taxId: form.taxId || null,
+        postalCode: form.postalCode || null,
         website: form.website || null, description: form.description || null,
       });
-      if (res.data?.isSuccess) setSubmitted(true);
-      else setError(res.data?.message ?? 'Submission failed.');
+      setSubmitted(true);
     } catch (err: any) {
       const d = err.response?.data;
       const msg = d?.message ?? d?.title ?? (typeof d === 'string' ? d : null) ?? err.message ?? 'Submission failed.';
@@ -65,9 +64,14 @@ const CompanyApply = () => {
           <p style={{ color: '#6B7280', lineHeight: 1.6, margin: '0 0 1.5rem' }}>
             Your company application is under review. An admin will verify your details and approve your account. You'll be able to log in once approved.
           </p>
-          <Link to="/login" style={{ display: 'inline-block', padding: '0.7rem 2rem', background: '#E81C79', color: '#fff', borderRadius: '8px', textDecoration: 'none', fontWeight: 700 }}>
-            Back to Login
-          </Link>
+          <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+            <Link to="/login" style={{ display: 'inline-block', padding: '0.7rem 2rem', background: '#E81C79', color: '#fff', borderRadius: '8px', textDecoration: 'none', fontWeight: 700 }}>
+              Back to Login
+            </Link>
+            <Link to="/" style={{ display: 'inline-block', padding: '0.7rem 2rem', background: 'transparent', color: '#6B7280', border: '1px solid #D1D5DB', borderRadius: '8px', textDecoration: 'none', fontWeight: 600 }}>
+              Back to Home
+            </Link>
+          </div>
         </div>
       </div>
     );
@@ -75,6 +79,11 @@ const CompanyApply = () => {
 
   return (
     <div style={{ minHeight: '100vh', background: '#F7F9FC', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '2rem 1rem', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif' }}>
+      <div style={{ width: '100%', maxWidth: '600px', marginBottom: '0.5rem' }}>
+        <Link to="/" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', color: '#6B7280', textDecoration: 'none', fontSize: '0.85rem' }}>
+          ← Back to home
+        </Link>
+      </div>
       <Link to="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '2rem' }}>
         <div style={{ width: '32px', height: '32px', background: 'linear-gradient(135deg, #3F3AFC, #E81C79)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', fontWeight: 900, color: '#fff' }}>B</div>
         <span style={{ fontSize: '1.15rem', fontWeight: 800, color: '#111' }}>BountyOS</span>
@@ -136,15 +145,9 @@ const CompanyApply = () => {
               <input name="postalCode" value={form.postalCode} onChange={handleChange} onFocus={focus} onBlur={blur} placeholder="10001" style={inputStyle} />
             </div>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '1rem' }}>
-            <div>
-              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#374151', marginBottom: '0.35rem' }}>Tax ID / VAT</label>
-              <input name="taxId" value={form.taxId} onChange={handleChange} onFocus={focus} onBlur={blur} placeholder="Optional" style={inputStyle} />
-            </div>
-            <div>
-              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#374151', marginBottom: '0.35rem' }}>Website</label>
-              <input name="website" value={form.website} onChange={handleChange} onFocus={focus} onBlur={blur} placeholder="https://acme.com" style={inputStyle} />
-            </div>
+          <div style={{ marginBottom: '1rem' }}>
+            <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#374151', marginBottom: '0.35rem' }}>Website</label>
+            <input name="website" value={form.website} onChange={handleChange} onFocus={focus} onBlur={blur} placeholder="https://acme.com" style={inputStyle} />
           </div>
           <div style={{ marginBottom: '1.5rem' }}>
             <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#374151', marginBottom: '0.35rem' }}>About Your Company</label>
