@@ -1,347 +1,125 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useUser } from '../context/UserContext';
+import axiosInstance from '../utils/axiosInstance';
 
 interface PlatformUser {
-  id: string;
-  name: string;
-  type: string;
+  id: number;
+  userName: string;
   email: string;
-  isBanned: boolean;
-  warnings: Array<{ id: string; reason: string; date: string }>;
-  dateJoined: string;
+  role: string;
+  registeredOn: string;
 }
 
 const AdminPanel = () => {
-  const { user, getAllUsers, searchUsers, banUser, unbanUser, warnUser } = useUser();
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedUser, setSelectedUser] = useState<PlatformUser | null>(null);
-  const [warnReason, setWarnReason] = useState('');
-  const [showWarnForm, setShowWarnForm] = useState(false);
-  const [users, setUsers] = useState<PlatformUser[]>(getAllUsers());
+  const { user } = useUser();
+  const [users, setUsers] = useState<PlatformUser[]>([]);
+  const [filtered, setFiltered] = useState<PlatformUser[]>([]);
+  const [search, setSearch] = useState('');
+  const [selected, setSelected] = useState<PlatformUser | null>(null);
+  const [verifyStatus, setVerifyStatus] = useState('');
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    axiosInstance.get('/users')
+      .then(res => { setUsers(res.data ?? []); setFiltered(res.data ?? []); })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
+
+  useEffect(() => {
+    const q = search.toLowerCase();
+    setFiltered(users.filter(u => u.userName.toLowerCase().includes(q) || u.email.toLowerCase().includes(q)));
+    setSelected(null);
+  }, [search, users]);
 
   if (!user.isLoggedIn || user.type !== 'admin') {
     return (
-      <div style={{
-        textAlign: 'center',
-        padding: '3rem 2rem'
-      }}>
-        <h1 style={{ color: '#ef4444', fontSize: '2rem', marginBottom: '1rem' }}>Access Denied</h1>
+      <div style={{ textAlign: 'center', padding: '3rem' }}>
+        <h1 style={{ color: '#ef4444', fontSize: '2rem' }}>Access Denied</h1>
         <p style={{ color: '#A2DFF7' }}>This area is restricted to administrators only.</p>
       </div>
     );
   }
 
-  const handleSearch = (query: string) => {
-    setSearchQuery(query);
-    if (query.trim()) {
-      const results = searchUsers(query);
-      setUsers(results);
-    } else {
-      setUsers(getAllUsers());
-    }
-    setSelectedUser(null);
-  };
-
-  const handleSelectUser = (u: PlatformUser) => {
-    setSelectedUser(u);
-    setShowWarnForm(false);
-  };
-
-  const handleBanUser = () => {
-    if (selectedUser) {
-      banUser(selectedUser.id);
-      setUsers(getAllUsers());
-      setSelectedUser({ ...selectedUser, isBanned: true });
+  const handleVerify = async () => {
+    if (!selected) return;
+    setVerifyStatus('');
+    try {
+      await axiosInstance.patch(`/company/profile/${selected.id}/verify`);
+      setVerifyStatus('Company verified successfully.');
+    } catch {
+      setVerifyStatus('Verification failed — company may not have a profile yet.');
     }
   };
 
-  const handleUnbanUser = () => {
-    if (selectedUser) {
-      unbanUser(selectedUser.id);
-      setUsers(getAllUsers());
-      setSelectedUser({ ...selectedUser, isBanned: false });
-    }
-  };
-
-  const handleWarnUser = () => {
-    if (selectedUser && warnReason.trim()) {
-      warnUser(selectedUser.id, warnReason);
-      setUsers(getAllUsers());
-      const updatedUser = getAllUsers().find(u => u.id === selectedUser.id);
-      if (updatedUser) {
-        setSelectedUser(updatedUser);
-      }
-      setWarnReason('');
-      setShowWarnForm(false);
-    }
-  };
+  const roleColor = (role: string) => ({ User: '#3F3AFC', Company: '#E81C79', Admin: '#f59e0b' })[role] ?? '#999';
 
   return (
     <div style={{ width: '100%', maxWidth: '1400px', margin: '0 auto', padding: '2rem' }}>
-      <h1 style={{
-        fontSize: '2.2rem',
-        fontWeight: '800',
-        marginBottom: '0.75rem',
-        letterSpacing: '-0.02em',
-        color: '#FFFFFF'
-      }}>Admin Control Panel</h1>
-      <p style={{
-        color: '#A2DFF7',
-        fontSize: '1rem',
-        marginBottom: '2rem',
-        fontWeight: '500'
-      }}>System administration, user management, and oversight.</p>
+      <h1 style={{ fontSize: '2.2rem', fontWeight: 800, marginBottom: '0.5rem', color: '#FFFFFF' }}>Admin Control Panel</h1>
+      <p style={{ color: '#A2DFF7', fontSize: '1rem', marginBottom: '2rem', fontWeight: 500 }}>
+        User management and company verification.
+      </p>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
-        {/* Left Panel - User Search */}
-        <div>
-          <div style={{
-            background: 'linear-gradient(135deg, #1B3A57 0%, #0C1A30 100%)',
-            padding: '1.5rem',
-            borderRadius: '0.75rem',
-            border: '1px solid #009B77'
-          }}>
-            <h2 style={{ fontSize: '1.3rem', fontWeight: '700', marginBottom: '1rem', color: '#FFFFFF' }}>
-              User Search & Management
-            </h2>
+        {/* Left — user list */}
+        <div style={{ background: 'linear-gradient(135deg, #1B3A57 0%, #0C1A30 100%)', padding: '1.5rem', borderRadius: '0.75rem', border: '1px solid #009B77' }}>
+          <h2 style={{ fontSize: '1.2rem', fontWeight: 700, marginBottom: '1rem', color: '#fff' }}>Registered Users</h2>
+          <input type="text" placeholder="Search by name or email…" value={search} onChange={e => setSearch(e.target.value)}
+            style={{ width: '100%', padding: '0.65rem 0.9rem', borderRadius: '6px', border: '1px solid #009B77', background: '#0C1A30', color: '#fff', marginBottom: '1.25rem', boxSizing: 'border-box', fontSize: '0.9rem' }} />
 
-            <input
-              type="text"
-              placeholder="Search by name, email, or ID..."
-              value={searchQuery}
-              onChange={(e) => handleSearch(e.target.value)}
-              style={{
-                width: '100%',
-                padding: '0.75rem',
-                borderRadius: '0.5rem',
-                border: '1px solid #009B77',
-                background: '#0C1A30',
-                color: '#FFFFFF',
-                marginBottom: '1.5rem',
-                fontSize: '1rem'
-              }}
-            />
-
-            <div style={{
-              maxHeight: '500px',
-              overflowY: 'auto',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '0.75rem'
-            }}>
-              {users.map((u) => (
-                <div
-                  key={u.id}
-                  onClick={() => handleSelectUser(u)}
-                  style={{
-                    padding: '0.75rem',
-                    background: selectedUser?.id === u.id ? '#009B77' : '#1e2a3a',
-                    borderRadius: '0.5rem',
-                    cursor: 'pointer',
-                    border: `1px solid ${selectedUser?.id === u.id ? '#00FF7F' : '#333'}`,
-                    transition: 'all 0.2s ease',
-                    color: selectedUser?.id === u.id ? '#000000' : '#FFFFFF'
-                  }}
-                  onMouseEnter={(e) => {
-                    if (selectedUser?.id !== u.id) {
-                      (e.currentTarget as HTMLElement).style.background = '#0c1a2e';
-                      (e.currentTarget as HTMLElement).style.borderColor = '#009B77';
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    if (selectedUser?.id !== u.id) {
-                      (e.currentTarget as HTMLElement).style.background = '#1e2a3a';
-                      (e.currentTarget as HTMLElement).style.borderColor = '#333';
-                    }
-                  }}
+          {loading ? <p style={{ color: '#A2DFF7', textAlign: 'center' }}>Loading…</p> : (
+            <div style={{ maxHeight: '500px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+              {filtered.map(u => (
+                <div key={u.id} onClick={() => { setSelected(u); setVerifyStatus(''); }}
+                  style={{ padding: '0.75rem 1rem', background: selected?.id === u.id ? '#009B77' : '#1e2a3a', borderRadius: '8px', cursor: 'pointer', border: `1px solid ${selected?.id === u.id ? '#00FF7F' : '#333'}`, color: selected?.id === u.id ? '#000' : '#fff', transition: 'all 0.15s' }}
+                  onMouseEnter={e => { if (selected?.id !== u.id) e.currentTarget.style.background = '#0c1a2e'; }}
+                  onMouseLeave={e => { if (selected?.id !== u.id) e.currentTarget.style.background = '#1e2a3a'; }}
                 >
-                  <div style={{ fontWeight: 'bold', marginBottom: '0.25rem' }}>{u.name}</div>
-                  <div style={{ fontSize: '0.85rem', opacity: 0.8 }}>{u.email}</div>
-                  <div style={{ fontSize: '0.8rem', marginTop: '0.25rem' }}>
-                    Type: {u.type} {u.isBanned && <span style={{ color: '#ff4d4d' }}>❌ BANNED</span>}
+                  <div style={{ fontWeight: 600, marginBottom: '0.2rem' }}>{u.userName}</div>
+                  <div style={{ fontSize: '0.82rem', opacity: 0.8 }}>{u.email}</div>
+                  <div style={{ marginTop: '0.25rem' }}>
+                    <span style={{ fontSize: '0.72rem', padding: '1px 8px', borderRadius: '10px', background: roleColor(u.role), color: '#fff', fontWeight: 700 }}>{u.role}</span>
                   </div>
                 </div>
               ))}
+              {filtered.length === 0 && <p style={{ color: '#A2DFF7', textAlign: 'center' }}>No users found.</p>}
             </div>
-          </div>
+          )}
         </div>
 
-        {/* Right Panel - User Details & Actions */}
-        <div>
-          {selectedUser ? (
-            <div style={{
-              background: 'linear-gradient(135deg, #1B3A57 0%, #0C1A30 100%)',
-              padding: '1.5rem',
-              borderRadius: '0.75rem',
-              border: '1px solid #009B77'
-            }}>
-              <h2 style={{ fontSize: '1.3rem', fontWeight: '700', marginBottom: '1rem', color: '#FFFFFF' }}>
-                User Details
-              </h2>
+        {/* Right — user details */}
+        <div style={{ background: 'linear-gradient(135deg, #1B3A57 0%, #0C1A30 100%)', padding: '1.5rem', borderRadius: '0.75rem', border: '1px solid #009B77' }}>
+          {selected ? (
+            <>
+              <h2 style={{ fontSize: '1.2rem', fontWeight: 700, marginBottom: '1.25rem', color: '#fff' }}>User Details</h2>
 
-              <div style={{ marginBottom: '1.5rem' }}>
-                <label style={{ color: '#A2DFF7', display: 'block', marginBottom: '0.25rem' }}>
-                  Username
-                </label>
-                <div style={{ color: '#FFFFFF', fontSize: '1.1rem', fontWeight: '600' }}>
-                  {selectedUser.name}
+              {[['Username', selected.userName], ['Email', selected.email], ['Role', selected.role], ['Registered', new Date(selected.registeredOn).toLocaleDateString()]].map(([label, val]) => (
+                <div key={label} style={{ marginBottom: '1rem' }}>
+                  <div style={{ color: '#A2DFF7', fontSize: '0.8rem', fontWeight: 600, marginBottom: '0.2rem' }}>{label}</div>
+                  <div style={{ color: '#fff', fontSize: '1rem' }}>{val}</div>
                 </div>
-              </div>
+              ))}
 
-              <div style={{ marginBottom: '1.5rem' }}>
-                <label style={{ color: '#A2DFF7', display: 'block', marginBottom: '0.25rem' }}>
-                  Email
-                </label>
-                <div style={{ color: '#FFFFFF' }}>{selectedUser.email}</div>
-              </div>
-
-              <div style={{ marginBottom: '1.5rem' }}>
-                <label style={{ color: '#A2DFF7', display: 'block', marginBottom: '0.25rem' }}>
-                  User Type
-                </label>
-                <div style={{ color: '#FFFFFF' }}>{selectedUser.type}</div>
-              </div>
-
-              <div style={{ marginBottom: '1.5rem' }}>
-                <label style={{ color: '#A2DFF7', display: 'block', marginBottom: '0.25rem' }}>
-                  Account Status
-                </label>
-                <div style={{ color: selectedUser.isBanned ? '#ff4d4d' : '#4caf50', fontSize: '1.1rem', fontWeight: '600' }}>
-                  {selectedUser.isBanned ? '🚫 BANNED' : '✓ ACTIVE'}
+              {selected.role === 'Company' && (
+                <div style={{ marginTop: '1.5rem', paddingTop: '1.5rem', borderTop: '1px solid #1e3a57' }}>
+                  <h3 style={{ color: '#A2DFF7', fontSize: '1rem', fontWeight: 700, marginBottom: '0.75rem' }}>Company Verification</h3>
+                  <p style={{ color: '#A2DFF7', fontSize: '0.85rem', marginBottom: '1rem' }}>
+                    Verified companies can create and manage bounty programs.
+                  </p>
+                  <button onClick={handleVerify} style={{ padding: '0.65rem 1.5rem', background: '#009B77', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 700, fontSize: '0.95rem' }}
+                    onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = '#007A60'}
+                    onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = '#009B77'}
+                  >
+                    Verify Company
+                  </button>
+                  {verifyStatus && <p style={{ marginTop: '0.75rem', color: verifyStatus.includes('failed') ? '#ef4444' : '#4caf50', fontSize: '0.9rem' }}>{verifyStatus}</p>}
                 </div>
-              </div>
-
-              <div style={{ marginBottom: '1.5rem' }}>
-                <label style={{ color: '#A2DFF7', display: 'block', marginBottom: '0.25rem' }}>
-                  Warnings ({selectedUser.warnings.length})
-                </label>
-                {selectedUser.warnings.length > 0 ? (
-                  <div style={{ maxHeight: '150px', overflowY: 'auto' }}>
-                    {selectedUser.warnings.map((warn) => (
-                      <div key={warn.id} style={{
-                        background: '#0C1A30',
-                        padding: '0.5rem',
-                        borderRadius: '0.25rem',
-                        marginBottom: '0.5rem',
-                        borderLeft: '3px solid #ffaa00',
-                        color: '#FFFFFF',
-                        fontSize: '0.9rem'
-                      }}>
-                        <div style={{ fontWeight: '600' }}>{warn.reason}</div>
-                        <div style={{ fontSize: '0.8rem', color: '#A2DFF7' }}>{warn.date}</div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div style={{ color: '#A2DFF7' }}>No warnings</div>
-                )}
-              </div>
-
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                <button
-                  onClick={() => (selectedUser.isBanned ? handleUnbanUser() : handleBanUser())}
-                  style={{
-                    padding: '0.75rem',
-                    background: selectedUser.isBanned ? '#4caf50' : '#ff4d4d',
-                    color: '#FFFFFF',
-                    border: 'none',
-                    borderRadius: '0.5rem',
-                    cursor: 'pointer',
-                    fontWeight: '600',
-                    transition: 'opacity 0.2s ease'
-                  }}
-                  onMouseEnter={(e) => (e.currentTarget as HTMLElement).style.opacity = '0.8'}
-                  onMouseLeave={(e) => (e.currentTarget as HTMLElement).style.opacity = '1'}
-                >
-                  {selectedUser.isBanned ? '🔓 Unban User' : '🔒 Ban User'}
-                </button>
-
-                <button
-                  onClick={() => setShowWarnForm(!showWarnForm)}
-                  style={{
-                    padding: '0.75rem',
-                    background: '#ffaa00',
-                    color: '#000000',
-                    border: 'none',
-                    borderRadius: '0.5rem',
-                    cursor: 'pointer',
-                    fontWeight: '600',
-                    transition: 'opacity 0.2s ease'
-                  }}
-                  onMouseEnter={(e) => (e.currentTarget as HTMLElement).style.opacity = '0.8'}
-                  onMouseLeave={(e) => (e.currentTarget as HTMLElement).style.opacity = '1'}
-                >
-                  ⚠️ Issue Warning
-                </button>
-
-                {showWarnForm && (
-                  <div style={{
-                    background: '#0C1A30',
-                    padding: '1rem',
-                    borderRadius: '0.5rem',
-                    border: '1px solid #ffaa00'
-                  }}>
-                    <textarea
-                      placeholder="Enter warning reason..."
-                      value={warnReason}
-                      onChange={(e) => setWarnReason(e.target.value)}
-                      style={{
-                        width: '100%',
-                        padding: '0.5rem',
-                        borderRadius: '0.25rem',
-                        border: '1px solid #009B77',
-                        background: '#1e2a3a',
-                        color: '#FFFFFF',
-                        marginBottom: '0.5rem',
-                        minHeight: '80px',
-                        resize: 'vertical'
-                      }}
-                    />
-                    <div style={{ display: 'flex', gap: '0.5rem' }}>
-                      <button
-                        onClick={handleWarnUser}
-                        style={{
-                          flex: 1,
-                          padding: '0.5rem',
-                          background: '#ffaa00',
-                          color: '#000000',
-                          border: 'none',
-                          borderRadius: '0.25rem',
-                          cursor: 'pointer',
-                          fontWeight: '600'
-                        }}
-                      >
-                        Send Warning
-                      </button>
-                      <button
-                        onClick={() => setShowWarnForm(false)}
-                        style={{
-                          flex: 1,
-                          padding: '0.5rem',
-                          background: '#666',
-                          color: '#FFFFFF',
-                          border: 'none',
-                          borderRadius: '0.25rem',
-                          cursor: 'pointer'
-                        }}
-                      >
-                        Cancel
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
+              )}
+            </>
           ) : (
-            <div style={{
-              background: 'linear-gradient(135deg, #1B3A57 0%, #0C1A30 100%)',
-              padding: '1.5rem',
-              borderRadius: '0.75rem',
-              border: '1px solid #009B77',
-              textAlign: 'center',
-              color: '#A2DFF7'
-            }}>
-              <p>Select a user from the list to view and manage their account.</p>
+            <div style={{ textAlign: 'center', color: '#A2DFF7', paddingTop: '3rem' }}>
+              <p>Select a user from the list to view details.</p>
             </div>
           )}
         </div>
@@ -351,4 +129,3 @@ const AdminPanel = () => {
 };
 
 export default AdminPanel;
-

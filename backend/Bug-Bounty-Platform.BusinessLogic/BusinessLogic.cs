@@ -38,6 +38,11 @@ namespace Bug_Bounty_Platform.BusinessLogic
             return new BugReportCommentExecution();
         }
 
+        public IUserListAction UserListAction()
+        {
+            return new UserListExecution(_configuration);
+        }
+
         public ICompanyProfileAction CompanyProfileAction()
         {
             return new CompanyProfileExecution();

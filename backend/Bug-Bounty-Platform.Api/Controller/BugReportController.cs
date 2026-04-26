@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Bug_Bounty_Platform.BusinessLogic.Interfaces;
 using Bug_Bounty_Platform.Domain.Models.BugReport;
 using Microsoft.AspNetCore.Authorization;
@@ -16,6 +17,23 @@ namespace Bug_Bounty_Platform.Api.Controller
         {
             var bl = new BusinessLogic.BusinessLogic(configuration);
             _report = bl.BugReportAction();
+        }
+
+        [HttpGet("my")]
+        [Authorize(Roles = "User,Admin")]
+        public IActionResult GetMine()
+        {
+            var claim = User.FindFirst(ClaimTypes.NameIdentifier) ?? User.FindFirst("sub");
+            if (claim == null || !int.TryParse(claim.Value, out var userId))
+                return Unauthorized();
+            return Ok(_report.GetByReporterAction(userId));
+        }
+
+        [HttpGet("program/{programId}")]
+        [Authorize(Roles = "Company,Admin")]
+        public IActionResult GetByProgram(int programId)
+        {
+            return Ok(_report.GetByProgramAction(programId));
         }
 
         [HttpGet("getAll")]
