@@ -58,7 +58,7 @@ const ChooseRole = () => {
             desc="Launch a bug bounty program for your organization"
             accentColor="#E81C79"
             accentBg="#FFF0F6"
-            onClick={() => navigate('/register', { state: { role: 'company' } })}
+            onClick={() => navigate('/company/apply')}
           />
         </div>
 

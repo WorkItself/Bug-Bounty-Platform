@@ -33,6 +33,8 @@ namespace Bug_Bounty_Platform.Domain.Entities.User
 
         public UserRole Role { get; set; }
 
+        public bool IsApproved { get; set; } = true;
+
         [DataType(DataType.Date)]
         public DateTime RegisteredOn { get; set; }
     }
