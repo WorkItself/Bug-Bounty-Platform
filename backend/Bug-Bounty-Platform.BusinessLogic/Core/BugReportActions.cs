@@ -62,7 +62,7 @@ namespace Bug_Bounty_Platform.BusinessLogic.Core
                     Status = BugStatus.New,
                     ProgramId = data.ProgramId,
                     ReporterId = data.ReporterId,
-                    SubmittedAt = DateTime.Now
+                    SubmittedAt = DateTime.UtcNow
                 };
                 db.BugReports.Add(brData);
                 db.SaveChanges();
@@ -94,7 +94,7 @@ namespace Bug_Bounty_Platform.BusinessLogic.Core
             localData.ProgramId = data.ProgramId;
             localData.ReporterId = data.ReporterId;
 
-            localData.UpdatedAt = DateTime.Now;
+            localData.UpdatedAt = DateTime.UtcNow;
 
             using (var db = new BugReportContext())
             {
