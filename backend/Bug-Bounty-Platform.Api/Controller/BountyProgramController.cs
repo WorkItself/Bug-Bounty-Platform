@@ -26,8 +26,7 @@ namespace Bug_Bounty_Platform.Api.Controller
         [AllowAnonymous]
         public IActionResult GetAll()
         {
-            var programs = _program.GetAllBountyProgramAction();
-            return Ok(programs);
+            return Ok(_program.GetAllBountyProgramAction());
         }
 
         [HttpGet]
@@ -35,6 +34,7 @@ namespace Bug_Bounty_Platform.Api.Controller
         public IActionResult Get(int id)
         {
             var program = _program.GetBountyProgramByIdAction(id);
+            if (program == null) return NotFound(new { message = "Program not found." });
             return Ok(program);
         }
 
@@ -43,8 +43,9 @@ namespace Bug_Bounty_Platform.Api.Controller
         public IActionResult Create([FromBody] BountyProgramDto data)
         {
             if (!IsAdminOrVerified()) return Forbid();
-            var responce = _program.CreateBountyProgramAction(data);
-            return Ok(responce);
+            var result = _program.CreateBountyProgramAction(data);
+            if (!result.IsSuccess) return BadRequest(new { message = result.Message });
+            return StatusCode(201, new { message = result.Message });
         }
 
         [HttpPut]
@@ -52,8 +53,9 @@ namespace Bug_Bounty_Platform.Api.Controller
         public IActionResult Update([FromBody] BountyProgramDto data)
         {
             if (!IsAdminOrVerified()) return Forbid();
-            var responce = _program.UpdateBountyProgramAction(data);
-            return Ok(responce);
+            var result = _program.UpdateBountyProgramAction(data);
+            if (!result.IsSuccess) return BadRequest(new { message = result.Message });
+            return Ok(new { message = result.Message });
         }
 
         [HttpDelete]
@@ -61,8 +63,9 @@ namespace Bug_Bounty_Platform.Api.Controller
         public IActionResult Delete(int id)
         {
             if (!IsAdminOrVerified()) return Forbid();
-            var responce = _program.DeleteBountyProgramAction(id);
-            return Ok(responce);
+            var result = _program.DeleteBountyProgramAction(id);
+            if (!result.IsSuccess) return NotFound(new { message = result.Message });
+            return NoContent();
         }
 
         private bool IsAdminOrVerified()

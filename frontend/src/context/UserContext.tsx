@@ -109,9 +109,10 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
   ): Promise<{ success: boolean; message: string }> => {
     try {
       const res = await axiosInstance.post('/reg', { userName, email, password, role });
-      return { success: true, message: res.data ?? 'Registration successful.' };
+      return { success: true, message: res.data?.message ?? 'Registration successful.' };
     } catch (err: any) {
-      const msg = err.response?.data ?? 'Registration failed.';
+      const d = err.response?.data;
+      const msg = d?.message ?? (typeof d === 'string' ? d : null) ?? 'Registration failed.';
       return { success: false, message: msg };
     }
   };

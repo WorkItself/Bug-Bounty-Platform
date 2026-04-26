@@ -25,10 +25,10 @@ namespace Bug_Bounty_Platform.Api.Controller
         public IActionResult GetProfile()
         {
             var userId = GetUserId();
-            if (userId == null) return Unauthorized();
+            if (userId == null) return Unauthorized(new { message = "Invalid token." });
 
             var profile = _profile.GetProfileAction(userId.Value);
-            if (profile == null) return NotFound("No company profile found.");
+            if (profile == null) return NotFound(new { message = "No company profile found." });
             return Ok(profile);
         }
 
@@ -37,7 +37,7 @@ namespace Bug_Bounty_Platform.Api.Controller
         public IActionResult GetProfileByUser(int userId)
         {
             var profile = _profile.GetProfileAction(userId);
-            if (profile == null) return NotFound("No company profile found.");
+            if (profile == null) return NotFound(new { message = "No company profile found." });
             return Ok(profile);
         }
 
@@ -46,11 +46,12 @@ namespace Bug_Bounty_Platform.Api.Controller
         public IActionResult CreateProfile([FromBody] CompanyProfileDto dto)
         {
             var userId = GetUserId();
-            if (userId == null) return Unauthorized();
+            if (userId == null) return Unauthorized(new { message = "Invalid token." });
 
             dto.UserId = userId.Value;
             var result = _profile.CreateProfileAction(dto);
-            return Ok(result);
+            if (!result.IsSuccess) return BadRequest(new { message = result.Message });
+            return StatusCode(201, new { message = result.Message });
         }
 
         [HttpPut("profile")]
@@ -58,11 +59,12 @@ namespace Bug_Bounty_Platform.Api.Controller
         public IActionResult UpdateProfile([FromBody] CompanyProfileDto dto)
         {
             var userId = GetUserId();
-            if (userId == null) return Unauthorized();
+            if (userId == null) return Unauthorized(new { message = "Invalid token." });
 
             dto.UserId = userId.Value;
             var result = _profile.UpdateProfileAction(dto);
-            return Ok(result);
+            if (!result.IsSuccess) return BadRequest(new { message = result.Message });
+            return Ok(new { message = result.Message });
         }
 
         [HttpPatch("profile/{userId}/verify")]
@@ -70,7 +72,8 @@ namespace Bug_Bounty_Platform.Api.Controller
         public IActionResult VerifyCompany(int userId)
         {
             var result = _profile.VerifyCompanyAction(userId);
-            return Ok(result);
+            if (!result.IsSuccess) return NotFound(new { message = result.Message });
+            return Ok(new { message = result.Message });
         }
 
         private int? GetUserId()
