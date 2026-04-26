@@ -72,7 +72,7 @@ namespace Bug_Bounty_Platform.BusinessLogic.Core
                     MaxReward = data.MaxReward,
                     OwnerId = data.OwnerId,
                     IsActive = true,
-                    CreatedAt = DateTime.Now
+                    CreatedAt = DateTime.UtcNow
                 };
                 db.BountyPrograms.Add(bpData);
                 db.SaveChanges();
@@ -104,7 +104,7 @@ namespace Bug_Bounty_Platform.BusinessLogic.Core
             localData.MaxReward = data.MaxReward;
             localData.IsActive = data.IsActive;
 
-            localData.UpdatedAt = DateTime.Now;
+            localData.UpdatedAt = DateTime.UtcNow;
 
             using (var db = new BountyProgramContext())
             {

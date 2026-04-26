@@ -1,32 +1,7 @@
-import React, { createContext, useContext, useState } from 'react';
-import { getDefaultAvatarUrl } from '../utils/avatarUtils';
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import axiosInstance from '../utils/axiosInstance';
 
 export type UserType = 'guest' | 'user' | 'company' | 'admin';
-
-interface CompanyDetails {
-  legalName: string;
-  registrationNumber: string;
-  jurisdiction: string;
-  taxId: string;
-}
-
-interface Warning {
-  id: string;
-  reason: string;
-  date: string;
-}
-
-interface PlatformUser {
-  id: string;
-  name: string;
-  type: UserType;
-  email: string;
-  avatar: string;
-  isBanned: boolean;
-  warnings: Warning[];
-  dateJoined: string;
-  companyDetails?: CompanyDetails;
-}
 
 interface User {
   id: string | null;
@@ -35,196 +10,121 @@ interface User {
   email?: string | null;
   isLoggedIn: boolean;
   avatar?: string | null;
-  companyDetails?: CompanyDetails | null;
-  warnings?: Warning[];
-  isBanned?: boolean;
 }
 
 interface UserContextType {
   user: User;
-  login: (username: string, password: string) => boolean;
+  login: (credential: string, password: string) => Promise<boolean>;
   logout: () => void;
-  register: (name: string, userType: UserType, companyDetails?: CompanyDetails) => void;
-  getAllUsers: () => PlatformUser[];
-  searchUsers: (query: string) => PlatformUser[];
+  register: (userName: string, email: string, password: string, role: string) => Promise<{ success: boolean; message: string }>;
+  getAllUsers: () => any[];
+  searchUsers: (query: string) => any[];
   banUser: (userId: string) => void;
   unbanUser: (userId: string) => void;
   warnUser: (userId: string, reason: string) => void;
 }
 
-const mockUsers: Record<string, string> = {
-  user: 'user',
-  company: 'company',
-  admin: 'admin',
-};
+const defaultUser: User = { id: null, type: 'guest', name: null, isLoggedIn: false };
 
-// Mock user database
-const mockUserDatabase: PlatformUser[] = [
-  {
-    id: 'user-admin',
-    name: 'admin',
-    type: 'admin',
-    email: 'admin@platform.com',
-    avatar: '/fsociety.jpg',
-    isBanned: false,
-    warnings: [],
-    dateJoined: '2025-01-01'
-  },
-  {
-    id: 'user-hacker',
-    name: 'user',
-    type: 'user',
-    email: 'hacker@exploit.com',
-    avatar: 'https://i.pravatar.cc/150?u=hacker',
-    isBanned: false,
-    warnings: [],
-    dateJoined: '2025-01-15'
-  },
-  {
-    id: 'user-company',
-    name: 'company',
-    type: 'company',
-    email: 'security@company.com',
-    avatar: 'https://i.pravatar.cc/150?u=company',
-    isBanned: false,
-    warnings: [],
-    dateJoined: '2025-01-10',
-    companyDetails: {
-      legalName: 'TechCorp Inc.',
-      registrationNumber: 'TC-2025-001',
-      jurisdiction: 'US',
-      taxId: '12-3456789'
-    }
+function parseJwt(token: string) {
+  try {
+    const base64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+    return JSON.parse(atob(base64));
+  } catch {
+    return null;
   }
-];
+}
 
-const defaultUser: User = {
-  id: null,
-  type: 'guest',
-  name: null,
-  isLoggedIn: false
-};
+function userFromToken(token: string): User | null {
+  const payload = parseJwt(token);
+  if (!payload) return null;
+
+  const role = (
+    payload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] ?? ''
+  ).toLowerCase() as UserType;
+
+  const name =
+    payload['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'] ??
+    payload['name'] ??
+    null;
+
+  return {
+    id: payload['sub'] ?? null,
+    type: role || 'user',
+    name,
+    email: payload['email'] ?? null,
+    isLoggedIn: true,
+  };
+}
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User>(defaultUser);
-  const [allUsers, setAllUsers] = useState<PlatformUser[]>(mockUserDatabase);
-
-  const login = (username: string, password: string) => {
-    const expectedPassword = mockUsers[username];
-    if (expectedPassword && expectedPassword === password) {
-      const dbUser = allUsers.find(u => u.name === username);
-      const avatarUrl = username === 'admin' 
-        ? '/fsociety.jpg'
-        : (dbUser?.avatar || getDefaultAvatarUrl(true, username));
-      
-      if (dbUser?.isBanned) {
-        return false; // User is banned
-      }
-      
-      setUser({
-        id: `user-${Date.now()}`,
-        type: username as UserType,
-        name: username,
-        email: dbUser?.email || `${username}@example.com`,
-        avatar: avatarUrl,
-        companyDetails: dbUser?.companyDetails,
-        warnings: dbUser?.warnings,
-        isBanned: dbUser?.isBanned,
-        isLoggedIn: true
-      });
-      return true;
+  const [user, setUser] = useState<User>(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      const restored = userFromToken(token);
+      if (restored) return restored;
     }
-    return false;
-  };
+    return defaultUser;
+  });
 
-  const register = (name: string, userType: UserType, companyDetails?: CompanyDetails) => {
-    const newPlatformUser: PlatformUser = {
-      id: `user-${Date.now()}`,
-      name,
-      type: userType,
-      email: `${name}@example.com`,
-      avatar: getDefaultAvatarUrl(true, name),
-      isBanned: false,
-      warnings: [],
-      dateJoined: new Date().toISOString().split('T')[0],
-      companyDetails
-    };
-    
-    setAllUsers([...allUsers, newPlatformUser]);
-    
-    const newUser: User = {
-      id: newPlatformUser.id,
-      type: userType,
-      name: name,
-      email: newPlatformUser.email,
-      avatar: newPlatformUser.avatar,
-      companyDetails: companyDetails,
-      warnings: [],
-      isBanned: false,
-      isLoggedIn: true,
-    };
-    
-    setUser(newUser);
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+    const payload = parseJwt(token);
+    if (!payload) return;
+    const exp = payload['exp'];
+    if (exp && Date.now() / 1000 > exp) {
+      localStorage.removeItem('token');
+      setUser(defaultUser);
+    }
+  }, []);
+
+  const login = async (credential: string, password: string): Promise<boolean> => {
+    try {
+      const res = await axiosInstance.post('/session/auth', { credential, password });
+      const token = res.data?.token;
+      if (!token) return false;
+      localStorage.setItem('token', token);
+      const parsed = userFromToken(token);
+      if (!parsed) return false;
+      setUser(parsed);
+      return true;
+    } catch {
+      return false;
+    }
   };
 
   const logout = () => {
+    localStorage.removeItem('token');
     setUser(defaultUser);
   };
 
-  const getAllUsers = (): PlatformUser[] => {
-    return allUsers;
+  const register = async (
+    userName: string,
+    email: string,
+    password: string,
+    role: string
+  ): Promise<{ success: boolean; message: string }> => {
+    try {
+      const res = await axiosInstance.post('/reg', { userName, email, password, role });
+      return { success: true, message: res.data ?? 'Registration successful.' };
+    } catch (err: any) {
+      const msg = err.response?.data ?? 'Registration failed.';
+      return { success: false, message: msg };
+    }
   };
 
-  const searchUsers = (query: string): PlatformUser[] => {
-    const lowerQuery = query.toLowerCase();
-    return allUsers.filter(u => 
-      u.name.toLowerCase().includes(lowerQuery) || 
-      u.email.toLowerCase().includes(lowerQuery) ||
-      u.id.toLowerCase().includes(lowerQuery)
-    );
-  };
-
-  const banUser = (userId: string) => {
-    setAllUsers(allUsers.map(u => 
-      u.id === userId ? { ...u, isBanned: true } : u
-    ));
-  };
-
-  const unbanUser = (userId: string) => {
-    setAllUsers(allUsers.map(u => 
-      u.id === userId ? { ...u, isBanned: false } : u
-    ));
-  };
-
-  const warnUser = (userId: string, reason: string) => {
-    setAllUsers(allUsers.map(u => 
-      u.id === userId 
-        ? { 
-            ...u, 
-            warnings: [...u.warnings, {
-              id: `warn-${Date.now()}`,
-              reason,
-              date: new Date().toISOString().split('T')[0]
-            }]
-          } 
-        : u
-    ));
-  };
+  // Stubs — wired in AdminPanel step
+  const getAllUsers = () => [];
+  const searchUsers = (_query: string) => [];
+  const banUser = (_userId: string) => {};
+  const unbanUser = (_userId: string) => {};
+  const warnUser = (_userId: string, _reason: string) => {};
 
   return (
-    <UserContext.Provider value={{ 
-      user, 
-      login, 
-      logout, 
-      register,
-      getAllUsers,
-      searchUsers,
-      banUser,
-      unbanUser,
-      warnUser
-    }}>
+    <UserContext.Provider value={{ user, login, logout, register, getAllUsers, searchUsers, banUser, unbanUser, warnUser }}>
       {children}
     </UserContext.Provider>
   );
@@ -232,8 +132,6 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
 export const useUser = () => {
   const context = useContext(UserContext);
-  if (!context) {
-    throw new Error('useUser must be used within UserProvider');
-  }
+  if (!context) throw new Error('useUser must be used within UserProvider');
   return context;
 };

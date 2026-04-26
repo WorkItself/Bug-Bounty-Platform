@@ -99,7 +99,7 @@ namespace Bug_Bounty_Platform.BusinessLogic.Core
 
             user = _mapper.Map<UserData>(uReg);
             user.Role = role;
-            user.RegisteredOn = DateTime.Now;
+            user.RegisteredOn = DateTime.UtcNow;
 
             using (var db = new UserContext())
             {
