@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useUser } from '../context/UserContext';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import styles from './Register.module.css';
 
 const inputStyle: React.CSSProperties = {
@@ -52,6 +52,9 @@ const Register = () => {
   return (
     <div className={styles.container}>
       <div className={styles.formWrapper}>
+        <Link to="/" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', color: '#6B7280', textDecoration: 'none', fontSize: '0.85rem', marginBottom: '1.25rem' }}>
+          ← Back to home
+        </Link>
         <h1 className={styles.title}>Create Account</h1>
         <p className={styles.subtitle}>
           {role === 'company' ? 'Join BountyOS as a company' : 'Join BountyOS as a security researcher'}
@@ -99,7 +102,7 @@ const Register = () => {
 
         <div className={styles.loginLinkWrapper}>
           <p>Already have an account?</p>
-          <a href="/login" className={styles.loginLink}>Login here</a>
+          <Link to="/login" className={styles.loginLink}>Login here</Link>
         </div>
       </div>
     </div>

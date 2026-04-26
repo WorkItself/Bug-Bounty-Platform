@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useUser } from '../context/UserContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import styles from './Login.module.css';
 
 const Login = () => {
@@ -40,6 +40,9 @@ const Login = () => {
   return (
     <div className={styles.container}>
       <div className={styles.formWrapper}>
+        <Link to="/" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', color: '#6B7280', textDecoration: 'none', fontSize: '0.85rem', marginBottom: '1.25rem' }}>
+          ← Back to home
+        </Link>
         <h1 className={styles.title}>Secure Access</h1>
         <p className={styles.subtitle}>Enter your credentials to continue</p>
 
@@ -90,9 +93,9 @@ const Login = () => {
           </button>
 
           <div style={{ textAlign: 'center', marginTop: '0.5rem' }}>
-            <a href="/forgot-password" style={{ color: '#3F3AFC', textDecoration: 'none', fontSize: '0.88rem', fontWeight: 500 }}>
+            <Link to="/forgot-password" style={{ color: '#3F3AFC', textDecoration: 'none', fontSize: '0.88rem', fontWeight: 500 }}>
               Forgot your password?
-            </a>
+            </Link>
           </div>
 
           <p className={styles.registerLink}>

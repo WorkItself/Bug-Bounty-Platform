@@ -76,6 +76,15 @@ namespace Bug_Bounty_Platform.Api.Controller
             return Ok(new { message = result.Message });
         }
 
+        [HttpPatch("profile/{userId}/revoke")]
+        [Authorize(Roles = "Admin")]
+        public IActionResult RevokeVerification(int userId)
+        {
+            var result = _profile.RevokeVerificationAction(userId);
+            if (!result.IsSuccess) return NotFound(new { message = result.Message });
+            return Ok(new { message = result.Message });
+        }
+
         private int? GetUserId()
         {
             var claim = User.FindFirst(ClaimTypes.NameIdentifier)

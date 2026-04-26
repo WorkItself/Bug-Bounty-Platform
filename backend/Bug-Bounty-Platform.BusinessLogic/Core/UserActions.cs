@@ -21,15 +21,70 @@ namespace Bug_Bounty_Platform.BusinessLogic.Core
 
         public List<object> GetAllUsersExecution()
         {
-            using var db = new UserContext();
-            return db.Users.Select(u => (object)new
+            List<UserData> users;
+            using (var db = new UserContext())
+                users = db.Users.ToList();
+
+            List<CompanyProfile> profiles;
+            using (var db = new CompanyProfileContext())
+                profiles = db.CompanyProfiles.ToList();
+
+            return users.Select(u =>
             {
-                u.Id,
-                u.UserName,
-                u.Email,
-                Role = u.Role.ToString(),
-                u.RegisteredOn
+                var profile = profiles.FirstOrDefault(p => p.UserId == u.Id);
+                return (object)new
+                {
+                    u.Id, u.UserName, u.Email,
+                    Role = u.Role.ToString(),
+                    u.RegisteredOn,
+                    IsVerified = profile?.IsVerified ?? false,
+                    u.IsApproved,
+                };
             }).ToList();
+        }
+
+        public ActionResponce DeleteUserExecution(int userId)
+        {
+            using var db = new UserContext();
+            var user = db.Users.FirstOrDefault(u => u.Id == userId);
+            if (user == null)
+                return new ActionResponce { IsSuccess = false, Message = "User not found." };
+
+            db.Users.Remove(user);
+            db.SaveChanges();
+
+            using (var profileDb = new CompanyProfileContext())
+            {
+                var profile = profileDb.CompanyProfiles.FirstOrDefault(p => p.UserId == userId);
+                if (profile != null) { profileDb.CompanyProfiles.Remove(profile); profileDb.SaveChanges(); }
+            }
+
+            return new ActionResponce { IsSuccess = true, Message = "User deleted." };
+        }
+
+        public ActionResponce UpdateUserExecution(int userId, UserUpdateDto dto)
+        {
+            using var db = new UserContext();
+            var user = db.Users.FirstOrDefault(u => u.Id == userId);
+            if (user == null)
+                return new ActionResponce { IsSuccess = false, Message = "User not found." };
+
+            if (!string.IsNullOrWhiteSpace(dto.UserName) && dto.UserName != user.UserName)
+            {
+                if (db.Users.Any(u => u.UserName == dto.UserName && u.Id != userId))
+                    return new ActionResponce { IsSuccess = false, Message = "Username already taken." };
+                user.UserName = dto.UserName;
+            }
+
+            if (!string.IsNullOrWhiteSpace(dto.Email) && dto.Email != user.Email)
+            {
+                if (db.Users.Any(u => u.Email == dto.Email && u.Id != userId))
+                    return new ActionResponce { IsSuccess = false, Message = "Email already in use." };
+                user.Email = dto.Email;
+            }
+
+            db.SaveChanges();
+            return new ActionResponce { IsSuccess = true, Message = "User updated." };
         }
 
         internal bool IsAdminLogin(UserLoginDto udata)

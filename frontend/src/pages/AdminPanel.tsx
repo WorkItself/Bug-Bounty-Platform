@@ -4,6 +4,7 @@ import axiosInstance from '../utils/axiosInstance';
 import {
   LayoutDashboard, Users, Building2, HeadphonesIcon,
   ShieldCheck, Search, ChevronRight, TrendingUp,
+  Pencil, Trash2, Check, X, ShieldOff,
 } from 'lucide-react';
 
 interface PendingCompany {
@@ -13,52 +14,38 @@ interface PendingCompany {
 }
 
 interface PlatformUser {
-  id: number; userName: string; email: string; role: string; registeredOn: string;
+  id: number; userName: string; email: string; role: string;
+  registeredOn: string; isVerified: boolean; isApproved: boolean;
 }
 
 type Section = 'overview' | 'users' | 'pending';
 
-/* ── Palette ─────────────────────────────────────────────── */
 const C = {
-  sidebarBg: '#ffffff',
-  sidebarBorder: '#E5E7EB',
-  contentBg: '#F7F9FC',
-  headerBg: '#ffffff',
-  text: '#111827',
-  muted: '#6B7280',
-  active: '#009B77',
-  activeBg: '#F0FDF9',
-  activeBorder: '#009B77',
-  hover: '#F9FAFB',
-  roleBg: { User: '#EEF2FF', Company: '#FFF0F6', Admin: '#FFFBEB' },
+  sidebarBg: '#ffffff', sidebarBorder: '#E5E7EB', contentBg: '#F7F9FC',
+  headerBg: '#ffffff', text: '#111827', muted: '#6B7280',
+  active: '#009B77', activeBg: '#F0FDF9', activeBorder: '#009B77', hover: '#F9FAFB',
+  roleBg:   { User: '#EEF2FF', Company: '#FFF0F6', Admin: '#FFFBEB' },
   roleText: { User: '#3F3AFC', Company: '#E81C79', Admin: '#D97706' },
 };
 
-/* ── Sub-components ──────────────────────────────────────── */
 function SidebarSection({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div style={{ marginBottom: '0.5rem' }}>
-      <p style={{ margin: '0.75rem 0.75rem 0.25rem', fontSize: '0.7rem', fontWeight: 700,
-        color: C.muted, textTransform: 'uppercase', letterSpacing: '0.07em' }}>
-        {title}
-      </p>
+      <p style={{ margin: '0.75rem 0.75rem 0.25rem', fontSize: '0.7rem', fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.07em' }}>{title}</p>
       {children}
     </div>
   );
 }
 
 function SidebarItem({ icon, label, active, badge, onClick }: {
-  icon: React.ReactNode; label: string; active: boolean;
-  badge?: number; onClick: () => void;
+  icon: React.ReactNode; label: string; active: boolean; badge?: number; onClick: () => void;
 }) {
   return (
     <button onClick={onClick} style={{
       width: '100%', display: 'flex', alignItems: 'center', gap: '0.6rem',
       padding: '0.5rem 0.75rem', borderRadius: '6px', border: 'none', cursor: 'pointer',
-      background: active ? C.activeBg : 'transparent',
-      color: active ? C.active : C.text,
-      fontWeight: active ? 600 : 500, fontSize: '0.875rem',
-      textAlign: 'left', transition: 'background 0.15s',
+      background: active ? C.activeBg : 'transparent', color: active ? C.active : C.text,
+      fontWeight: active ? 600 : 500, fontSize: '0.875rem', textAlign: 'left',
       borderLeft: active ? `2px solid ${C.activeBorder}` : '2px solid transparent',
     }}
       onMouseEnter={e => { if (!active) (e.currentTarget as HTMLElement).style.background = C.hover; }}
@@ -67,39 +54,28 @@ function SidebarItem({ icon, label, active, badge, onClick }: {
       <span style={{ flexShrink: 0, opacity: active ? 1 : 0.6 }}>{icon}</span>
       <span style={{ flex: 1 }}>{label}</span>
       {badge !== undefined && badge > 0 && (
-        <span style={{
-          background: '#E81C79', color: '#fff', borderRadius: '10px',
-          padding: '1px 7px', fontSize: '0.7rem', fontWeight: 700,
-        }}>{badge}</span>
+        <span style={{ background: '#E81C79', color: '#fff', borderRadius: '10px', padding: '1px 7px', fontSize: '0.7rem', fontWeight: 700 }}>{badge}</span>
       )}
     </button>
-  );
-}
-
-function StatCard({ label, value, sub, color }: { label: string; value: number | string; sub?: string; color: string }) {
-  return (
-    <div style={{
-      background: '#fff', borderRadius: '10px', border: '1px solid #E5E7EB',
-      padding: '1.25rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '0.25rem',
-    }}>
-      <p style={{ margin: 0, fontSize: '0.78rem', fontWeight: 600, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{label}</p>
-      <p style={{ margin: 0, fontSize: '2rem', fontWeight: 800, color, lineHeight: 1.2 }}>{value}</p>
-      {sub && <p style={{ margin: 0, fontSize: '0.78rem', color: C.muted }}>{sub}</p>}
-    </div>
   );
 }
 
 function RoleBadge({ role }: { role: string }) {
   const bg = (C.roleBg as Record<string, string>)[role] ?? '#F3F4F6';
   const color = (C.roleText as Record<string, string>)[role] ?? '#374151';
+  return <span style={{ background: bg, color, borderRadius: '20px', padding: '2px 10px', fontSize: '0.72rem', fontWeight: 700 }}>{role}</span>;
+}
+
+function StatCard({ label, value, sub, color }: { label: string; value: number | string; sub?: string; color: string }) {
   return (
-    <span style={{ background: bg, color, borderRadius: '20px', padding: '2px 10px', fontSize: '0.72rem', fontWeight: 700 }}>
-      {role}
-    </span>
+    <div style={{ background: '#fff', borderRadius: '10px', border: '1px solid #E5E7EB', padding: '1.25rem 1.5rem' }}>
+      <p style={{ margin: '0 0 0.25rem', fontSize: '0.78rem', fontWeight: 600, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{label}</p>
+      <p style={{ margin: '0 0 0.15rem', fontSize: '2rem', fontWeight: 800, color, lineHeight: 1.2 }}>{value}</p>
+      {sub && <p style={{ margin: 0, fontSize: '0.78rem', color: C.muted }}>{sub}</p>}
+    </div>
   );
 }
 
-/* ── Main component ──────────────────────────────────────── */
 const AdminPanel = () => {
   const { user } = useUser();
   const [section, setSection] = useState<Section>('overview');
@@ -109,37 +85,39 @@ const AdminPanel = () => {
   const [usersLoading, setUsersLoading] = useState(true);
   const [pending, setPending] = useState<PendingCompany[]>([]);
   const [pendingLoading, setPendingLoading] = useState(false);
-  const [verifyMsg, setVerifyMsg] = useState<{ id: number; msg: string; ok: boolean } | null>(null);
 
-  useEffect(() => {
+  const loadUsers = () => {
     axiosInstance.get('/users')
       .then(res => { setUsers(res.data ?? []); setFiltered(res.data ?? []); })
       .catch(() => {})
       .finally(() => setUsersLoading(false));
-    axiosInstance.get('/company/pending')
-      .then(res => setPending(res.data ?? []))
-      .catch(() => {});
-  }, []);
+  };
 
-  useEffect(() => {
-    if (section !== 'pending') return;
+  const loadPending = () => {
     setPendingLoading(true);
     axiosInstance.get('/company/pending')
       .then(res => setPending(res.data ?? []))
       .catch(() => {})
       .finally(() => setPendingLoading(false));
-  }, [section]);
+  };
+
+  useEffect(() => { loadUsers(); loadPending(); }, []);
+  useEffect(() => { if (section === 'pending') loadPending(); }, [section]);
 
   useEffect(() => {
     const q = search.toLowerCase();
     setFiltered(users.filter(u => u.userName.toLowerCase().includes(q) || u.email.toLowerCase().includes(q)));
   }, [search, users]);
 
-  const handleApprove = async (company: PendingCompany) => {
-    try {
-      await axiosInstance.patch(`/company/approve/${company.id}`);
-      setPending(prev => prev.filter(c => c.id !== company.id));
-    } catch {}
+  const handleApprove = async (c: PendingCompany) => {
+    await axiosInstance.patch(`/company/approve/${c.id}`).catch(() => {});
+    setPending(prev => prev.filter(x => x.id !== c.id));
+    loadUsers();
+  };
+
+  const handleDeny = async (c: PendingCompany) => {
+    await axiosInstance.delete(`/company/deny/${c.id}`).catch(() => {});
+    setPending(prev => prev.filter(x => x.id !== c.id));
   };
 
   if (!user.isLoggedIn || user.type !== 'admin') {
@@ -152,33 +130,20 @@ const AdminPanel = () => {
     );
   }
 
-  const sectionTitle: Record<Section, string> = {
-    overview: 'Overview', users: 'All Users', pending: 'Pending Companies',
-  };
-  const sectionCrumbs: Record<Section, string[]> = {
+  const crumbs: Record<Section, string[]> = {
     overview: ['Admin', 'Overview'],
     users: ['Admin', 'Management', 'All Users'],
     pending: ['Admin', 'Management', 'Pending Companies'],
   };
+  const titles: Record<Section, string> = { overview: 'Overview', users: 'All Users', pending: 'Pending Companies' };
 
   return (
     <div style={{ display: 'flex', minHeight: 'calc(100vh - 38px)', background: C.contentBg }}>
-
-      {/* ── Secondary Sidebar ─────────────────────────────── */}
-      <aside style={{
-        width: '220px', flexShrink: 0, background: C.sidebarBg,
-        borderRight: `1px solid ${C.sidebarBorder}`,
-        position: 'sticky', top: 0, height: 'calc(100vh - 38px)',
-        display: 'flex', flexDirection: 'column', overflowY: 'auto',
-      }}>
-        {/* Brand header */}
+      {/* Sidebar */}
+      <aside style={{ width: '220px', flexShrink: 0, background: C.sidebarBg, borderRight: `1px solid ${C.sidebarBorder}`, position: 'sticky', top: 0, height: 'calc(100vh - 38px)', display: 'flex', flexDirection: 'column', overflowY: 'auto' }}>
         <div style={{ padding: '1rem 0.75rem', borderBottom: `1px solid ${C.sidebarBorder}` }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <div style={{
-              width: '28px', height: '28px', borderRadius: '6px',
-              background: 'linear-gradient(135deg, #009B77, #007A60)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-            }}>
+            <div style={{ width: '28px', height: '28px', borderRadius: '6px', background: 'linear-gradient(135deg, #009B77, #007A60)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <ShieldCheck size={14} color='#fff' />
             </div>
             <div>
@@ -188,76 +153,41 @@ const AdminPanel = () => {
           </div>
         </div>
 
-        {/* Nav */}
         <nav style={{ flex: 1, padding: '0.5rem 0.25rem' }}>
           <SidebarSection title="Overview">
             <SidebarItem icon={<LayoutDashboard size={15} />} label="Dashboard" active={section === 'overview'} onClick={() => setSection('overview')} />
           </SidebarSection>
-
           <SidebarSection title="Management">
             <SidebarItem icon={<Users size={15} />} label="All Users" active={section === 'users'} onClick={() => setSection('users')} />
             <SidebarItem icon={<Building2 size={15} />} label="Pending Companies" active={section === 'pending'} onClick={() => setSection('pending')} badge={pending.length} />
           </SidebarSection>
-
           <SidebarSection title="Support">
             <SidebarItem icon={<HeadphonesIcon size={15} />} label="Support Requests" active={false} onClick={() => window.location.href = '/admin/support'} />
           </SidebarSection>
         </nav>
-
-        {/* Footer */}
-        <div style={{ padding: '0.75rem', borderTop: `1px solid ${C.sidebarBorder}` }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-            <div style={{
-              width: '30px', height: '30px', borderRadius: '50%',
-              background: '#f59e0b', color: '#fff',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontWeight: 700, fontSize: '0.8rem', flexShrink: 0,
-            }}>A</div>
-            <div style={{ overflow: 'hidden' }}>
-              <p style={{ margin: 0, fontSize: '0.8rem', fontWeight: 600, color: C.text, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                {user.name || 'Admin'}
-              </p>
-              <p style={{ margin: 0, fontSize: '0.7rem', color: C.muted }}>Administrator</p>
-            </div>
-          </div>
-        </div>
       </aside>
 
-      {/* ── Main Content ──────────────────────────────────── */}
+      {/* Content */}
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-
-        {/* Page header */}
-        <div style={{
-          background: C.headerBg, borderBottom: `1px solid ${C.sidebarBorder}`,
-          padding: '0.75rem 1.5rem',
-        }}>
-          {/* Breadcrumbs */}
+        <div style={{ background: C.headerBg, borderBottom: `1px solid ${C.sidebarBorder}`, padding: '0.75rem 1.5rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', marginBottom: '0.25rem' }}>
-            {sectionCrumbs[section].map((crumb, i, arr) => (
+            {crumbs[section].map((crumb, i, arr) => (
               <span key={crumb} style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                <span style={{ fontSize: '0.75rem', color: i === arr.length - 1 ? C.text : C.muted, fontWeight: i === arr.length - 1 ? 600 : 400 }}>
-                  {crumb}
-                </span>
+                <span style={{ fontSize: '0.75rem', color: i === arr.length - 1 ? C.text : C.muted, fontWeight: i === arr.length - 1 ? 600 : 400 }}>{crumb}</span>
                 {i < arr.length - 1 && <ChevronRight size={12} color={C.muted} />}
               </span>
             ))}
           </div>
-          <h1 style={{ margin: 0, fontSize: '1.4rem', fontWeight: 800, color: C.text }}>
-            {sectionTitle[section]}
-          </h1>
+          <h1 style={{ margin: 0, fontSize: '1.4rem', fontWeight: 800, color: C.text }}>{titles[section]}</h1>
         </div>
 
-        {/* Content */}
         <div style={{ flex: 1, padding: '1.5rem', overflowY: 'auto' }}>
           {section === 'overview' && <OverviewSection users={users} pending={pending} />}
           {section === 'users' && (
-            <UsersSection
-              users={filtered} loading={usersLoading} search={search}
-              onSearch={setSearch} verifyMsg={verifyMsg} setVerifyMsg={setVerifyMsg}
-            />
+            <UsersSection users={filtered} loading={usersLoading} search={search} onSearch={setSearch} onRefresh={loadUsers} />
           )}
           {section === 'pending' && (
-            <PendingSection pending={pending} loading={pendingLoading} onApprove={handleApprove} />
+            <PendingSection pending={pending} loading={pendingLoading} onApprove={handleApprove} onDeny={handleDeny} />
           )}
         </div>
       </div>
@@ -265,11 +195,10 @@ const AdminPanel = () => {
   );
 };
 
-/* ── Overview section ────────────────────────────────────── */
+/* ── Overview ────────────────────────────────────────────── */
 function OverviewSection({ users, pending }: { users: PlatformUser[]; pending: PendingCompany[] }) {
   const hackers = users.filter(u => u.role === 'User').length;
   const companies = users.filter(u => u.role === 'Company').length;
-
   return (
     <div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
@@ -278,25 +207,15 @@ function OverviewSection({ users, pending }: { users: PlatformUser[]; pending: P
         <StatCard label="Researchers" value={hackers} sub="Active hunters" color="#3F3AFC" />
         <StatCard label="Companies" value={companies} sub="Approved orgs" color="#f59e0b" />
       </div>
-
       <div style={{ background: '#fff', borderRadius: '10px', border: '1px solid #E5E7EB', padding: '1.5rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
           <TrendingUp size={16} color={C.active} />
           <h2 style={{ margin: 0, fontSize: '1rem', fontWeight: 700, color: C.text }}>Recent Registrations</h2>
         </div>
         {users.slice(0, 5).map(u => (
-          <div key={u.id} style={{
-            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-            padding: '0.6rem 0', borderBottom: '1px solid #F3F4F6',
-          }}>
+          <div key={u.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.6rem 0', borderBottom: '1px solid #F3F4F6' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-              <div style={{
-                width: '28px', height: '28px', borderRadius: '50%', flexShrink: 0,
-                background: (C.roleBg as Record<string, string>)[u.role] ?? '#F3F4F6',
-                color: (C.roleText as Record<string, string>)[u.role] ?? '#374151',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontWeight: 700, fontSize: '0.75rem',
-              }}>
+              <div style={{ width: '28px', height: '28px', borderRadius: '50%', flexShrink: 0, background: (C.roleBg as Record<string, string>)[u.role] ?? '#F3F4F6', color: (C.roleText as Record<string, string>)[u.role] ?? '#374151', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '0.75rem' }}>
                 {u.userName.charAt(0).toUpperCase()}
               </div>
               <div>
@@ -314,98 +233,171 @@ function OverviewSection({ users, pending }: { users: PlatformUser[]; pending: P
 }
 
 /* ── Users section ───────────────────────────────────────── */
-function UsersSection({ users, loading, search, onSearch, verifyMsg, setVerifyMsg }: {
+function UsersSection({ users, loading, search, onSearch, onRefresh }: {
   users: PlatformUser[]; loading: boolean; search: string;
-  onSearch: (v: string) => void;
-  verifyMsg: { id: number; msg: string; ok: boolean } | null;
-  setVerifyMsg: (v: { id: number; msg: string; ok: boolean } | null) => void;
+  onSearch: (v: string) => void; onRefresh: () => void;
 }) {
-  const handleVerify = async (u: PlatformUser) => {
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editForm, setEditForm] = useState({ userName: '', email: '' });
+  const [actionMsg, setActionMsg] = useState<{ id: number; msg: string; ok: boolean } | null>(null);
+
+  const startEdit = (u: PlatformUser) => {
+    setEditingId(u.id);
+    setEditForm({ userName: u.userName, email: u.email });
+    setActionMsg(null);
+  };
+
+  const cancelEdit = () => { setEditingId(null); };
+
+  const saveEdit = async (u: PlatformUser) => {
+    try {
+      await axiosInstance.put(`/users/${u.id}`, editForm);
+      setActionMsg({ id: u.id, msg: 'Saved.', ok: true });
+      setEditingId(null);
+      onRefresh();
+    } catch (err: any) {
+      const msg = err.response?.data?.message ?? 'Update failed.';
+      setActionMsg({ id: u.id, msg, ok: false });
+    }
+  };
+
+  const deleteUser = async (u: PlatformUser) => {
+    if (!confirm(`Delete user "${u.userName}"? This cannot be undone.`)) return;
+    try {
+      await axiosInstance.delete(`/users/${u.id}`);
+      onRefresh();
+    } catch {
+      setActionMsg({ id: u.id, msg: 'Delete failed.', ok: false });
+    }
+  };
+
+  const verify = async (u: PlatformUser) => {
     try {
       await axiosInstance.patch(`/company/profile/${u.id}/verify`);
-      setVerifyMsg({ id: u.id, msg: 'Company verified.', ok: true });
+      setActionMsg({ id: u.id, msg: 'Verified.', ok: true });
+      onRefresh();
     } catch {
-      setVerifyMsg({ id: u.id, msg: 'Verification failed.', ok: false });
+      setActionMsg({ id: u.id, msg: 'Verify failed.', ok: false });
     }
+  };
+
+  const revoke = async (u: PlatformUser) => {
+    try {
+      await axiosInstance.patch(`/company/profile/${u.id}/revoke`);
+      setActionMsg({ id: u.id, msg: 'Revoked.', ok: true });
+      onRefresh();
+    } catch {
+      setActionMsg({ id: u.id, msg: 'Revoke failed.', ok: false });
+    }
+  };
+
+  const inputSt: React.CSSProperties = {
+    padding: '0.3rem 0.5rem', border: '1px solid #D1D5DB', borderRadius: '5px',
+    fontSize: '0.82rem', color: C.text, background: '#fff', outline: 'none',
   };
 
   return (
     <div style={{ background: '#fff', borderRadius: '10px', border: '1px solid #E5E7EB', overflow: 'hidden' }}>
-      {/* Toolbar */}
       <div style={{ padding: '1rem 1.25rem', borderBottom: '1px solid #E5E7EB', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
         <div style={{ position: 'relative', flex: 1, maxWidth: '320px' }}>
           <Search size={15} color={C.muted} style={{ position: 'absolute', left: '0.65rem', top: '50%', transform: 'translateY(-50%)' }} />
-          <input
-            value={search} onChange={e => onSearch(e.target.value)}
-            placeholder="Search by name or email…"
-            style={{
-              width: '100%', padding: '0.5rem 0.75rem 0.5rem 2rem',
-              border: '1px solid #E5E7EB', borderRadius: '6px', fontSize: '0.85rem',
-              background: '#F9FAFB', color: C.text, outline: 'none', boxSizing: 'border-box',
-            }}
-          />
+          <input value={search} onChange={e => onSearch(e.target.value)} placeholder="Search by name or email…"
+            style={{ width: '100%', padding: '0.5rem 0.75rem 0.5rem 2rem', border: '1px solid #E5E7EB', borderRadius: '6px', fontSize: '0.85rem', background: '#F9FAFB', color: C.text, outline: 'none', boxSizing: 'border-box' }} />
         </div>
         <span style={{ fontSize: '0.8rem', color: C.muted }}>{users.length} result{users.length !== 1 ? 's' : ''}</span>
       </div>
 
-      {/* Table */}
       {loading ? (
         <div style={{ padding: '2rem', textAlign: 'center', color: C.muted }}>Loading…</div>
       ) : (
         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem' }}>
           <thead>
             <tr style={{ background: '#F9FAFB' }}>
-              {['User', 'Email', 'Role', 'Registered', 'Actions'].map(h => (
-                <th key={h} style={{ padding: '0.65rem 1.25rem', textAlign: 'left', fontWeight: 600,
-                  color: C.muted, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em',
-                  borderBottom: '1px solid #E5E7EB' }}>{h}</th>
+              {['User', 'Email', 'Role', 'Status', 'Registered', 'Actions'].map(h => (
+                <th key={h} style={{ padding: '0.65rem 1rem', textAlign: 'left', fontWeight: 600, color: C.muted, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1px solid #E5E7EB' }}>{h}</th>
               ))}
             </tr>
           </thead>
           <tbody>
-            {users.map((u, i) => (
-              <tr key={u.id} style={{ borderBottom: '1px solid #F3F4F6', background: i % 2 === 0 ? '#fff' : '#FAFAFA' }}>
-                <td style={{ padding: '0.75rem 1.25rem' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-                    <div style={{
-                      width: '30px', height: '30px', borderRadius: '50%', flexShrink: 0,
-                      background: (C.roleBg as Record<string, string>)[u.role] ?? '#F3F4F6',
-                      color: (C.roleText as Record<string, string>)[u.role] ?? '#374151',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      fontWeight: 700, fontSize: '0.8rem',
-                    }}>
-                      {u.userName.charAt(0).toUpperCase()}
-                    </div>
-                    <span style={{ fontWeight: 600, color: C.text }}>{u.userName}</span>
-                  </div>
-                </td>
-                <td style={{ padding: '0.75rem 1.25rem', color: C.muted }}>{u.email}</td>
-                <td style={{ padding: '0.75rem 1.25rem' }}><RoleBadge role={u.role} /></td>
-                <td style={{ padding: '0.75rem 1.25rem', color: C.muted }}>
-                  {new Date(u.registeredOn).toLocaleDateString()}
-                </td>
-                <td style={{ padding: '0.75rem 1.25rem' }}>
-                  {u.role === 'Company' && (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                      <button onClick={() => handleVerify(u)} style={{
-                        padding: '0.3rem 0.8rem', background: C.active, color: '#fff',
-                        border: 'none', borderRadius: '5px', cursor: 'pointer', fontSize: '0.78rem', fontWeight: 600,
-                      }}
-                        onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = '#007A60'}
-                        onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = C.active}
-                      >Verify</button>
-                      {verifyMsg?.id === u.id && (
-                        <span style={{ fontSize: '0.75rem', color: verifyMsg.ok ? C.active : '#ef4444' }}>
-                          {verifyMsg.msg}
-                        </span>
+            {users.map((u, i) => {
+              const isEditing = editingId === u.id;
+              return (
+                <tr key={u.id} style={{ borderBottom: '1px solid #F3F4F6', background: i % 2 === 0 ? '#fff' : '#FAFAFA', verticalAlign: 'middle' }}>
+                  {/* Username */}
+                  <td style={{ padding: '0.65rem 1rem' }}>
+                    {isEditing
+                      ? <input value={editForm.userName} onChange={e => setEditForm(f => ({ ...f, userName: e.target.value }))} style={{ ...inputSt, width: '120px' }} />
+                      : <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                          <div style={{ width: '28px', height: '28px', borderRadius: '50%', flexShrink: 0, background: (C.roleBg as Record<string, string>)[u.role] ?? '#F3F4F6', color: (C.roleText as Record<string, string>)[u.role] ?? '#374151', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '0.75rem' }}>
+                            {u.userName.charAt(0).toUpperCase()}
+                          </div>
+                          <span style={{ fontWeight: 600, color: C.text }}>{u.userName}</span>
+                        </div>
+                    }
+                  </td>
+                  {/* Email */}
+                  <td style={{ padding: '0.65rem 1rem', color: C.muted }}>
+                    {isEditing
+                      ? <input type="email" value={editForm.email} onChange={e => setEditForm(f => ({ ...f, email: e.target.value }))} style={{ ...inputSt, width: '160px' }} />
+                      : u.email
+                    }
+                  </td>
+                  {/* Role */}
+                  <td style={{ padding: '0.65rem 1rem' }}><RoleBadge role={u.role} /></td>
+                  {/* Status */}
+                  <td style={{ padding: '0.65rem 1rem' }}>
+                    {u.role === 'Company' && (
+                      <span style={{ fontSize: '0.72rem', padding: '2px 8px', borderRadius: '10px', fontWeight: 600, background: u.isVerified ? '#DCFCE7' : '#FEF3C7', color: u.isVerified ? '#16A34A' : '#D97706' }}>
+                        {u.isVerified ? 'Verified' : 'Unverified'}
+                      </span>
+                    )}
+                  </td>
+                  {/* Registered */}
+                  <td style={{ padding: '0.65rem 1rem', color: C.muted, fontSize: '0.8rem' }}>
+                    {new Date(u.registeredOn).toLocaleDateString()}
+                  </td>
+                  {/* Actions */}
+                  <td style={{ padding: '0.65rem 1rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
+                      {isEditing ? (
+                        <>
+                          <button onClick={() => saveEdit(u)} title="Save" style={{ padding: '0.25rem 0.5rem', background: C.active, color: '#fff', border: 'none', borderRadius: '5px', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
+                            <Check size={13} />
+                          </button>
+                          <button onClick={cancelEdit} title="Cancel" style={{ padding: '0.25rem 0.5rem', background: '#F3F4F6', color: C.muted, border: 'none', borderRadius: '5px', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
+                            <X size={13} />
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <button onClick={() => startEdit(u)} title="Edit" style={{ padding: '0.25rem 0.5rem', background: '#EEF2FF', color: '#3F3AFC', border: 'none', borderRadius: '5px', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
+                            <Pencil size={13} />
+                          </button>
+                          <button onClick={() => deleteUser(u)} title="Delete" style={{ padding: '0.25rem 0.5rem', background: '#FEF2F2', color: '#ef4444', border: 'none', borderRadius: '5px', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
+                            <Trash2 size={13} />
+                          </button>
+                          {u.role === 'Company' && u.isApproved && !u.isVerified && (
+                            <button onClick={() => verify(u)} title="Verify company" style={{ padding: '0.25rem 0.6rem', background: '#F0FDF9', color: C.active, border: `1px solid ${C.active}`, borderRadius: '5px', cursor: 'pointer', fontSize: '0.72rem', fontWeight: 600 }}>
+                              Verify
+                            </button>
+                          )}
+                          {u.role === 'Company' && u.isApproved && u.isVerified && (
+                            <button onClick={() => revoke(u)} title="Revoke verification" style={{ padding: '0.25rem 0.6rem', background: '#FFF7ED', color: '#ea580c', border: '1px solid #ea580c', borderRadius: '5px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.72rem', fontWeight: 600 }}>
+                              <ShieldOff size={11} /> Revoke
+                            </button>
+                          )}
+                        </>
+                      )}
+                      {actionMsg?.id === u.id && (
+                        <span style={{ fontSize: '0.72rem', color: actionMsg.ok ? C.active : '#ef4444' }}>{actionMsg.msg}</span>
                       )}
                     </div>
-                  )}
-                </td>
-              </tr>
-            ))}
+                  </td>
+                </tr>
+              );
+            })}
             {users.length === 0 && (
-              <tr><td colSpan={5} style={{ padding: '2rem', textAlign: 'center', color: C.muted }}>No users found.</td></tr>
+              <tr><td colSpan={6} style={{ padding: '2rem', textAlign: 'center', color: C.muted }}>No users found.</td></tr>
             )}
           </tbody>
         </table>
@@ -414,18 +406,16 @@ function UsersSection({ users, loading, search, onSearch, verifyMsg, setVerifyMs
   );
 }
 
-/* ── Pending companies section ───────────────────────────── */
-function PendingSection({ pending, loading, onApprove }: {
-  pending: PendingCompany[]; loading: boolean; onApprove: (c: PendingCompany) => void;
+/* ── Pending companies ───────────────────────────────────── */
+function PendingSection({ pending, loading, onApprove, onDeny }: {
+  pending: PendingCompany[]; loading: boolean;
+  onApprove: (c: PendingCompany) => void; onDeny: (c: PendingCompany) => void;
 }) {
   if (loading) return <div style={{ textAlign: 'center', padding: '2rem', color: C.muted }}>Loading…</div>;
 
   if (pending.length === 0) {
     return (
-      <div style={{
-        background: '#fff', borderRadius: '10px', border: '1px solid #E5E7EB',
-        padding: '3rem', textAlign: 'center',
-      }}>
+      <div style={{ background: '#fff', borderRadius: '10px', border: '1px solid #E5E7EB', padding: '3rem', textAlign: 'center' }}>
         <Building2 size={40} color='#D1D5DB' style={{ marginBottom: '0.75rem' }} />
         <p style={{ color: C.muted, margin: 0, fontWeight: 500 }}>No pending company applications.</p>
       </div>
@@ -435,22 +425,10 @@ function PendingSection({ pending, loading, onApprove }: {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
       {pending.map(c => (
-        <div key={c.id} style={{
-          background: '#fff', borderRadius: '10px', border: '1px solid #E5E7EB',
-          padding: '1.25rem 1.5rem',
-          display: 'grid', gridTemplateColumns: '40px 1fr auto', gap: '1rem', alignItems: 'center',
-        }}>
-          {/* Avatar */}
-          <div style={{
-            width: '40px', height: '40px', borderRadius: '8px',
-            background: '#FFF0F6', color: '#E81C79',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontWeight: 700, fontSize: '1rem', flexShrink: 0,
-          }}>
+        <div key={c.id} style={{ background: '#fff', borderRadius: '10px', border: '1px solid #E5E7EB', padding: '1.25rem 1.5rem', display: 'grid', gridTemplateColumns: '40px 1fr auto', gap: '1rem', alignItems: 'center' }}>
+          <div style={{ width: '40px', height: '40px', borderRadius: '8px', background: '#FFF0F6', color: '#E81C79', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '1rem', flexShrink: 0 }}>
             {c.legalName.charAt(0).toUpperCase()}
           </div>
-
-          {/* Details */}
           <div>
             <p style={{ margin: '0 0 0.1rem', fontWeight: 700, fontSize: '0.95rem', color: C.text }}>{c.legalName}</p>
             <p style={{ margin: '0 0 0.2rem', fontSize: '0.82rem', color: C.muted }}>@{c.userName} · {c.email}</p>
@@ -459,18 +437,16 @@ function PendingSection({ pending, loading, onApprove }: {
               {c.website && <span style={{ color: '#3F3AFC', marginLeft: '0.5rem' }}>{c.website}</span>}
             </p>
           </div>
-
-          {/* Action */}
-          <button onClick={() => onApprove(c)} style={{
-            padding: '0.5rem 1.25rem', background: C.active, color: '#fff',
-            border: 'none', borderRadius: '7px', cursor: 'pointer',
-            fontWeight: 700, fontSize: '0.875rem', whiteSpace: 'nowrap',
-          }}
-            onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = '#007A60'}
-            onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = C.active}
-          >
-            Approve
-          </button>
+          <div style={{ display: 'flex', gap: '0.5rem' }}>
+            <button onClick={() => onApprove(c)} style={{ padding: '0.5rem 1.1rem', background: C.active, color: '#fff', border: 'none', borderRadius: '7px', cursor: 'pointer', fontWeight: 700, fontSize: '0.875rem' }}
+              onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = '#007A60'}
+              onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = C.active}
+            >Approve</button>
+            <button onClick={() => onDeny(c)} style={{ padding: '0.5rem 1.1rem', background: '#FEF2F2', color: '#ef4444', border: '1px solid #ef4444', borderRadius: '7px', cursor: 'pointer', fontWeight: 700, fontSize: '0.875rem' }}
+              onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = '#fee2e2'}
+              onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = '#FEF2F2'}
+            >Deny</button>
+          </div>
         </div>
       ))}
     </div>

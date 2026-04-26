@@ -11,6 +11,7 @@ namespace Bug_Bounty_Platform.BusinessLogic.Structure
         public ActionResponce CreateProfileAction(CompanyProfileDto dto) => CreateProfileExecution(dto);
         public ActionResponce UpdateProfileAction(CompanyProfileDto dto) => UpdateProfileExecution(dto);
         public ActionResponce VerifyCompanyAction(int userId) => VerifyCompanyExecution(userId);
+        public ActionResponce RevokeVerificationAction(int userId) => RevokeVerificationExecution(userId);
         public bool IsVerifiedAction(int userId) => IsVerifiedExecution(userId);
     }
 }
