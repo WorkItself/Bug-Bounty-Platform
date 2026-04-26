@@ -55,12 +55,17 @@ namespace Bug_Bounty_Platform.BusinessLogic.Core
             return BuildToken(adminData);
         }
 
-        internal bool UserLoginDataValidationExecution(UserLoginDto udata)
+        internal string? UserLoginDataValidationExecution(UserLoginDto udata)
         {
             using var db = new UserContext();
-            return db.Users.Any(x =>
+            var user = db.Users.FirstOrDefault(x =>
                 (x.UserName == udata.Credential || x.Email == udata.Credential) &&
                 x.Password == udata.Password);
+
+            if (user == null) return null;
+            if (user.Role == UserRole.Company && !user.IsApproved)
+                return "PENDING_APPROVAL";
+            return "OK";
         }
 
         internal string UserTokenGeneration(UserLoginDto udata)
@@ -104,11 +109,8 @@ namespace Bug_Bounty_Platform.BusinessLogic.Core
                 };
             }
 
-            var role = uReg.Role?.Trim().ToLower() switch
-            {
-                "company" => UserRole.Company,
-                _ => UserRole.User
-            };
+            // Companies must apply via /api/company/apply — normal registration always creates User role
+            var role = UserRole.User;
 
             user = _mapper.Map<UserData>(uReg);
             user.Role = role;

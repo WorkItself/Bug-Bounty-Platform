@@ -23,9 +23,9 @@ namespace Bug_Bounty_Platform.Api.Controller
         {
             var data = _userAction.UserLoginDataValidation(udata);
             if (data == null)
-            {
                 return Unauthorized("Invalid credentials");
-            }
+            if (data.ToString() == "PENDING_APPROVAL")
+                return Unauthorized("Your application is pending admin approval.");
             return Ok(new { token = data, message = "Login successful" });
         }
     }
