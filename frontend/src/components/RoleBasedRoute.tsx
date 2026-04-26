@@ -10,7 +10,7 @@ const RoleBasedRoute = ({ allowedRoles }: RoleBasedRouteProps) => {
   const { user } = useUser();
 
   if (!user.isLoggedIn || !allowedRoles.includes(user.type)) {
-    return <Navigate to="/dashboard" replace />;
+    return <Navigate to="/bounties" replace />;
   }
 
   return <Outlet />;

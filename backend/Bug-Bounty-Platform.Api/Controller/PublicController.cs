@@ -26,5 +26,12 @@ namespace Bug_Bounty_Platform.Api.Controller
             if (result == null) return NotFound(new { message = "Company not found." });
             return Ok(result);
         }
+
+        [HttpGet("activity")]
+        public IActionResult GetActivityFeed()
+        {
+            var result = _actions.GetActivityFeed();
+            return Ok(result);
+        }
     }
 }

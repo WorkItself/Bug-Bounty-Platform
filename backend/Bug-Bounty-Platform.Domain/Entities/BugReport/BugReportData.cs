@@ -28,6 +28,8 @@ namespace Bug_Bounty_Platform.Domain.Entities.BugReport
 
         public bool IsHidden { get; set; }
 
+        public bool IsPublic { get; set; }
+
         [DataType(DataType.Date)]
         public DateTime SubmittedAt { get; set; }
 

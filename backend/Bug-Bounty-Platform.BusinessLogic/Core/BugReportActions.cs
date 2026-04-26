@@ -77,6 +77,7 @@ namespace Bug_Bounty_Platform.BusinessLogic.Core
                     Status = BugStatus.New,
                     ProgramId = data.ProgramId,
                     ReporterId = data.ReporterId,
+                    IsPublic = data.IsPublic,
                     SubmittedAt = DateTime.UtcNow
                 };
                 db.BugReports.Add(brData);
@@ -101,6 +102,29 @@ namespace Bug_Bounty_Platform.BusinessLogic.Core
                 {
                     IsSuccess = false,
                     Message = "Bug report not found."
+                };
+            }
+
+            var currentStatus = (int)localData.Status;
+            var newStatus = (int)data.Status;
+
+            // Terminal states: Fixed=4, Rewarded=5, Rejected=6 — cannot be changed
+            if (currentStatus >= 4)
+            {
+                return new ActionResponce
+                {
+                    IsSuccess = false,
+                    Message = "This report is in a terminal state and its status cannot be changed."
+                };
+            }
+
+            // Cannot move backwards
+            if (newStatus < currentStatus)
+            {
+                return new ActionResponce
+                {
+                    IsSuccess = false,
+                    Message = "Status cannot be moved backwards."
                 };
             }
 
@@ -151,6 +175,16 @@ namespace Bug_Bounty_Platform.BusinessLogic.Core
                 IsSuccess = true,
                 Message = "Bug Report Deleted"
             };
+        }
+
+        protected List<BugReportDto> GetActivityFeedExecution()
+        {
+            using var db = new BugReportContext();
+            var resolved = db.BugReports
+                .Where(r => !r.IsHidden && (int)r.Status == 3)
+                .OrderByDescending(r => r.UpdatedAt ?? r.SubmittedAt)
+                .ToList();
+            return _mapper.Map<List<BugReportDto>>(resolved);
         }
 
         /// <summary>

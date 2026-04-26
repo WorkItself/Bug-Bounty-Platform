@@ -2,7 +2,7 @@ import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useState, useRef, useEffect } from 'react';
 import { useUser } from '../context/UserContext';
 import {
-  LayoutDashboard, Globe, BarChart2,
+  Globe, BarChart2, Activity,
   FileText, Users, ShieldAlert,
 } from 'lucide-react';
 
@@ -31,18 +31,18 @@ const MainLayout = () => {
   }, [profileMenuOpen]);
 
   const coreNav = [
-    { icon: LayoutDashboard, to: '/dashboard',  label: 'Dashboard' },
-    { icon: Globe,           to: '/bounties',   label: 'Programs' },
-    { icon: BarChart2,       to: '/leaderboard',label: 'Leaderboard' },
+    { icon: Globe,     to: '/bounties',    label: 'Programs' },
+    { icon: Activity,  to: '/activity',    label: 'Activity' },
+    { icon: BarChart2, to: '/leaderboard', label: 'Leaderboard' },
   ];
   const hackerNav = user.isLoggedIn && user.type === 'user' ? [
     { icon: FileText, to: '/my-submissions',  label: 'My Submissions' },
   ] : [];
   const companyNav = user.isLoggedIn && user.type === 'company' ? [
-    { icon: Users,           to: '/company/dashboard',   label: 'Company' },
-    { icon: LayoutDashboard, to: '/company/add-project', label: 'Add Program' },
-    { icon: FileText,        to: '/company/reports',     label: 'Reports' },
-    { icon: ShieldAlert,     to: '/company/profile',     label: 'Company Profile' },
+    { icon: Users,      to: '/company/dashboard',   label: 'Company' },
+    { icon: Globe,      to: '/company/add-project', label: 'Add Program' },
+    { icon: FileText,   to: '/company/reports',     label: 'Reports' },
+    { icon: ShieldAlert,to: '/company/profile',     label: 'Company Profile' },
   ] : [];
   const adminNav = user.isLoggedIn && user.type === 'admin' ? [
     { icon: ShieldAlert, to: '/admin', label: 'Admin Panel' },
@@ -94,7 +94,7 @@ const MainLayout = () => {
           {/* Nav icons */}
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px', width: '100%' }}>
             {allNav.map(({ icon: Icon, to, label }) => {
-              const isActive = location.pathname === to || (to !== '/dashboard' && location.pathname.startsWith(to));
+              const isActive = location.pathname === to || (to !== '/bounties' && location.pathname.startsWith(to)) || (to === '/bounties' && location.pathname === '/bounties');
               return (
                 <NavIcon key={to} to={to} label={label} isActive={isActive}>
                   <Icon size={20} strokeWidth={isActive ? 2.1 : 1.7} />
