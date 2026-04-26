@@ -6,24 +6,35 @@ import styles from './Login.module.css';
 const Login = () => {
   const { login } = useUser();
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({ username: '', password: '' });
+  const [formData, setFormData] = useState({ credential: '', password: '' });
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target as HTMLInputElement;
+    const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (formData.username && formData.password) {
-      const loggedIn = login(formData.username, formData.password);
-      if (loggedIn) {
-        navigate('/dashboard');
-      } else {
-        setError('Invalid username or password');
-      }
+    if (!formData.credential || !formData.password) return;
+    setLoading(true);
+    setError('');
+    const ok = await login(formData.credential, formData.password);
+    setLoading(false);
+    if (ok) {
+      navigate('/dashboard');
+    } else {
+      setError('Invalid username or password');
     }
+  };
+
+  const inputStyle: React.CSSProperties = {
+    width: '100%', padding: '0.7rem 0.85rem',
+    background: '#fff', border: '1.5px solid #D1D5DB',
+    borderRadius: '8px', color: '#111', fontSize: '0.95rem',
+    fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box',
+    transition: 'border-color 0.2s',
   };
 
   return (
@@ -34,19 +45,13 @@ const Login = () => {
 
         <form onSubmit={handleSubmit} className={styles.form}>
           <div>
-            <label className={styles.label}>Username</label>
+            <label className={styles.label}>Username or Email</label>
             <input
-              name="username"
-              value={formData.username}
+              name="credential"
+              value={formData.credential}
               onChange={handleChange}
-              placeholder="Your username"
-              style={{
-                width: '100%', padding: '0.7rem 0.85rem',
-                background: '#fff', border: '1.5px solid #D1D5DB',
-                borderRadius: '8px', color: '#111', fontSize: '0.95rem',
-                fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box',
-                transition: 'border-color 0.2s',
-              }}
+              placeholder="Your username or email"
+              style={inputStyle}
               onFocus={e => e.currentTarget.style.borderColor = '#3F3AFC'}
               onBlur={e => e.currentTarget.style.borderColor = '#D1D5DB'}
             />
@@ -60,13 +65,7 @@ const Login = () => {
               value={formData.password}
               onChange={handleChange}
               placeholder="Your password"
-              style={{
-                width: '100%', padding: '0.7rem 0.85rem',
-                background: '#fff', border: '1.5px solid #D1D5DB',
-                borderRadius: '8px', color: '#111', fontSize: '0.95rem',
-                fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box',
-                transition: 'border-color 0.2s',
-              }}
+              style={inputStyle}
               onFocus={e => e.currentTarget.style.borderColor = '#3F3AFC'}
               onBlur={e => e.currentTarget.style.borderColor = '#D1D5DB'}
             />
@@ -76,32 +75,22 @@ const Login = () => {
 
           <button
             type="submit"
+            disabled={loading}
             style={{
               padding: '0.7rem 1.5rem',
-              background: '#3F3AFC', color: '#fff',
+              background: loading ? '#9CA3AF' : '#3F3AFC', color: '#fff',
               border: 'none', borderRadius: '8px',
               fontWeight: 600, fontSize: '0.95rem',
-              cursor: 'pointer', transition: 'all 0.2s ease',
+              cursor: loading ? 'not-allowed' : 'pointer', transition: 'all 0.2s ease',
             }}
-            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#2F2AEC'; (e.currentTarget as HTMLElement).style.transform = 'translateY(-1px)'; }}
-            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = '#3F3AFC'; (e.currentTarget as HTMLElement).style.transform = 'translateY(0)'; }}
+            onMouseEnter={e => { if (!loading) (e.currentTarget as HTMLElement).style.background = '#2F2AEC'; }}
+            onMouseLeave={e => { if (!loading) (e.currentTarget as HTMLElement).style.background = '#3F3AFC'; }}
           >
-            Login
+            {loading ? 'Logging in…' : 'Login'}
           </button>
 
           <div style={{ textAlign: 'center', marginTop: '0.5rem' }}>
-            <a
-              href="/forgot-password"
-              style={{
-                color: '#3F3AFC',
-                textDecoration: 'none',
-                fontSize: '0.88rem',
-                fontWeight: 500,
-                transition: 'opacity 0.2s',
-              }}
-              onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.opacity = '0.7'; }}
-              onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.opacity = '1'; }}
-            >
+            <a href="/forgot-password" style={{ color: '#3F3AFC', textDecoration: 'none', fontSize: '0.88rem', fontWeight: 500 }}>
               Forgot your password?
             </a>
           </div>

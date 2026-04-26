@@ -11,13 +11,13 @@ namespace Bug_Bounty_Platform.Domain.Entities.BountyProgram
 
         [Required]
         [StringLength(100)]
-        public string ProgramName { get; set; }
+        public string ProgramName { get; set; } = string.Empty;
 
         [StringLength(500)]
-        public string ProgramDescription { get; set; }
+        public string? ProgramDescription { get; set; }
 
         [StringLength(500)]
-        public string ProgramScope { get; set; }
+        public string? ProgramScope { get; set; }
 
         [Required]
         [Column(TypeName = "decimal(18,2)")]

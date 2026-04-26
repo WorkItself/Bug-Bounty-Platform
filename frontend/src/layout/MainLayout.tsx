@@ -2,8 +2,8 @@ import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useState, useRef, useEffect } from 'react';
 import { useUser } from '../context/UserContext';
 import {
-  LayoutDashboard, Globe, BarChart2, BookOpen,
-  Shield, FileText, Users, Settings, ShieldAlert, Bell,
+  LayoutDashboard, Globe, BarChart2,
+  FileText, Users, Settings, ShieldAlert,
 } from 'lucide-react';
 
 const SB = {
@@ -34,10 +34,8 @@ const MainLayout = () => {
     { icon: LayoutDashboard, to: '/dashboard',  label: 'Dashboard' },
     { icon: Globe,           to: '/bounties',   label: 'Programs' },
     { icon: BarChart2,       to: '/leaderboard',label: 'Leaderboard' },
-    { icon: BookOpen,        to: '/kb',         label: 'Resources' },
   ];
   const hackerNav = user.isLoggedIn && user.type === 'user' ? [
-    { icon: Shield,   to: '/submit',          label: 'Submit Report' },
     { icon: FileText, to: '/my-submissions',  label: 'My Submissions' },
   ] : [];
   const companyNav = user.isLoggedIn && user.type === 'company' ? [
@@ -54,35 +52,33 @@ const MainLayout = () => {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif' }}>
 
-      {/* ── Top announcement banner ── */}
-      <div style={{
-        height: '38px', background: '#EBF0FF', borderBottom: '1px solid #C7D2FE',
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        padding: '0 1.25rem',
-        position: 'fixed', top: 0, left: 0, right: 0, zIndex: 200,
-      }}>
-        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem' }}>
-          <span style={{ fontSize: '0.8rem', color: '#4F46E5' }}>ⓘ</span>
-          <span style={{ fontSize: '0.78rem', color: '#3730A3', fontWeight: 500 }}>
-            Learn more about BountyOS — the trusted bug bounty platform
-          </span>
-        </div>
-        {!user.isLoggedIn ? (
+      {/* ── Top announcement banner — guests only ── */}
+      {!user.isLoggedIn && (
+        <div style={{
+          height: '38px', background: '#EBF0FF', borderBottom: '1px solid #C7D2FE',
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          padding: '0 1.25rem',
+          position: 'fixed', top: 0, left: 0, right: 0, zIndex: 200,
+        }}>
+          <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem' }}>
+            <span style={{ fontSize: '0.8rem', color: '#4F46E5' }}>ⓘ</span>
+            <span style={{ fontSize: '0.78rem', color: '#3730A3', fontWeight: 500 }}>
+              Learn more about BountyOS — the trusted bug bounty platform
+            </span>
+          </div>
           <Link to="/login" style={{
             background: '#3F3AFC', color: '#fff', borderRadius: '4px',
             padding: '3px 14px', fontSize: '0.75rem', fontWeight: 600, textDecoration: 'none',
           }}>Log in</Link>
-        ) : (
-          <span style={{ fontSize: '0.75rem', color: '#3730A3', fontWeight: 600 }}>{user.name}</span>
-        )}
-      </div>
+        </div>
+      )}
 
-      <div style={{ display: 'flex', marginTop: '38px', minHeight: 'calc(100vh - 38px)' }}>
+      <div style={{ display: 'flex', marginTop: user.isLoggedIn ? 0 : '38px', minHeight: user.isLoggedIn ? '100vh' : 'calc(100vh - 38px)' }}>
 
         {/* ── Icon-rail sidebar ── */}
         <nav style={{
           width: '52px', background: SB.bg, borderRight: `1px solid ${SB.border}`,
-          position: 'fixed', top: '38px', left: 0, bottom: 0, zIndex: 100,
+          position: 'fixed', top: user.isLoggedIn ? 0 : '38px', left: 0, bottom: 0, zIndex: 100,
           display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '10px 0',
         }}>
           {/* Logo */}
@@ -109,13 +105,6 @@ const MainLayout = () => {
 
           {/* Divider */}
           <div style={{ width: '30px', height: '1px', background: SB.border, margin: '8px 0' }} />
-
-          {/* Bell */}
-          {user.isLoggedIn && (
-            <NavIcon to="/notifications" label="Notifications" isActive={location.pathname === '/notifications'}>
-              <Bell size={20} strokeWidth={1.7} />
-            </NavIcon>
-          )}
 
           {/* Profile avatar */}
           <div ref={menuRef} style={{ marginTop: 'auto', position: 'relative', paddingBottom: '8px' }}>
@@ -152,11 +141,7 @@ const MainLayout = () => {
                 {user.isLoggedIn ? (
                   <>
                     {[
-                      { label: 'Profile',       to: '/profile' },
-                      { label: 'Settings',      to: '/settings' },
-                      { label: 'Notifications', to: '/notifications' },
-                      { label: 'Messages',      to: '/messages' },
-                      { label: 'Analytics',     to: '/analytics' },
+                      { label: 'Profile', to: '/profile' },
                     ].map(l => (
                       <Link key={l.label} to={l.to} onClick={() => setProfileMenuOpen(false)} style={{
                         display: 'block', padding: '0.55rem 1rem', color: SB.muted,
@@ -193,7 +178,7 @@ const MainLayout = () => {
         <main style={{
           marginLeft: '52px', flex: 1,
           background: '#F7F9FC',
-          minHeight: 'calc(100vh - 38px)',
+          minHeight: '100vh',
           overflowY: 'auto',
         }}>
           <Outlet />

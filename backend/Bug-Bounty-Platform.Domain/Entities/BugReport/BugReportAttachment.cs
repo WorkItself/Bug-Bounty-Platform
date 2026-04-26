@@ -14,14 +14,14 @@ namespace Bug_Bounty_Platform.Domain.Entities.BugReport
 
         [Required]
         [StringLength(255)]
-        public string FileName { get; set; }
+        public string FileName { get; set; } = string.Empty;
 
         [Required]
         [StringLength(500)]
-        public string StoragePath { get; set; }
+        public string StoragePath { get; set; } = string.Empty;
 
         [StringLength(100)]
-        public string ContentType { get; set; }
+        public string? ContentType { get; set; }
 
         public long FileSizeBytes { get; set; }
 

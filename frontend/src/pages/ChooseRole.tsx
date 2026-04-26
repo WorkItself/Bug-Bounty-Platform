@@ -49,7 +49,7 @@ const ChooseRole = () => {
             desc="Find vulnerabilities and earn bounty rewards"
             accentColor="#3F3AFC"
             accentBg="#EEF2FF"
-            onClick={() => navigate('/register')}
+            onClick={() => navigate('/register', { state: { role: 'user' } })}
           />
           {/* Company card */}
           <RoleCard
@@ -58,7 +58,7 @@ const ChooseRole = () => {
             desc="Launch a bug bounty program for your organization"
             accentColor="#E81C79"
             accentBg="#FFF0F6"
-            onClick={() => navigate('/contact-us')}
+            onClick={() => navigate('/company/apply')}
           />
         </div>
 

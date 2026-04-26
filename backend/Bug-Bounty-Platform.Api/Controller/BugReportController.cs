@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Bug_Bounty_Platform.BusinessLogic.Interfaces;
 using Bug_Bounty_Platform.Domain.Models.BugReport;
 using Microsoft.AspNetCore.Authorization;
@@ -18,12 +19,28 @@ namespace Bug_Bounty_Platform.Api.Controller
             _report = bl.BugReportAction();
         }
 
+        [HttpGet("my")]
+        [Authorize(Roles = "User,Admin")]
+        public IActionResult GetMine()
+        {
+            var claim = User.FindFirst(ClaimTypes.NameIdentifier) ?? User.FindFirst("sub");
+            if (claim == null || !int.TryParse(claim.Value, out var userId))
+                return Unauthorized(new { message = "Invalid token." });
+            return Ok(_report.GetByReporterAction(userId));
+        }
+
+        [HttpGet("program/{programId}")]
+        [Authorize(Roles = "Company,Admin")]
+        public IActionResult GetByProgram(int programId)
+        {
+            return Ok(_report.GetByProgramAction(programId));
+        }
+
         [HttpGet("getAll")]
         [Authorize(Roles = "Company,Admin")]
         public IActionResult GetAll()
         {
-            var reports = _report.GetAllBugReportAction();
-            return Ok(reports);
+            return Ok(_report.GetAllBugReportAction());
         }
 
         [HttpGet]
@@ -31,6 +48,7 @@ namespace Bug_Bounty_Platform.Api.Controller
         public IActionResult Get(int id)
         {
             var report = _report.GetBugReportByIdAction(id);
+            if (report == null) return NotFound(new { message = "Report not found." });
             return Ok(report);
         }
 
@@ -38,24 +56,27 @@ namespace Bug_Bounty_Platform.Api.Controller
         [Authorize(Roles = "User,Admin")]
         public IActionResult Create([FromBody] BugReportDto data)
         {
-            var responce = _report.CreateBugReportAction(data);
-            return Ok(responce);
+            var result = _report.CreateBugReportAction(data);
+            if (!result.IsSuccess) return BadRequest(new { message = result.Message });
+            return StatusCode(201, new { message = result.Message });
         }
 
         [HttpPut]
         [Authorize(Roles = "Company,Admin")]
         public IActionResult Update([FromBody] BugReportDto data)
         {
-            var responce = _report.UpdateBugReportAction(data);
-            return Ok(responce);
+            var result = _report.UpdateBugReportAction(data);
+            if (!result.IsSuccess) return BadRequest(new { message = result.Message });
+            return Ok(new { message = result.Message });
         }
 
         [HttpDelete]
         [Authorize(Roles = "Company,Admin")]
         public IActionResult Delete(int id)
         {
-            var responce = _report.DeleteBugReportAction(id);
-            return Ok(responce);
+            var result = _report.DeleteBugReportAction(id);
+            if (!result.IsSuccess) return NotFound(new { message = result.Message });
+            return NoContent();
         }
     }
 }

@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Bug_Bounty_Platform.BusinessLogic.Interfaces;
 using Bug_Bounty_Platform.Domain.Models.BountyProgram;
 using Microsoft.AspNetCore.Authorization;
@@ -11,19 +12,21 @@ namespace Bug_Bounty_Platform.Api.Controller
     [Authorize]
     public class BountyProgramController : ControllerBase
     {
-        private IBountyProgramAction _program;
+        private readonly IBountyProgramAction _program;
+        private readonly ICompanyProfileAction _companyProfile;
+
         public BountyProgramController(IConfiguration configuration)
         {
             var bl = new BusinessLogic.BusinessLogic(configuration);
             _program = bl.BountyProgramAction();
+            _companyProfile = bl.CompanyProfileAction();
         }
 
         [HttpGet("getAll")]
         [AllowAnonymous]
         public IActionResult GetAll()
         {
-            var programs = _program.GetAllBountyProgramAction();
-            return Ok(programs);
+            return Ok(_program.GetAllBountyProgramAction());
         }
 
         [HttpGet]
@@ -31,6 +34,7 @@ namespace Bug_Bounty_Platform.Api.Controller
         public IActionResult Get(int id)
         {
             var program = _program.GetBountyProgramByIdAction(id);
+            if (program == null) return NotFound(new { message = "Program not found." });
             return Ok(program);
         }
 
@@ -38,24 +42,39 @@ namespace Bug_Bounty_Platform.Api.Controller
         [Authorize(Roles = "Company,Admin")]
         public IActionResult Create([FromBody] BountyProgramDto data)
         {
-            var responce = _program.CreateBountyProgramAction(data);
-            return Ok(responce);
+            if (!IsAdminOrVerified()) return Forbid();
+            var result = _program.CreateBountyProgramAction(data);
+            if (!result.IsSuccess) return BadRequest(new { message = result.Message });
+            return StatusCode(201, new { message = result.Message });
         }
 
         [HttpPut]
         [Authorize(Roles = "Company,Admin")]
         public IActionResult Update([FromBody] BountyProgramDto data)
         {
-            var responce = _program.UpdateBountyProgramAction(data);
-            return Ok(responce);
+            if (!IsAdminOrVerified()) return Forbid();
+            var result = _program.UpdateBountyProgramAction(data);
+            if (!result.IsSuccess) return BadRequest(new { message = result.Message });
+            return Ok(new { message = result.Message });
         }
 
         [HttpDelete]
         [Authorize(Roles = "Company,Admin")]
         public IActionResult Delete(int id)
         {
-            var responce = _program.DeleteBountyProgramAction(id);
-            return Ok(responce);
+            if (!IsAdminOrVerified()) return Forbid();
+            var result = _program.DeleteBountyProgramAction(id);
+            if (!result.IsSuccess) return NotFound(new { message = result.Message });
+            return NoContent();
+        }
+
+        private bool IsAdminOrVerified()
+        {
+            var role = User.FindFirst(ClaimTypes.Role)?.Value;
+            if (role == "Admin") return true;
+
+            var claim = User.FindFirst(ClaimTypes.NameIdentifier) ?? User.FindFirst("sub");
+            return claim != null && int.TryParse(claim.Value, out var id) && _companyProfile.IsVerifiedAction(id);
         }
     }
 }

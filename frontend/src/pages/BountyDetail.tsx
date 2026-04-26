@@ -1,362 +1,105 @@
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import axiosInstance from '../utils/axiosInstance';
 
-const programs: Record<number, any> = {
-  1: {
-    id: 1,
-    company: 'Google',
-    reward: '$30,000',
-    scope: 'V8 Engine, Chrome Browser',
-    tier: 'CRITICAL',
-    programs: 45,
-    description: 'Google\'s bug bounty program rewards researchers for discovering and reporting security vulnerabilities in Google products and services.',
-    inScope: [
-      'V8 JavaScript Engine',
-      'Chrome Browser',
-      'Chromium OS',
-      'Google Cloud Platform components',
-      'Web APIs and extensions'
-    ],
-    outOfScope: [
-      'Third-party services and applications',
-      'Content hosted on Google platforms',
-      'Social engineering',
-      'Physical security issues'
-    ],
-    rules: [
-      'Do not access user data or perform unauthorized testing',
-      'Follow responsible disclosure practices',
-      'Do not test on production systems without authorization',
-      'Provide sufficient detail in your report for reproduction',
-      'Report only one vulnerability per submission unless they are closely related'
-    ],
-    submissionGuidelines: [
-      'Submit reports through the official Google VRP website',
-      'Include clear reproduction steps',
-      'Provide proof-of-concept code or screenshots',
-      'Explain the potential impact',
-      'Include your contact information'
-    ]
-  },
-  2: {
-    id: 2,
-    company: 'Meta',
-    reward: '$45,000',
-    scope: 'WhatsApp, Instagram API',
-    tier: 'CRITICAL',
-    programs: 38,
-    description: 'Meta\'s bug bounty program covers security research for Facebook, Instagram, WhatsApp, and related platforms.',
-    inScope: [
-      'WhatsApp application and services',
-      'Instagram mobile and web apps',
-      'Facebook platform APIs',
-      'Meta business tools',
-      'Integration services'
-    ],
-    outOfScope: [
-      'Third-party integrations',
-      'User-generated content',
-      'Services operated by acquired companies',
-      'Social engineering attacks'
-    ],
-    rules: [
-      'Respect user privacy and data',
-      'Do not perform denial-of-service tests',
-      'Use test accounts for testing',
-      'Allow 90 days for response before public disclosure',
-      'Do not download or store user data'
-    ],
-    submissionGuidelines: [
-      'Create a detailed vulnerability report',
-      'Include steps to reproduce the issue',
-      'Provide technical details and impact assessment',
-      'Submit through Meta\'s security bug bounty portal',
-      'Be available for follow-up questions'
-    ]
-  },
-  3: {
-    id: 3,
-    company: 'Shopify',
-    reward: '$10,000',
-    scope: 'Payment Gateway',
-    tier: 'HIGH',
-    programs: 22,
-    description: 'Shopify\'s bug bounty program focuses on security issues in their e-commerce platform and payment processing systems.',
-    inScope: [
-      'Shopify Admin API',
-      'Payment Gateway',
-      'Merchant onboarding',
-      'Shop security features',
-      'Data processing systems'
-    ],
-    outOfScope: [
-      'Third-party Shopify apps',
-      'Services not operated by Shopify',
-      'Physical security',
-      'Email phishing'
-    ],
-    rules: [
-      'Report vulnerabilities responsibly',
-      'Do not access other merchants\' data',
-      'Test only on your own accounts',
-      'Provide clear reproduction steps',
-      'Do not publicly disclose before patching'
-    ],
-    submissionGuidelines: [
-      'Report via Shopify\'s disclosure program',
-      'Include CVSS score estimation',
-      'Provide detailed technical analysis',
-      'Include remediation suggestions if possible',
-      'Be professional and courteous'
-    ]
-  },
-  4: {
-    id: 4,
-    company: 'Tesla',
-    reward: '$15,000',
-    scope: 'Infotainment System',
-    tier: 'HIGH',
-    programs: 18,
-    description: 'Tesla\'s security research program focuses on vulnerabilities in vehicle systems and related services.',
-    inScope: [
-      'Vehicle infotainment systems',
-      'Mobile app APIs',
-      'Website and portals',
-      'Network connectivity',
-      'Authentication mechanisms'
-    ],
-    outOfScope: [
-      'Physical properties',
-      'Third-party integrations',
-      'Manufacturing systems',
-      'Dealership systems'
-    ],
-    rules: [
-      'Do not interfere with vehicle operation',
-      'Report directly to Tesla security team',
-      'Respect responsible disclosure',
-      'Do not test on non-consenting vehicles',
-      'Allow 120 days for patch development'
-    ],
-    submissionGuidelines: [
-      'Contact Tesla security team directly',
-      'Provide comprehensive technical details',
-      'Include video demonstration if applicable',
-      'Explain safety implications',
-      'Maintain confidentiality'
-    ]
-  }
-};
+interface Program {
+  id: number;
+  programName: string;
+  programDescription?: string;
+  programScope?: string;
+  minReward: number;
+  maxReward: number;
+  ownerId: number;
+  isActive: boolean;
+}
 
-const getTierColor = (tier: string) => {
-  switch (tier) {
-    case 'CRITICAL':
-      return { bg: '#7f1d1d', text: '#fca5a5', border: '#dc2626' };
-    case 'HIGH':
-      return { bg: '#7c2d12', text: '#fdba74', border: '#f97316' };
-    default:
-      return { bg: '#1e3a8a', text: '#93c5fd', border: '#3b82f6' };
-  }
-};
+const fmt = (n: number) => n >= 1000 ? '$' + (n / 1000).toFixed(n % 1000 === 0 ? 0 : 1) + 'k' : '$' + n;
 
 const BountyDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const program = programs[parseInt(id || '1')];
+  const [program, setProgram] = useState<Program | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    axiosInstance.get(`/program?id=${id}`)
+      .then(res => setProgram(res.data))
+      .catch(() => setProgram(null))
+      .finally(() => setLoading(false));
+  }, [id]);
+
+  if (loading) {
+    return <div style={{ padding: '3rem', textAlign: 'center', color: '#6B7280' }}>Loading…</div>;
+  }
 
   if (!program) {
     return (
       <div style={{ width: '100%', maxWidth: '1000px', margin: '0 auto', textAlign: 'center', padding: '3rem' }}>
         <h1 style={{ color: '#ef4444' }}>Program Not Found</h1>
-        <button
-          onClick={() => navigate('/bounties')}
-          style={{
-            padding: '0.75rem 1.5rem',
-            background: '#009B77',
-            color: '#FFFFFF',
-            border: 'none',
-            borderRadius: '0.5rem',
-            cursor: 'pointer',
-            fontWeight: '600'
-          }}
-        >
+        <button onClick={() => navigate('/bounties')} style={{ padding: '0.75rem 1.5rem', background: '#3F3AFC', color: '#fff', border: 'none', borderRadius: '0.5rem', cursor: 'pointer', fontWeight: 600 }}>
           Back to Programs
         </button>
       </div>
     );
   }
 
-  const tierColor = getTierColor(program.tier);
+  const card: React.CSSProperties = {
+    background: '#fff', borderRadius: '12px', border: '1px solid #E5E7EB',
+    padding: '1.75rem 2rem', marginBottom: '1.25rem',
+    boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
+  };
 
   return (
-    <div style={{ width: '100%', maxWidth: '1000px', margin: '0 auto' }}>
-      <button
-        onClick={() => navigate('/bounties')}
-        style={{
-          marginBottom: '2rem',
-          padding: '0.5rem 1rem',
-          background: '#009B77',
-          color: '#FFFFFF',
-          border: 'none',
-          borderRadius: '0.5rem',
-          cursor: 'pointer',
-          fontWeight: '600',
-          transition: 'all 0.2s ease'
-        }}
-        onMouseEnter={(e) => {
-          (e.target as HTMLElement).style.transform = 'translateY(-2px)';
-        }}
-        onMouseLeave={(e) => {
-          (e.target as HTMLElement).style.transform = 'translateY(0)';
-        }}
-      >
+    <div style={{ width: '100%', maxWidth: '900px', margin: '0 auto', padding: '1.5rem 1rem' }}>
+      <button onClick={() => navigate('/bounties')} style={{ marginBottom: '1.5rem', padding: '0.45rem 1rem', background: 'transparent', color: '#3F3AFC', border: '1.5px solid #3F3AFC', borderRadius: '8px', cursor: 'pointer', fontWeight: 600, fontSize: '0.88rem' }}>
         ← Back to Programs
       </button>
 
-      {/* Header Section */}
-      <div style={{
-        background: 'linear-gradient(135deg, #1B3A57 0%, #0C1A30 100%)',
-        padding: '2rem',
-        borderRadius: '0.75rem',
-        border: '1px solid #009B77',
-        marginBottom: '2rem'
-      }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
-          <h1 style={{
-            fontSize: '2.5rem',
-            fontWeight: '800',
-            color: '#FFFFFF',
-            margin: 0
-          }}>{program.company}</h1>
-          <span style={{
-            fontSize: '0.75rem',
-            letterSpacing: '0.1em',
-            fontWeight: '700',
-            background: tierColor.bg,
-            color: tierColor.text,
-            padding: '0.5rem 1rem',
-            borderRadius: '0.5rem',
-            border: `1px solid ${tierColor.border}`,
-            textTransform: 'uppercase'
-          }}>
-            {program.tier}
+      {/* Header */}
+      <div style={{ ...card, background: 'linear-gradient(135deg, #3F3AFC 0%, #1e1acc 100%)', border: 'none', color: '#fff' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
+          <div>
+            <h1 style={{ margin: '0 0 0.5rem', fontSize: '2rem', fontWeight: 800 }}>{program.programName}</h1>
+            {program.programDescription && (
+              <p style={{ margin: 0, opacity: 0.85, fontSize: '0.97rem', lineHeight: 1.6, maxWidth: '600px' }}>{program.programDescription}</p>
+            )}
+          </div>
+          <span style={{ padding: '0.35rem 0.9rem', borderRadius: '20px', background: program.isActive ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)', fontSize: '0.8rem', fontWeight: 700, whiteSpace: 'nowrap' }}>
+            {program.isActive ? 'Active' : 'Inactive'}
           </span>
         </div>
 
-        <p style={{ color: '#A2DFF7', fontSize: '1rem', margin: '0 0 1.5rem 0' }}>
-          {program.description}
-        </p>
-
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
+        <div style={{ display: 'flex', gap: '3rem', marginTop: '1.75rem' }}>
           <div>
-            <p style={{ color: '#A2DFF7', fontSize: '0.85rem', fontWeight: '600', margin: '0 0 0.5rem 0' }}>MAX BOUNTY</p>
-            <p style={{ color: '#009B77', fontSize: '2rem', fontWeight: '700', margin: 0 }}>{program.reward}</p>
+            <p style={{ margin: '0 0 0.25rem', fontSize: '0.75rem', fontWeight: 700, opacity: 0.7, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Max Bounty</p>
+            <p style={{ margin: 0, fontSize: '1.8rem', fontWeight: 800 }}>{fmt(program.maxReward)}</p>
           </div>
           <div>
-            <p style={{ color: '#A2DFF7', fontSize: '0.85rem', fontWeight: '600', margin: '0 0 0.5rem 0' }}>ACTIVE PROGRAMS</p>
-            <p style={{ color: '#FFFFFF', fontSize: '2rem', fontWeight: '700', margin: 0 }}>{program.programs}</p>
+            <p style={{ margin: '0 0 0.25rem', fontSize: '0.75rem', fontWeight: 700, opacity: 0.7, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Min Bounty</p>
+            <p style={{ margin: 0, fontSize: '1.8rem', fontWeight: 800 }}>{fmt(program.minReward)}</p>
           </div>
         </div>
       </div>
 
-      {/* In Scope Section */}
-      <div style={{
-        background: 'linear-gradient(135deg, #1B3A57 0%, #0C1A30 100%)',
-        padding: '2rem',
-        borderRadius: '0.75rem',
-        border: '1px solid #009B77',
-        marginBottom: '2rem'
-      }}>
-        <h2 style={{ color: '#A2DFF7', fontSize: '1.5rem', marginTop: 0, marginBottom: '1rem' }}>In Scope</h2>
-        <p style={{ color: '#E0E0E0', marginBottom: '1rem' }}>The following areas are covered by this bounty program:</p>
-        <ul style={{ color: '#FFFFFF', margin: 0, paddingLeft: '1.5rem' }}>
-          {program.inScope.map((item: string, idx: number) => (
-            <li key={idx} style={{ marginBottom: '0.5rem' }}>{item}</li>
-          ))}
-        </ul>
-      </div>
+      {/* Scope */}
+      {program.programScope && (
+        <div style={card}>
+          <h2 style={{ margin: '0 0 0.75rem', fontSize: '1.1rem', fontWeight: 700, color: '#111' }}>Scope</h2>
+          <p style={{ margin: 0, color: '#374151', lineHeight: 1.7, whiteSpace: 'pre-line' }}>{program.programScope}</p>
+        </div>
+      )}
 
-      {/* Out of Scope Section */}
-      <div style={{
-        background: 'linear-gradient(135deg, #1B3A57 0%, #0C1A30 100%)',
-        padding: '2rem',
-        borderRadius: '0.75rem',
-        border: '1px solid #009B77',
-        marginBottom: '2rem'
-      }}>
-        <h2 style={{ color: '#A2DFF7', fontSize: '1.5rem', marginTop: 0, marginBottom: '1rem' }}>Out of Scope</h2>
-        <p style={{ color: '#E0E0E0', marginBottom: '1rem' }}>The following items are NOT covered by this program:</p>
-        <ul style={{ color: '#FFFFFF', margin: 0, paddingLeft: '1.5rem' }}>
-          {program.outOfScope.map((item: string, idx: number) => (
-            <li key={idx} style={{ marginBottom: '0.5rem' }}>{item}</li>
-          ))}
-        </ul>
-      </div>
-
-      {/* Rules Section */}
-      <div style={{
-        background: 'linear-gradient(135deg, #1B3A57 0%, #0C1A30 100%)',
-        padding: '2rem',
-        borderRadius: '0.75rem',
-        border: '1px solid #009B77',
-        marginBottom: '2rem'
-      }}>
-        <h2 style={{ color: '#A2DFF7', fontSize: '1.5rem', marginTop: 0, marginBottom: '1rem' }}>Program Rules</h2>
-        <ol style={{ color: '#FFFFFF', margin: 0, paddingLeft: '1.5rem' }}>
-          {program.rules.map((rule: string, idx: number) => (
-            <li key={idx} style={{ marginBottom: '0.5rem' }}>{rule}</li>
-          ))}
-        </ol>
-      </div>
-
-      {/* Submission Guidelines */}
-      <div style={{
-        background: 'linear-gradient(135deg, #1B3A57 0%, #0C1A30 100%)',
-        padding: '2rem',
-        borderRadius: '0.75rem',
-        border: '1px solid #009B77',
-        marginBottom: '2rem'
-      }}>
-        <h2 style={{ color: '#A2DFF7', fontSize: '1.5rem', marginTop: 0, marginBottom: '1rem' }}>Submission Guidelines</h2>
-        <ol style={{ color: '#FFFFFF', margin: 0, paddingLeft: '1.5rem' }}>
-          {program.submissionGuidelines.map((guideline: string, idx: number) => (
-            <li key={idx} style={{ marginBottom: '0.5rem' }}>{guideline}</li>
-          ))}
-        </ol>
-      </div>
-
-      {/* CTA Section */}
-      <div style={{
-        background: 'linear-gradient(135deg, #1B3A57 0%, #0C1A30 100%)',
-        padding: '2rem',
-        borderRadius: '0.75rem',
-        border: '1px solid #009B77',
-        textAlign: 'center'
-      }}>
-        <h2 style={{ color: '#FFFFFF', fontSize: '1.3rem', marginTop: 0, marginBottom: '1rem' }}>Ready to Participate?</h2>
-        <p style={{ color: '#A2DFF7', marginBottom: '1.5rem' }}>
-          Start hunting for vulnerabilities in {program.company}'s systems and earn bounties for your findings.
+      {/* CTA */}
+      <div style={{ ...card, textAlign: 'center' }}>
+        <h2 style={{ margin: '0 0 0.5rem', fontSize: '1.1rem', fontWeight: 700, color: '#111' }}>Ready to participate?</h2>
+        <p style={{ color: '#6B7280', margin: '0 0 1.25rem', fontSize: '0.93rem' }}>
+          Find a vulnerability in {program.programName} and submit your report.
         </p>
         <button
-          onClick={() => navigate(`/submit?bountyId=${program.id}`)}
-          style={{
-            padding: '0.75rem 2rem',
-            background: '#009B77',
-            color: '#FFFFFF',
-            border: 'none',
-            borderRadius: '0.5rem',
-            cursor: 'pointer',
-            fontWeight: '600',
-            fontSize: '1rem',
-            transition: 'all 0.2s ease'
-          }}
-          onMouseEnter={(e) => {
-            (e.target as HTMLElement).style.background = '#007A60';
-            (e.target as HTMLElement).style.transform = 'translateY(-2px)';
-          }}
-          onMouseLeave={(e) => {
-            (e.target as HTMLElement).style.background = '#009B77';
-            (e.target as HTMLElement).style.transform = 'translateY(0)';
-          }}
+          onClick={() => navigate(`/submit?programId=${program.id}`)}
+          style={{ padding: '0.7rem 2rem', background: '#3F3AFC', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 700, fontSize: '0.97rem', transition: 'background 0.2s' }}
+          onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = '#2F2AEC'}
+          onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = '#3F3AFC'}
         >
           Submit a Report
         </button>

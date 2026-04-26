@@ -11,10 +11,10 @@ namespace Bug_Bounty_Platform.Domain.Entities.BugReport
 
         [Required]
         [StringLength(150)]
-        public string Title { get; set; }
+        public string Title { get; set; } = string.Empty;
 
         [StringLength(2000)]
-        public string Description { get; set; }
+        public string? Description { get; set; }
 
         [Required]
         public BugSeverity Severity { get; set; }
