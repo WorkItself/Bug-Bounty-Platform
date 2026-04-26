@@ -4,5 +4,6 @@ namespace Bug_Bounty_Platform.Domain.Models.Responces
     {
         public bool IsSuccess { get; set; }
         public string? Message { get; set; }
+        public int? Id { get; set; }
     }
 }

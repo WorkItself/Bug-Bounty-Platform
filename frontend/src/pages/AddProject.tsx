@@ -20,6 +20,7 @@ const AddProject = () => {
     programName: '',
     programDescription: '',
     programScope: '',
+    website: '',
     rewardCritical: '',
     rewardHigh: '',
     rewardMedium: '',
@@ -44,6 +45,7 @@ const AddProject = () => {
         programName: formData.programName,
         programDescription: formData.programDescription || null,
         programScope: formData.programScope || null,
+        website: formData.website || null,
         rewardCritical:      toDecimal(formData.rewardCritical),
         rewardHigh:          toDecimal(formData.rewardHigh),
         rewardMedium:        toDecimal(formData.rewardMedium),
@@ -91,6 +93,12 @@ const AddProject = () => {
           <textarea name="programDescription" value={formData.programDescription} onChange={handleChange}
             placeholder="Describe your program, its goals, and what you're looking for." rows={3}
             style={{ ...inputStyle, resize: 'vertical' }} />
+        </div>
+
+        <div style={{ marginBottom: '1.25rem' }}>
+          <label style={labelStyle}>Website</label>
+          <input type="url" name="website" value={formData.website} onChange={handleChange}
+            placeholder="https://example.com" style={inputStyle} />
         </div>
 
         <div style={{ marginBottom: '1.75rem' }}>

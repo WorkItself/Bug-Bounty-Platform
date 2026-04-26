@@ -30,6 +30,7 @@ import ContactUs from './pages/ContactUs';
 import CompanyProfilePage from './pages/CompanyProfilePage';
 import PublicHackerProfile from './pages/PublicHackerProfile';
 import PublicCompanyPage from './pages/PublicCompanyPage';
+import ReportDetail from './pages/ReportDetail';
 
 function App() {
   return (
@@ -54,6 +55,7 @@ function App() {
           <Route element={<MainLayout />}>
             <Route path="/profile" element={<Profile />} />
             <Route path="/support" element={<ContactSupport />} />
+            <Route path="/report/:id" element={<ReportDetail />} />
 
             {/* Hacker Routes */}
             <Route element={<RoleBasedRoute allowedRoles={['user']} />}>

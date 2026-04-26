@@ -7,6 +7,7 @@ interface Program {
   programName: string;
   programDescription?: string;
   programScope?: string;
+  website?: string;
   rewardCritical?: number;
   rewardHigh?: number;
   rewardMedium?: number;
@@ -73,6 +74,11 @@ const BountyDetail = () => {
             <h1 style={{ margin: '0 0 0.5rem', fontSize: '2rem', fontWeight: 800 }}>{program.programName}</h1>
             {program.programDescription && (
               <p style={{ margin: 0, opacity: 0.85, fontSize: '0.97rem', lineHeight: 1.6, maxWidth: '600px' }}>{program.programDescription}</p>
+            )}
+            {program.website && (
+              <a href={program.website} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', marginTop: '0.6rem', color: 'rgba(255,255,255,0.85)', fontSize: '0.85rem', textDecoration: 'none', borderBottom: '1px solid rgba(255,255,255,0.4)' }}>
+                🌐 {program.website}
+              </a>
             )}
           </div>
           <span style={{ padding: '0.35rem 0.9rem', borderRadius: '20px', background: program.isActive ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)', fontSize: '0.8rem', fontWeight: 700, whiteSpace: 'nowrap' }}>

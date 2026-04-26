@@ -66,6 +66,7 @@ namespace Bug_Bounty_Platform.BusinessLogic.Core
                 return status;
             }
 
+            int createdId;
             using (var db = new BugReportContext())
             {
                 var brData = new BugReportData
@@ -80,12 +81,14 @@ namespace Bug_Bounty_Platform.BusinessLogic.Core
                 };
                 db.BugReports.Add(brData);
                 db.SaveChanges();
+                createdId = brData.Id;
             }
 
             return new ActionResponce
             {
                 IsSuccess = true,
-                Message = "Bug report submitted successfully."
+                Message = "Bug report submitted successfully.",
+                Id = createdId
             };
         }
 
