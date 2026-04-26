@@ -23,7 +23,8 @@ namespace Bug_Bounty_Platform.Api.Controller
         public IActionResult Apply([FromBody] CompanyApplyDto dto)
         {
             var result = _apply.ApplyAction(dto);
-            return Ok(result);
+            if (!result.IsSuccess) return BadRequest(new { message = result.Message });
+            return StatusCode(201, new { message = result.Message });
         }
 
         [HttpGet("pending")]
@@ -38,7 +39,8 @@ namespace Bug_Bounty_Platform.Api.Controller
         public IActionResult Approve(int userId)
         {
             var result = _apply.ApproveAction(userId);
-            return Ok(result);
+            if (!result.IsSuccess) return NotFound(new { message = result.Message });
+            return Ok(new { message = result.Message });
         }
     }
 }
