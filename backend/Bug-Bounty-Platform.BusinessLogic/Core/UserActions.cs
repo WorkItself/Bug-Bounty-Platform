@@ -19,23 +19,53 @@ namespace Bug_Bounty_Platform.BusinessLogic.Core
             _configuration = configuration;
         }
 
-        internal bool UserLoginDataValidationExecution(UserLoginDto udata)
+        public List<object> GetAllUsersExecution()
         {
-            UserData? user;
-            using (var db = new UserContext())
+            using var db = new UserContext();
+            return db.Users.Select(u => (object)new
             {
-                user = db.Users.
-                    FirstOrDefault(x =>
-                        (x.UserName == udata.Credential || x.Email == udata.Credential) &&
-                        x.Password == udata.Password);
-            }
+                u.Id,
+                u.UserName,
+                u.Email,
+                Role = u.Role.ToString(),
+                u.RegisteredOn
+            }).ToList();
+        }
 
-            if (user != null)
+        internal bool IsAdminLogin(UserLoginDto udata)
+        {
+            var adminUser = _configuration["Admin:UserName"];
+            var adminPass = _configuration["Admin:Password"];
+            return udata.Credential == adminUser && udata.Password == adminPass;
+        }
+
+        internal string AdminTokenGeneration()
+        {
+            var adminUser = _configuration["Admin:UserName"]!;
+            var adminData = new UserData
             {
-                return true;
-            }
+                Id = 0,
+                UserName = adminUser,
+                Email = string.Empty,
+                Password = string.Empty,
+                Role = UserRole.Admin,
+                RegisteredOn = DateTime.MinValue
+            };
 
-            return false;
+            return BuildToken(adminData);
+        }
+
+        internal string? UserLoginDataValidationExecution(UserLoginDto udata)
+        {
+            using var db = new UserContext();
+            var user = db.Users.FirstOrDefault(x =>
+                (x.UserName == udata.Credential || x.Email == udata.Credential) &&
+                x.Password == udata.Password);
+
+            if (user == null) return null;
+            if (user.Role == UserRole.Company && !user.IsApproved)
+                return "PENDING_APPROVAL";
+            return "OK";
         }
 
         internal string UserTokenGeneration(UserLoginDto udata)
@@ -47,6 +77,11 @@ namespace Bug_Bounty_Platform.BusinessLogic.Core
                     x.UserName == udata.Credential || x.Email == udata.Credential);
             }
 
+            return BuildToken(user);
+        }
+
+        private string BuildToken(UserData user)
+        {
             var secretKey = _configuration["Jwt:SecretKey"]!;
             var issuer = _configuration["Jwt:Issuer"]!;
             var audience = _configuration["Jwt:Audience"]!;
@@ -61,9 +96,8 @@ namespace Bug_Bounty_Platform.BusinessLogic.Core
             UserData? user;
             using (var db = new UserContext())
             {
-                user = db.Users.
-                    FirstOrDefault(x =>
-                        x.Email == uReg.Email || x.UserName == uReg.UserName);
+                user = db.Users.FirstOrDefault(x =>
+                    x.Email == uReg.Email || x.UserName == uReg.UserName);
             }
 
             if (user != null)
@@ -75,9 +109,12 @@ namespace Bug_Bounty_Platform.BusinessLogic.Core
                 };
             }
 
+            // Companies must apply via /api/company/apply — normal registration always creates User role
+            var role = UserRole.User;
+
             user = _mapper.Map<UserData>(uReg);
-            user.Role = UserRole.User;
-            user.RegisteredOn = DateTime.Now;
+            user.Role = role;
+            user.RegisteredOn = DateTime.UtcNow;
 
             using (var db = new UserContext())
             {

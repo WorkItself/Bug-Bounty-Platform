@@ -22,12 +22,9 @@ namespace Bug_Bounty_Platform.Api.Controller
         public IActionResult Register([FromBody] UserRegisterDto uRegData)
         {
             var data = _userReg.UserRegDataValidation(uRegData);
-            if (data.IsSuccess)
-            {
-                return Ok(data.Message);
-            }
-
-            return Ok(data.Message);
+            if (!data.IsSuccess)
+                return BadRequest(new { message = data.Message });
+            return StatusCode(201, new { message = data.Message });
         }
     }
 }

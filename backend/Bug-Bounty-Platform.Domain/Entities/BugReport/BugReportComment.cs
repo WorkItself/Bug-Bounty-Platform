@@ -17,7 +17,7 @@ namespace Bug_Bounty_Platform.Domain.Entities.BugReport
 
         [Required]
         [StringLength(2000)]
-        public string Content { get; set; }
+        public string Content { get; set; } = string.Empty;
 
         public bool IsInternal { get; set; }
 

@@ -15,6 +15,20 @@ namespace Bug_Bounty_Platform.BusinessLogic.Core
         {
         }
 
+        protected List<BugReportDto> GetByReporterExecution(int reporterId)
+        {
+            using var db = new BugReportContext();
+            var data = db.BugReports.Where(x => x.ReporterId == reporterId && !x.IsDeleted).ToList();
+            return _mapper.Map<List<BugReportDto>>(data);
+        }
+
+        protected List<BugReportDto> GetByProgramExecution(int programId)
+        {
+            using var db = new BugReportContext();
+            var data = db.BugReports.Where(x => x.ProgramId == programId && !x.IsDeleted).ToList();
+            return _mapper.Map<List<BugReportDto>>(data);
+        }
+
         protected List<BugReportDto> GetAllBugReportActionExecution()
         {
             var data = new List<BugReportDto>();
@@ -62,7 +76,7 @@ namespace Bug_Bounty_Platform.BusinessLogic.Core
                     Status = BugStatus.New,
                     ProgramId = data.ProgramId,
                     ReporterId = data.ReporterId,
-                    SubmittedAt = DateTime.Now
+                    SubmittedAt = DateTime.UtcNow
                 };
                 db.BugReports.Add(brData);
                 db.SaveChanges();
@@ -94,7 +108,7 @@ namespace Bug_Bounty_Platform.BusinessLogic.Core
             localData.ProgramId = data.ProgramId;
             localData.ReporterId = data.ReporterId;
 
-            localData.UpdatedAt = DateTime.Now;
+            localData.UpdatedAt = DateTime.UtcNow;
 
             using (var db = new BugReportContext())
             {

@@ -9,16 +9,18 @@ namespace Bug_Bounty_Platform.BusinessLogic.Structure
     {
         public UserAuthAction(IConfiguration configuration) : base(configuration) { }
 
-        public object UserLoginDataValidation(UserLoginDto udata)
+        public object? UserLoginDataValidation(UserLoginDto udata)
         {
-            var isValid = UserLoginDataValidationExecution(udata);
-            if (isValid)
-            {
-                var token = UserTokenGeneration(udata);
-                return token;
-            }
+            if (IsAdminLogin(udata))
+                return AdminTokenGeneration();
 
-            return null;
+            var status = UserLoginDataValidationExecution(udata);
+            return status switch
+            {
+                "OK" => UserTokenGeneration(udata),
+                "PENDING_APPROVAL" => "PENDING_APPROVAL",
+                _ => null
+            };
         }
     }
 }

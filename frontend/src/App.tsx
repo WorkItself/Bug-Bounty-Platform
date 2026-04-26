@@ -35,6 +35,7 @@ import ToolsUtilities from './pages/ToolsUtilities';
 import ForgotPassword from './pages/ForgotPassword';
 import ContactUs from './pages/ContactUs';
 import ChooseRole from './pages/ChooseRole';
+import CompanyApply from './pages/CompanyApply';
 
 function App() {
   return (
@@ -45,6 +46,7 @@ function App() {
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/register" element={<Register />} />
         <Route path="/choose-role" element={<ChooseRole />} />
+        <Route path="/company/apply" element={<CompanyApply />} />
         <Route path="/contact-us" element={<ContactUs />} />
         <Route element={<MainLayout />}>
           <Route path="/dashboard" element={<Dashboard />} />

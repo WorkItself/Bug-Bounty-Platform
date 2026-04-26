@@ -6,6 +6,7 @@ using Bug_Bounty_Platform.Domain.Models.BountyProgram;
 using Bug_Bounty_Platform.Domain.Models.BugReport;
 using Bug_Bounty_Platform.Domain.Models.User;
 
+
 namespace Bug_Bounty_Platform.BusinessLogic.Mappings
 {
     public class MappingProfile : Profile
@@ -34,6 +35,14 @@ namespace Bug_Bounty_Platform.BusinessLogic.Mappings
                 .ForMember(dest => dest.Id,           opt => opt.Ignore())
                 .ForMember(dest => dest.Role,         opt => opt.Ignore())
                 .ForMember(dest => dest.RegisteredOn, opt => opt.Ignore());
+
+            // CompanyProfile
+            CreateMap<CompanyProfile, CompanyProfileDto>();
+            CreateMap<CompanyProfileDto, CompanyProfile>()
+                .ForMember(dest => dest.Id,         opt => opt.Ignore())
+                .ForMember(dest => dest.IsVerified, opt => opt.Ignore())
+                .ForMember(dest => dest.VerifiedAt, opt => opt.Ignore())
+                .ForMember(dest => dest.CreatedAt,  opt => opt.Ignore());
         }
     }
 }

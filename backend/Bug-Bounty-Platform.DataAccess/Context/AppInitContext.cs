@@ -15,6 +15,7 @@ namespace Bug_Bounty_Platform.DataAccess.Context
         public DbSet<BugReportData> BugReports { get; set; }
         public DbSet<BugReportComment> BugReportComments { get; set; }
         public DbSet<BugReportAttachment> BugReportAttachments { get; set; }
+        public DbSet<CompanyProfile> CompanyProfiles { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
