@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useSupport } from '../context/SupportContext';
+import { useUser } from '../context/UserContext';
 import {
-  Bug, FileText, ShieldCheck, Trophy, BookOpen, BarChart2,
+  Bug, FileText, ShieldCheck, Trophy, BarChart2,
   Medal, ArrowUpCircle, Twitter, Linkedin, Github,
 } from 'lucide-react';
 
@@ -39,12 +40,11 @@ const btn = (bg: string, _hover?: string): React.CSSProperties => ({
 
 /* ─────────────── feature card data ─────────────── */
 const features = [
-  { color: C.pink,    title: 'Bug Bounty Programs',     desc: 'Discover active programs and earn rewards by responsibly reporting vulnerabilities.', link: '/bounties',    icon: Bug },
-  { color: C.purple,  title: 'Submit Reports',           desc: 'File detailed vulnerability reports directly to security teams using standardised templates.', link: '/submit',      icon: FileText },
-  { color: C.teal,    title: 'Vulnerability Disclosure', desc: 'Coordinated response programs that let researchers disclose bugs safely and responsibly.', link: '/bounties',    icon: ShieldCheck },
-  { color: C.mutedPink, title: 'Leaderboard',            desc: 'Compete with the best security researchers and build your reputation in the community.', link: '/leaderboard', icon: Trophy },
-  { color: C.red,     title: 'Resources & Learning',     desc: 'Access guides, write-ups, and tools to sharpen your skills and stay ahead of threats.', link: '/kb',          icon: BookOpen },
-  { color: C.deepBlue, title: 'Analytics & Insights',   desc: 'Track program performance, submission trends, and payout statistics in real time.', link: '/dashboard',   icon: BarChart2 },
+  { color: C.pink,     title: 'Bug Bounty Programs',     desc: 'Discover active programs and earn rewards by responsibly reporting vulnerabilities.', link: '/bounties',    icon: Bug },
+  { color: C.purple,   title: 'Submit Reports',           desc: 'File detailed vulnerability reports directly to security teams using standardised templates.', link: '/submit',      icon: FileText },
+  { color: C.teal,     title: 'Vulnerability Disclosure', desc: 'Coordinated response programs that let researchers disclose bugs safely and responsibly.', link: '/bounties',    icon: ShieldCheck },
+  { color: C.mutedPink, title: 'Leaderboard',             desc: 'Compete with the best security researchers and build your reputation in the community.', link: '/leaderboard', icon: Trophy },
+  { color: C.deepBlue, title: 'Analytics & Insights',    desc: 'Track program performance, submission trends, and payout statistics in real time.', link: '/dashboard',   icon: BarChart2 },
 ];
 
 const stats = [
@@ -66,6 +66,7 @@ const SECURITY_OBJECTIVES = [
 
 export default function LandingPage() {
   const navigate = useNavigate();
+  const { user } = useUser();
   const { submitRequest } = useSupport();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -113,10 +114,9 @@ export default function LandingPage() {
           {/* Desktop nav links */}
           <nav style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', flex: 1 }} className="desktop-nav">
             {[
-              { label: 'Bug Bounties',  to: '/bounties'    },
-              { label: 'Leaderboard',   to: '/leaderboard' },
-              { label: 'Resources',     to: '/kb'          },
-              { label: 'Researchers',   to: '/choose-role' },
+              { label: 'Bug Bounties', to: '/bounties'    },
+              { label: 'Leaderboard',  to: '/leaderboard' },
+              { label: 'Researchers',  to: '/choose-role' },
             ].map(({ label, to }) => (
               <Link key={label} to={to} style={{
                 padding: '0.4rem 0.9rem',
@@ -132,14 +132,37 @@ export default function LandingPage() {
 
           {/* CTAs */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexShrink: 0 }}>
-            <Link to="/login" style={{ color: C.textMuted, textDecoration: 'none', fontSize: '0.88rem', fontWeight: 500, padding: '0.4rem 0.75rem', transition: 'color 0.2s', borderRadius: '6px' }}
-              onMouseEnter={e => (e.currentTarget as HTMLElement).style.color = '#fff'}
-              onMouseLeave={e => (e.currentTarget as HTMLElement).style.color = C.textMuted}
-            >Login</Link>
-            <Link to="/choose-role" style={{ ...btn(C.trustedBlue, C.trustedBlueHover), fontSize: '0.88rem', padding: '0.5rem 1.2rem' }}
-              onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = C.trustedBlueHover}
-              onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = C.trustedBlue}
-            >Get Started →</Link>
+            {user.isLoggedIn ? (
+              <>
+                <Link to="/dashboard" style={{ ...btn(C.trustedBlue, C.trustedBlueHover), fontSize: '0.88rem', padding: '0.5rem 1.2rem' }}
+                  onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = C.trustedBlueHover}
+                  onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = C.trustedBlue}
+                >Go to Dashboard →</Link>
+                <Link to="/profile" title={user.name ?? 'Profile'} style={{
+                  width: '34px', height: '34px', borderRadius: '50%',
+                  background: 'linear-gradient(135deg, #1DBCA7, #009B77)',
+                  color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontWeight: 700, fontSize: '0.85rem', textDecoration: 'none', flexShrink: 0,
+                  border: '2px solid rgba(255,255,255,0.15)', transition: 'border-color 0.2s',
+                }}
+                  onMouseEnter={e => (e.currentTarget as HTMLElement).style.borderColor = 'rgba(255,255,255,0.5)'}
+                  onMouseLeave={e => (e.currentTarget as HTMLElement).style.borderColor = 'rgba(255,255,255,0.15)'}
+                >
+                  {user.name?.charAt(0).toUpperCase() ?? 'U'}
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link to="/login" style={{ color: C.textMuted, textDecoration: 'none', fontSize: '0.88rem', fontWeight: 500, padding: '0.4rem 0.75rem', transition: 'color 0.2s', borderRadius: '6px' }}
+                  onMouseEnter={e => (e.currentTarget as HTMLElement).style.color = '#fff'}
+                  onMouseLeave={e => (e.currentTarget as HTMLElement).style.color = C.textMuted}
+                >Login</Link>
+                <Link to="/choose-role" style={{ ...btn(C.trustedBlue, C.trustedBlueHover), fontSize: '0.88rem', padding: '0.5rem 1.2rem' }}
+                  onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = C.trustedBlueHover}
+                  onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = C.trustedBlue}
+                >Get Started →</Link>
+              </>
+            )}
           </div>
 
           {/* Mobile hamburger */}
@@ -164,9 +187,10 @@ export default function LandingPage() {
             {[
               { label: 'Bug Bounties', to: '/bounties' },
               { label: 'Leaderboard',  to: '/leaderboard' },
-              { label: 'Resources',    to: '/kb' },
-              { label: 'Login',        to: '/login' },
-              { label: 'Get Started',  to: '/choose-role' },
+              ...(user.isLoggedIn
+                ? [{ label: 'Dashboard', to: '/dashboard' }]
+                : [{ label: 'Login', to: '/login' }, { label: 'Get Started', to: '/choose-role' }]
+              ),
             ].map(({ label, to }) => (
               <Link key={label} to={to} onClick={() => setMobileOpen(false)} style={{
                 display: 'block', padding: '0.65rem 0',
@@ -210,10 +234,17 @@ export default function LandingPage() {
               Connect ethical hackers with organisations that care about security. Find vulnerabilities, submit reports, and get paid — all on one trusted platform.
             </p>
             <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center' }}>
-              <button onClick={() => navigate('/choose-role')} style={{ ...btn(C.trustedBlue, C.trustedBlueHover), fontSize: '0.95rem', padding: '0.7rem 1.6rem' }}
-                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = C.trustedBlueHover; (e.currentTarget as HTMLElement).style.transform = 'translateY(-1px)'; }}
-                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = C.trustedBlue; (e.currentTarget as HTMLElement).style.transform = 'translateY(0)'; }}
-              >Get Started →</button>
+              {user.isLoggedIn ? (
+                <button onClick={() => navigate('/dashboard')} style={{ ...btn(C.trustedBlue, C.trustedBlueHover), fontSize: '0.95rem', padding: '0.7rem 1.6rem' }}
+                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = C.trustedBlueHover; (e.currentTarget as HTMLElement).style.transform = 'translateY(-1px)'; }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = C.trustedBlue; (e.currentTarget as HTMLElement).style.transform = 'translateY(0)'; }}
+                >Go to Dashboard →</button>
+              ) : (
+                <button onClick={() => navigate('/choose-role')} style={{ ...btn(C.trustedBlue, C.trustedBlueHover), fontSize: '0.95rem', padding: '0.7rem 1.6rem' }}
+                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = C.trustedBlueHover; (e.currentTarget as HTMLElement).style.transform = 'translateY(-1px)'; }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = C.trustedBlue; (e.currentTarget as HTMLElement).style.transform = 'translateY(0)'; }}
+                >Get Started →</button>
+              )}
               <button onClick={() => navigate('/bounties')} style={{ background: 'transparent', border: 'none', color: '#fff', fontSize: '0.95rem', fontWeight: 500, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '0.4rem', padding: '0.7rem 0.5rem', transition: 'opacity 0.2s' }}
                 onMouseEnter={e => (e.currentTarget as HTMLElement).style.opacity = '0.75'}
                 onMouseLeave={e => (e.currentTarget as HTMLElement).style.opacity = '1'}
@@ -348,7 +379,7 @@ export default function LandingPage() {
                 'Access 482+ active bug bounty programs',
                 'Earn competitive rewards for valid reports',
                 'Build reputation on the global leaderboard',
-                'Learn with curated resources and write-ups',
+                'Submit reports and track your findings in real time',
               ].map(item => (
                 <li key={item} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.6rem', color: '#374151', fontSize: '0.95rem' }}>
                   <span style={{ color: C.teal, fontWeight: 700, marginTop: '1px', flexShrink: 0 }}>✓</span>
@@ -439,10 +470,17 @@ export default function LandingPage() {
             Join thousands of security researchers and forward-thinking organisations already on BountyOS.
           </p>
           <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', flexWrap: 'wrap' }}>
-            <button onClick={() => navigate('/choose-role')} style={{ ...btn(C.trustedBlue, C.trustedBlueHover), fontSize: '0.98rem', padding: '0.75rem 1.8rem' }}
-              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = C.trustedBlueHover; (e.currentTarget as HTMLElement).style.transform = 'translateY(-1px)'; }}
-              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = C.trustedBlue; (e.currentTarget as HTMLElement).style.transform = 'translateY(0)'; }}
-            >Create Free Account →</button>
+            {user.isLoggedIn ? (
+              <button onClick={() => navigate('/dashboard')} style={{ ...btn(C.trustedBlue, C.trustedBlueHover), fontSize: '0.98rem', padding: '0.75rem 1.8rem' }}
+                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = C.trustedBlueHover; (e.currentTarget as HTMLElement).style.transform = 'translateY(-1px)'; }}
+                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = C.trustedBlue; (e.currentTarget as HTMLElement).style.transform = 'translateY(0)'; }}
+              >Go to Dashboard →</button>
+            ) : (
+              <button onClick={() => navigate('/choose-role')} style={{ ...btn(C.trustedBlue, C.trustedBlueHover), fontSize: '0.98rem', padding: '0.75rem 1.8rem' }}
+                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = C.trustedBlueHover; (e.currentTarget as HTMLElement).style.transform = 'translateY(-1px)'; }}
+                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = C.trustedBlue; (e.currentTarget as HTMLElement).style.transform = 'translateY(0)'; }}
+              >Create Free Account →</button>
+            )}
             <button onClick={() => navigate('/bounties')} style={{ background: 'transparent', border: '1.5px solid rgba(255,255,255,0.25)', color: '#fff', borderRadius: '999px', padding: '0.75rem 1.8rem', fontWeight: 600, fontSize: '0.98rem', cursor: 'pointer', transition: 'all 0.2s' }}
               onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = 'rgba(255,255,255,0.5)'; }}
               onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = 'rgba(255,255,255,0.25)'; }}
@@ -524,7 +562,7 @@ export default function LandingPage() {
       {/* ══════════ FOOTER ══════════ */}
       <footer style={{ background: C.navBg, padding: '4rem 1.5rem 0', borderTop: `1px solid ${C.borderMuted}` }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr', gap: '3rem', marginBottom: '3rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', gap: '3rem', marginBottom: '3rem' }}>
             {/* Brand col */}
             <div>
               <button
@@ -539,27 +577,17 @@ export default function LandingPage() {
             {/* Platform col */}
             <div>
               <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#fff', letterSpacing: '0.06em', textTransform: 'capitalize', marginBottom: '1rem' }}>Platform</div>
-              {[{ label: 'Bug Bounties', to: '/bounties' }, { label: 'Submit Report', to: '/submit' }, { label: 'Leaderboard', to: '/leaderboard' }, { label: 'Researchers', to: '/register' }, { label: 'Analytics', to: '/analytics' }].map(l => (
+              {[{ label: 'Bug Bounties', to: '/bounties' }, { label: 'Submit Report', to: '/submit' }, { label: 'Leaderboard', to: '/leaderboard' }, { label: 'Researchers', to: '/register' }].map(l => (
                 <Link key={l.label} to={l.to} style={{ display: 'block', color: C.textMuted, textDecoration: 'none', fontSize: '0.88rem', marginBottom: '0.55rem', transition: 'color 0.2s' }}
                   onMouseEnter={e => (e.currentTarget as HTMLElement).style.color = '#fff'}
                   onMouseLeave={e => (e.currentTarget as HTMLElement).style.color = C.textMuted}
                 >{l.label}</Link>
               ))}
             </div>
-            {/* Knowledge Center col */}
+            {/* Company col */}
             <div>
-              <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#fff', letterSpacing: '0.06em', textTransform: 'capitalize', marginBottom: '1rem' }}>Knowledge Center</div>
-              {[{ label: 'Application Security', to: '/kb' }, { label: 'Penetration Testing', to: '/kb' }, { label: 'Bug Bounty Basics', to: '/resources/bug-bounty-basics' }, { label: 'Vulnerability Reporting', to: '/resources/vulnerability-reporting' }, { label: 'Tools & Utilities', to: '/resources/tools' }, { label: 'Cybersecurity Attacks', to: '/kb' }].map(l => (
-                <Link key={l.label} to={l.to} style={{ display: 'block', color: C.textMuted, textDecoration: 'none', fontSize: '0.88rem', marginBottom: '0.55rem', transition: 'color 0.2s' }}
-                  onMouseEnter={e => (e.currentTarget as HTMLElement).style.color = '#fff'}
-                  onMouseLeave={e => (e.currentTarget as HTMLElement).style.color = C.textMuted}
-                >{l.label}</Link>
-              ))}
-            </div>
-            {/* Resources col */}
-            <div>
-              <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#fff', letterSpacing: '0.06em', textTransform: 'capitalize', marginBottom: '1rem' }}>Resources</div>
-              {[{ label: 'Documentation', to: '/kb' }, { label: 'Leaderboard', to: '/leaderboard' }, { label: 'Resources', to: '/kb' }, { label: 'Support', to: '/contact-support' }].map(l => (
+              <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#fff', letterSpacing: '0.06em', textTransform: 'capitalize', marginBottom: '1rem' }}>Company</div>
+              {[{ label: 'Leaderboard', to: '/leaderboard' }, { label: 'Support', to: '/support' }, { label: 'Contact Us', to: '/contact-us' }].map(l => (
                 <Link key={l.label} to={l.to} style={{ display: 'block', color: C.textMuted, textDecoration: 'none', fontSize: '0.88rem', marginBottom: '0.55rem', transition: 'color 0.2s' }}
                   onMouseEnter={e => (e.currentTarget as HTMLElement).style.color = '#fff'}
                   onMouseLeave={e => (e.currentTarget as HTMLElement).style.color = C.textMuted}
@@ -584,7 +612,7 @@ export default function LandingPage() {
           {/* Bottom bar */}
           <div style={{ borderTop: `1px solid ${C.borderMuted}`, padding: '1.5rem 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem' }}>
             <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap' }}>
-              {[{ label: 'Terms', to: '/kb' }, { label: 'Privacy', to: '/kb' }, { label: 'Security', to: '/kb' }, { label: 'Contact', to: '/contact-support' }].map(l => (
+              {[{ label: 'Contact', to: '/contact-us' }, { label: 'Support', to: '/support' }].map(l => (
                 <Link key={l.label} to={l.to} style={{ color: C.textMuted, textDecoration: 'none', fontSize: '0.8rem', transition: 'color 0.2s' }}
                   onMouseEnter={e => (e.currentTarget as HTMLElement).style.color = '#fff'}
                   onMouseLeave={e => (e.currentTarget as HTMLElement).style.color = C.textMuted}
@@ -605,13 +633,13 @@ export default function LandingPage() {
           section > div[style*="grid-template-columns: 1fr 1.15fr"] { grid-template-columns: 1fr !important; }
           section > div[style*="grid-template-columns: repeat(4"] { grid-template-columns: repeat(2, 1fr) !important; }
           section > div[style*="grid-template-columns: repeat(3"] { grid-template-columns: 1fr 1fr !important; }
-          footer > div > div[style*="grid-template-columns: 2fr"] { grid-template-columns: 1fr 1fr !important; }
+          footer > div > div[style*="grid-template-columns: 2fr 1fr 1fr"] { grid-template-columns: 1fr 1fr !important; }
         }
         @media (max-width: 580px) {
           section > div[style*="grid-template-columns: repeat(3"] { grid-template-columns: 1fr !important; }
           section > div[style*="grid-template-columns: repeat(4"] { grid-template-columns: 1fr !important; }
           section > div[style*="grid-template-columns: 1fr 1.15fr"] { grid-template-columns: 1fr !important; }
-          footer > div > div[style*="grid-template-columns: 2fr"] { grid-template-columns: 1fr 1fr !important; }
+          footer > div > div[style*="grid-template-columns: 2fr 1fr 1fr"] { grid-template-columns: 1fr 1fr !important; }
         }
         @media (max-width: 420px) {
           footer > div > div[style*="grid-template-columns: 2fr"] { grid-template-columns: 1fr !important; }
