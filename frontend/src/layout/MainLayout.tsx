@@ -141,8 +141,7 @@ const MainLayout = () => {
                 {user.isLoggedIn ? (
                   <>
                     {[
-                      { label: 'Profile',  to: '/profile' },
-                      { label: 'Settings', to: '/settings' },
+                      { label: 'Profile', to: '/profile' },
                     ].map(l => (
                       <Link key={l.label} to={l.to} onClick={() => setProfileMenuOpen(false)} style={{
                         display: 'block', padding: '0.55rem 1rem', color: SB.muted,
