@@ -1,4 +1,5 @@
 using Bug_Bounty_Platform.DataAccess.Context;
+using Bug_Bounty_Platform.Domain.Entities.BugReport;
 using Bug_Bounty_Platform.Domain.Entities.User;
 
 namespace Bug_Bounty_Platform.BusinessLogic.Core
@@ -64,6 +65,54 @@ namespace Bug_Bounty_Platform.BusinessLogic.Core
                 profile.CreatedAt,
                 Programs = programs,
             };
+        }
+
+        public List<object> GetActivityFeed()
+        {
+            List<BugReportData> resolved;
+            using (var bugDb = new BugReportContext())
+            {
+                resolved = bugDb.BugReports
+                    .Where(r => !r.IsHidden && (int)r.Status == 3)
+                    .OrderByDescending(r => r.UpdatedAt ?? r.SubmittedAt)
+                    .ToList();
+            }
+
+            if (resolved.Count == 0) return new List<object>();
+
+            var reporterIds = resolved.Select(r => r.ReporterId).Distinct().ToList();
+            var programIds  = resolved.Select(r => r.ProgramId).Distinct().ToList();
+
+            Dictionary<int, string> reporterNames;
+            using (var userDb = new UserContext())
+            {
+                reporterNames = userDb.Users
+                    .Where(u => reporterIds.Contains(u.Id))
+                    .ToDictionary(u => u.Id, u => u.UserName);
+            }
+
+            Dictionary<int, string> programNames;
+            using (var bpDb = new BountyProgramContext())
+            {
+                programNames = bpDb.BountyPrograms
+                    .Where(p => programIds.Contains(p.Id))
+                    .ToDictionary(p => p.Id, p => p.ProgramName);
+            }
+
+            return resolved.Select(r => (object)new
+            {
+                r.Id,
+                r.Title,
+                Description = r.IsPublic ? r.Description : null,
+                r.Severity,
+                r.Status,
+                r.ProgramId,
+                ProgramName = programNames.GetValueOrDefault(r.ProgramId, $"#{r.ProgramId}"),
+                r.ReporterId,
+                ReporterName = reporterNames.GetValueOrDefault(r.ReporterId, $"#{r.ReporterId}"),
+                r.IsPublic,
+                ResolvedAt = r.UpdatedAt ?? r.SubmittedAt,
+            }).ToList();
         }
     }
 }

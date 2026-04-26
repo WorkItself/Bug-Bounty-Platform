@@ -44,7 +44,7 @@ const features = [
   { color: C.purple,   title: 'Submit Reports',           desc: 'File detailed vulnerability reports directly to security teams using standardised templates.', link: '/submit',      icon: FileText },
   { color: C.teal,     title: 'Vulnerability Disclosure', desc: 'Coordinated response programs that let researchers disclose bugs safely and responsibly.', link: '/bounties',    icon: ShieldCheck },
   { color: C.mutedPink, title: 'Leaderboard',             desc: 'Compete with the best security researchers and build your reputation in the community.', link: '/leaderboard', icon: Trophy },
-  { color: C.deepBlue, title: 'Analytics & Insights',    desc: 'Track program performance, submission trends, and payout statistics in real time.', link: '/dashboard',   icon: BarChart2 },
+  { color: C.deepBlue, title: 'Analytics & Insights',    desc: 'Track program performance, submission trends, and payout statistics in real time.', link: '/bounties',   icon: BarChart2 },
 ];
 
 const stats = [
@@ -133,7 +133,7 @@ export default function LandingPage() {
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexShrink: 0 }}>
             {user.isLoggedIn ? (
               <>
-                <Link to="/dashboard" style={{ ...btn(C.trustedBlue, C.trustedBlueHover), fontSize: '0.88rem', padding: '0.5rem 1.2rem' }}
+                <Link to="/bounties" style={{ ...btn(C.trustedBlue, C.trustedBlueHover), fontSize: '0.88rem', padding: '0.5rem 1.2rem' }}
                   onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = C.trustedBlueHover}
                   onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = C.trustedBlue}
                 >Go to Dashboard →</Link>
@@ -187,7 +187,7 @@ export default function LandingPage() {
               { label: 'Bug Bounties', to: '/bounties' },
               { label: 'Leaderboard',  to: '/leaderboard' },
               ...(user.isLoggedIn
-                ? [{ label: 'Dashboard', to: '/dashboard' }]
+                ? [{ label: 'Programs', to: '/bounties' }]
                 : [{ label: 'Login', to: '/login' }, { label: 'Get Started', to: '/choose-role' }]
               ),
             ].map(({ label, to }) => (
@@ -234,7 +234,7 @@ export default function LandingPage() {
             </p>
             <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center' }}>
               {user.isLoggedIn ? (
-                <button onClick={() => navigate('/dashboard')} style={{ ...btn(C.trustedBlue, C.trustedBlueHover), fontSize: '0.95rem', padding: '0.7rem 1.6rem' }}
+                <button onClick={() => navigate('/bounties')} style={{ ...btn(C.trustedBlue, C.trustedBlueHover), fontSize: '0.95rem', padding: '0.7rem 1.6rem' }}
                   onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = C.trustedBlueHover; (e.currentTarget as HTMLElement).style.transform = 'translateY(-1px)'; }}
                   onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = C.trustedBlue; (e.currentTarget as HTMLElement).style.transform = 'translateY(0)'; }}
                 >Go to Dashboard →</button>
@@ -470,7 +470,7 @@ export default function LandingPage() {
           </p>
           <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', flexWrap: 'wrap' }}>
             {user.isLoggedIn ? (
-              <button onClick={() => navigate('/dashboard')} style={{ ...btn(C.trustedBlue, C.trustedBlueHover), fontSize: '0.98rem', padding: '0.75rem 1.8rem' }}
+              <button onClick={() => navigate('/bounties')} style={{ ...btn(C.trustedBlue, C.trustedBlueHover), fontSize: '0.98rem', padding: '0.75rem 1.8rem' }}
                 onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = C.trustedBlueHover; (e.currentTarget as HTMLElement).style.transform = 'translateY(-1px)'; }}
                 onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = C.trustedBlue; (e.currentTarget as HTMLElement).style.transform = 'translateY(0)'; }}
               >Go to Dashboard →</button>

@@ -58,6 +58,7 @@ const SubmitReport = () => {
     stepsToReproduce: '',
     impact: '',
     proofOfConcept: '',
+    isPublic: false,
   });
 
   const [files,         setFiles]         = useState<File[]>([]);
@@ -142,6 +143,7 @@ const SubmitReport = () => {
         status:      1,
         programId:   parseInt(programId),
         reporterId:  parseInt(user.id ?? '0'),
+        isPublic:    formData.isPublic,
       });
       reportId = res.data?.id ?? null;
     } catch (err: any) {
@@ -279,7 +281,7 @@ const SubmitReport = () => {
             )}
           </div>
 
-          <div>
+          <div style={{ marginBottom: '1rem' }}>
             <label style={labelStyle}>Vulnerability Type *</label>
             <input
               type="text" name="vulnerabilityType" value={formData.vulnerabilityType} onChange={handleChange}
@@ -288,6 +290,23 @@ const SubmitReport = () => {
               onFocus={e => (e.target.style.borderColor = '#3F3AFC')}
               onBlur={e =>  (e.target.style.borderColor = '#E5E7EB')}
             />
+          </div>
+
+          {/* Public / Private toggle */}
+          <div>
+            <label style={labelStyle}>Report Visibility</label>
+            <div style={{ display: 'flex', gap: '0.6rem' }}>
+              {([{ v: false, label: 'Private', desc: 'Only title & author visible publicly' }, { v: true, label: 'Public', desc: 'Full report shown in Activity feed once resolved' }] as const).map(({ v, label, desc }) => {
+                const active = formData.isPublic === v;
+                return (
+                  <button key={label} type="button" onClick={() => setFormData(prev => ({ ...prev, isPublic: v }))}
+                    style={{ flex: 1, padding: '0.65rem 0.75rem', border: `2px solid ${active ? '#3F3AFC' : '#E5E7EB'}`, borderRadius: '10px', cursor: 'pointer', textAlign: 'left', background: active ? '#EEF2FF' : '#fff', transition: 'all 0.15s', boxShadow: active ? '0 0 0 3px rgba(63,58,252,0.1)' : 'none' }}>
+                    <p style={{ margin: '0 0 0.15rem', fontWeight: 700, fontSize: '0.85rem', color: active ? '#3F3AFC' : '#374151' }}>{label}</p>
+                    <p style={{ margin: 0, fontSize: '0.72rem', color: active ? '#3F3AFC' : '#9CA3AF' }}>{desc}</p>
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </div>
 

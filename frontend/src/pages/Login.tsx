@@ -23,7 +23,18 @@ const Login = () => {
     const ok = await login(formData.credential, formData.password);
     setLoading(false);
     if (ok) {
-      navigate('/dashboard');
+      // Read role from JWT to redirect to the right landing page
+      let role = 'user';
+      try {
+        const token = localStorage.getItem('token');
+        if (token) {
+          const payload = JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
+          role = (payload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] ?? 'user').toLowerCase();
+        }
+      } catch {}
+      if (role === 'company') navigate('/company/dashboard');
+      else if (role === 'admin') navigate('/admin');
+      else navigate('/bounties');
     } else {
       setError('Invalid username or password');
     }

@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 
 // Layouts
 import MainLayout from './layout/MainLayout';
@@ -43,7 +43,8 @@ function App() {
         <Route path="/company/apply" element={<CompanyApply />} />
         <Route path="/contact-us" element={<ContactUs />} />
         <Route element={<MainLayout />}>
-          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/dashboard" element={<Navigate to="/bounties" replace />} />
+          <Route path="/activity" element={<Dashboard />} />
           <Route path="/bounties" element={<BountyList />} />
           <Route path="/bounties/:id" element={<BountyDetail />} />
           <Route path="/leaderboard" element={<Leaderboard />} />

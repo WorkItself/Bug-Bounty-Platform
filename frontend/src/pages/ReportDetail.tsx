@@ -57,6 +57,8 @@ const ReportDetail = () => {
   const [sendError, setSendError] = useState('');
 
   const [statusSaving, setStatusSaving] = useState(false);
+  const [modal, setModal] = useState<{ targetStatus: number; label: string; bg: string } | null>(null);
+  const [modalComment, setModalComment] = useState('');
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -97,14 +99,30 @@ const ReportDetail = () => {
     }
   };
 
-  const handleStatusChange = async (newStatus: number) => {
-    if (!report) return;
+  const openModal = (targetStatus: number, label: string, bg: string) => {
+    setModalComment('');
+    setModal({ targetStatus, label, bg });
+  };
+
+  const confirmStatusChange = async () => {
+    if (!report || !modal) return;
     setStatusSaving(true);
     try {
-      await axiosInstance.put('/report', { ...report, status: newStatus });
-      setReport(prev => prev ? { ...prev, status: newStatus } : prev);
+      await axiosInstance.put('/report', { ...report, status: modal.targetStatus });
+      if (modalComment.trim()) {
+        await axiosInstance.post('/comment', {
+          bugReportId: report.id,
+          authorId: parseInt(user.id ?? '0'),
+          content: modalComment.trim(),
+          isInternal: false,
+        });
+        await refreshComments();
+        setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
+      }
+      setReport(prev => prev ? { ...prev, status: modal.targetStatus } : prev);
     } catch {}
     setStatusSaving(false);
+    setModal(null);
   };
 
   if (loading) return <div style={{ padding: '4rem', textAlign: 'center', color: '#6B7280' }}>Loading…</div>;
@@ -121,6 +139,16 @@ const ReportDetail = () => {
 
   return (
     <div style={{ maxWidth: '820px', margin: '0 auto', padding: '1.5rem 1rem', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif' }}>
+      {modal && (
+        <StatusModal
+          modal={modal}
+          comment={modalComment}
+          onCommentChange={setModalComment}
+          onCancel={() => setModal(null)}
+          onConfirm={confirmStatusChange}
+          saving={statusSaving}
+        />
+      )}
       <button onClick={() => navigate(-1)} style={backBtn}>← Back</button>
 
       {/* Report header */}
@@ -140,22 +168,34 @@ const ReportDetail = () => {
         )}
 
         {/* Company status actions */}
-        {isCompany && (
-          <div style={{ marginTop: '1.25rem', display: 'flex', gap: '0.6rem', flexWrap: 'wrap' }}>
-            {[
-              { s: 2, label: 'Mark Triaged',  bg: '#3b82f6' },
-              { s: 3, label: 'Accept',        bg: '#16a34a' },
-              { s: 4, label: 'Mark Fixed',    bg: '#0ea5e9' },
-              { s: 5, label: 'Mark Rewarded', bg: '#8b5cf6' },
-              { s: 6, label: 'Reject',        bg: '#dc2626' },
-            ].filter(a => a.s !== report.status).map(a => (
-              <button key={a.s} disabled={statusSaving} onClick={() => handleStatusChange(a.s)}
-                style={{ padding: '0.4rem 1rem', background: a.bg, color: '#fff', border: 'none', borderRadius: '6px', fontWeight: 600, fontSize: '0.82rem', cursor: 'pointer', opacity: statusSaving ? 0.6 : 1 }}>
-                {a.label}
-              </button>
-            ))}
-          </div>
-        )}
+        {isCompany && (() => {
+          const isTerminal = report.status >= 4;
+          const actions = [
+            { s: 2, label: 'Mark Triaged',  bg: '#3b82f6' },
+            { s: 3, label: 'Accept',        bg: '#16a34a' },
+            { s: 4, label: 'Mark Fixed',    bg: '#0ea5e9' },
+            { s: 5, label: 'Mark Rewarded', bg: '#8b5cf6' },
+            { s: 6, label: 'Reject',        bg: '#dc2626' },
+          ].filter(a => a.s !== report.status && a.s > report.status);
+          return (
+            <div style={{ marginTop: '1.25rem' }}>
+              {isTerminal ? (
+                <p style={{ margin: 0, fontSize: '0.8rem', color: '#9CA3AF', fontStyle: 'italic' }}>
+                  This report is in a final state and cannot be changed further.
+                </p>
+              ) : (
+                <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap' }}>
+                  {actions.map(a => (
+                    <button key={a.s} disabled={statusSaving} onClick={() => openModal(a.s, a.label, a.bg)}
+                      style={{ padding: '0.4rem 1rem', background: a.bg, color: '#fff', border: 'none', borderRadius: '6px', fontWeight: 600, fontSize: '0.82rem', cursor: 'pointer', opacity: statusSaving ? 0.6 : 1 }}>
+                      {a.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          );
+        })()}
       </div>
 
       {/* Feedback thread */}
@@ -224,6 +264,50 @@ const ReportDetail = () => {
     </div>
   );
 };
+
+/* ── Status-change confirmation modal ── */
+function StatusModal({ modal, comment, onCommentChange, onCancel, onConfirm, saving }: {
+  modal: { targetStatus: number; label: string; bg: string };
+  comment: string;
+  onCommentChange: (v: string) => void;
+  onCancel: () => void;
+  onConfirm: () => void;
+  saving: boolean;
+}) {
+  return (
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2000, padding: '1rem' }}>
+      <div style={{ background: '#fff', borderRadius: '14px', padding: '1.75rem 2rem', width: '100%', maxWidth: '440px', boxShadow: '0 20px 60px rgba(0,0,0,0.25)' }}>
+        <h2 style={{ margin: '0 0 0.4rem', fontSize: '1.1rem', fontWeight: 800, color: '#111' }}>Confirm Status Change</h2>
+        <p style={{ margin: '0 0 1.25rem', fontSize: '0.88rem', color: '#6B7280' }}>
+          You are about to change this report's status to{' '}
+          <span style={{ fontWeight: 700, color: modal.bg }}>{modal.label}</span>.
+          This action cannot be undone.
+        </p>
+        <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, color: '#374151', marginBottom: '0.35rem' }}>
+          Leave a comment <span style={{ fontWeight: 400, color: '#9CA3AF' }}>(optional)</span>
+        </label>
+        <textarea
+          value={comment} onChange={e => onCommentChange(e.target.value)}
+          placeholder="Explain the status change to the reporter…"
+          rows={4}
+          style={{ width: '100%', padding: '0.6rem 0.85rem', border: '1.5px solid #E5E7EB', borderRadius: '8px', fontSize: '0.88rem', fontFamily: 'inherit', resize: 'vertical', outline: 'none', boxSizing: 'border-box' }}
+          onFocus={e => (e.target.style.borderColor = '#3F3AFC')}
+          onBlur={e => (e.target.style.borderColor = '#E5E7EB')}
+        />
+        <div style={{ display: 'flex', gap: '0.6rem', marginTop: '1.25rem', justifyContent: 'flex-end' }}>
+          <button onClick={onCancel} disabled={saving}
+            style={{ padding: '0.5rem 1.2rem', background: 'transparent', border: '1.5px solid #E5E7EB', borderRadius: '7px', cursor: 'pointer', fontWeight: 600, fontSize: '0.88rem', color: '#374151' }}>
+            Cancel
+          </button>
+          <button onClick={onConfirm} disabled={saving}
+            style={{ padding: '0.5rem 1.4rem', background: modal.bg, color: '#fff', border: 'none', borderRadius: '7px', cursor: saving ? 'not-allowed' : 'pointer', fontWeight: 700, fontSize: '0.88rem', opacity: saving ? 0.7 : 1 }}>
+            {saving ? 'Saving…' : `Confirm ${modal.label}`}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 const backBtn: React.CSSProperties = {
   marginBottom: '1.25rem', padding: '0.4rem 1rem',
