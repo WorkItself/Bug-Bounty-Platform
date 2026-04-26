@@ -27,6 +27,9 @@ import SupportRequests from './pages/SupportRequests';
 import ChooseRole from './pages/ChooseRole';
 import CompanyApply from './pages/CompanyApply';
 import ContactUs from './pages/ContactUs';
+import CompanyProfilePage from './pages/CompanyProfilePage';
+import PublicHackerProfile from './pages/PublicHackerProfile';
+import PublicCompanyPage from './pages/PublicCompanyPage';
 
 function App() {
   return (
@@ -43,6 +46,9 @@ function App() {
           <Route path="/bounties" element={<BountyList />} />
           <Route path="/bounties/:id" element={<BountyDetail />} />
           <Route path="/leaderboard" element={<Leaderboard />} />
+          {/* Public profile routes */}
+          <Route path="/u/:username" element={<PublicHackerProfile />} />
+          <Route path="/programs/:handle" element={<PublicCompanyPage />} />
         </Route>
         <Route element={<ProtectedRoute />}>
           <Route element={<MainLayout />}>
@@ -58,6 +64,7 @@ function App() {
             {/* Company Routes */}
             <Route element={<RoleBasedRoute allowedRoles={['company']} />}>
               <Route path="/company/dashboard" element={<CompanyDashboard />} />
+              <Route path="/company/profile" element={<CompanyProfilePage />} />
               <Route path="/company/add-project" element={<AddProject />} />
               <Route path="/company/reports" element={<ViewReports />} />
             </Route>

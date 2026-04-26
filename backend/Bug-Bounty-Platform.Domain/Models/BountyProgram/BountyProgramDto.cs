@@ -6,6 +6,7 @@ namespace Bug_Bounty_Platform.Domain.Models.BountyProgram
         public string ProgramName { get; set; } = string.Empty;
         public string? ProgramDescription { get; set; }
         public string? ProgramScope { get; set; }
+        public string? Website { get; set; }
         public decimal? RewardCritical { get; set; }
         public decimal? RewardHigh { get; set; }
         public decimal? RewardMedium { get; set; }

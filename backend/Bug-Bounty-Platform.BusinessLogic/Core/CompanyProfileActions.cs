@@ -43,13 +43,19 @@ namespace Bug_Bounty_Platform.BusinessLogic.Core
             if (profile == null)
                 return new ActionResponce { IsSuccess = false, Message = "Profile not found." };
 
+            if (!string.IsNullOrWhiteSpace(dto.Handle) && dto.Handle != profile.Handle)
+            {
+                if (db.CompanyProfiles.Any(p => p.Handle == dto.Handle && p.UserId != dto.UserId))
+                    return new ActionResponce { IsSuccess = false, Message = "That handle is already taken." };
+                profile.Handle = dto.Handle;
+            }
+
             profile.LegalName = dto.LegalName;
             profile.DisplayName = dto.DisplayName;
             profile.LegalAddress = dto.LegalAddress;
             profile.City = dto.City;
             profile.Country = dto.Country;
             profile.PostalCode = dto.PostalCode;
-            profile.Website = dto.Website;
             profile.Description = dto.Description;
 
             db.SaveChanges();
