@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useUser } from '../context/UserContext';
 import axiosInstance from '../utils/axiosInstance';
 
@@ -97,7 +98,14 @@ const CompanyProfilePage = () => {
 
   return (
     <div style={{ padding: '2rem 1rem', maxWidth: '680px', margin: '0 auto', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif' }}>
-      <h1 style={{ fontSize: '1.6rem', fontWeight: 800, color: '#111', margin: '0 0 0.25rem' }}>Company Profile</h1>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.25rem' }}>
+        <h1 style={{ fontSize: '1.6rem', fontWeight: 800, color: '#111', margin: 0 }}>Company Profile</h1>
+        {form.handle && (
+          <Link to={`/programs/${form.handle}`} style={{ padding: '0.4rem 1rem', background: '#3F3AFC', color: '#fff', borderRadius: '8px', textDecoration: 'none', fontWeight: 600, fontSize: '0.84rem' }}>
+            View Public Page →
+          </Link>
+        )}
+      </div>
       <p style={{ color: '#6B7280', fontSize: '0.9rem', margin: '0 0 1.75rem' }}>Edit your public profile and legal details.</p>
 
       {error && <p style={{ color: '#ef4444', fontSize: '0.9rem', marginBottom: '1rem' }}>{error}</p>}
