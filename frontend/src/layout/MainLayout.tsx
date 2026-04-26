@@ -106,72 +106,6 @@ const MainLayout = () => {
           {/* Divider */}
           <div style={{ width: '30px', height: '1px', background: SB.border, margin: '8px 0' }} />
 
-          {/* Profile avatar */}
-          <div ref={menuRef} style={{ marginTop: 'auto', position: 'relative', paddingBottom: '8px' }}>
-            <button
-              onClick={() => setProfileMenuOpen(p => !p)}
-              title={user.isLoggedIn ? user.name || 'Profile' : 'Guest'}
-              style={{
-                width: '34px', height: '34px', borderRadius: '50%',
-                background: user.isLoggedIn ? SB.active : SB.border,
-                color: '#fff', border: 'none', fontWeight: 700, fontSize: '0.82rem',
-                cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
-              }}
-            >
-              {user.isLoggedIn ? (user.name?.charAt(0).toUpperCase() ?? 'U') : 'G'}
-            </button>
-
-            {profileMenuOpen && (
-              <div style={{
-                position: 'absolute', bottom: '100%', left: '52px',
-                marginBottom: '4px', marginLeft: '-4px',
-                background: SB.bg, border: `1px solid ${SB.border}`,
-                borderRadius: '10px', minWidth: '200px',
-                boxShadow: '0 8px 30px rgba(0,0,0,0.45)', zIndex: 1000,
-              }}>
-                <div style={{ padding: '0.75rem 1rem', borderBottom: `1px solid ${SB.border}` }}>
-                  <p style={{ margin: 0, color: '#fff', fontWeight: 600, fontSize: '0.88rem' }}>
-                    {user.isLoggedIn ? user.name : 'Guest'}
-                  </p>
-                  <p style={{ margin: '2px 0 0', color: SB.muted, fontSize: '0.75rem', textTransform: 'capitalize' }}>
-                    {user.isLoggedIn ? (user.type === 'user' ? 'Bug Bounty Hunter' : user.type) : 'Not logged in'}
-                  </p>
-                </div>
-
-                {user.isLoggedIn ? (
-                  <>
-                    {[
-                      { label: 'Profile', to: '/profile' },
-                    ].map(l => (
-                      <Link key={l.label} to={l.to} onClick={() => setProfileMenuOpen(false)} style={{
-                        display: 'block', padding: '0.55rem 1rem', color: SB.muted,
-                        textDecoration: 'none', fontSize: '0.84rem', borderBottom: `1px solid ${SB.border}`,
-                        transition: 'color 0.15s',
-                      }}
-                        onMouseEnter={e => (e.currentTarget as HTMLElement).style.color = '#fff'}
-                        onMouseLeave={e => (e.currentTarget as HTMLElement).style.color = SB.muted}
-                      >{l.label}</Link>
-                    ))}
-                    <button
-                      onClick={() => { logout(); setProfileMenuOpen(false); navigate('/'); }}
-                      style={{
-                        width: '100%', padding: '0.55rem 1rem', background: 'transparent',
-                        color: '#ef4444', border: 'none', textAlign: 'left',
-                        cursor: 'pointer', fontSize: '0.84rem', fontWeight: 600,
-                      }}
-                      onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = 'rgba(239,68,68,0.08)'}
-                      onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = 'transparent'}
-                    >Logout</button>
-                  </>
-                ) : (
-                  <Link to="/login" onClick={() => setProfileMenuOpen(false)} style={{
-                    display: 'block', padding: '0.55rem 1rem', color: SB.active,
-                    textDecoration: 'none', fontWeight: 600, fontSize: '0.84rem',
-                  }}>Login</Link>
-                )}
-              </div>
-            )}
-          </div>
         </nav>
 
         {/* ── Main content ── */}
@@ -180,8 +114,80 @@ const MainLayout = () => {
           background: '#F7F9FC',
           minHeight: '100vh',
           overflowY: 'auto',
+          display: 'flex', flexDirection: 'column',
         }}>
-          <Outlet />
+          {/* Top bar */}
+          <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', padding: '0 16px', height: '46px', borderBottom: '1px solid #E5E7EB', background: '#F7F9FC', position: 'relative' }}>
+            <div ref={menuRef} style={{ position: 'relative' }}>
+              <button
+                onClick={() => setProfileMenuOpen(p => !p)}
+                title={user.isLoggedIn ? user.name || 'Profile' : 'Guest'}
+                style={{
+                  width: '34px', height: '34px', borderRadius: '50%',
+                  background: user.isLoggedIn ? SB.active : SB.border,
+                  color: '#fff', border: 'none', fontWeight: 700, fontSize: '0.82rem',
+                  cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                }}
+              >
+                {user.isLoggedIn ? (user.name?.charAt(0).toUpperCase() ?? 'U') : 'G'}
+              </button>
+
+              {profileMenuOpen && (
+                <div style={{
+                  position: 'absolute', top: '100%', right: 0,
+                  marginTop: '6px',
+                  background: SB.bg, border: `1px solid ${SB.border}`,
+                  borderRadius: '10px', minWidth: '200px',
+                  boxShadow: '0 8px 30px rgba(0,0,0,0.45)', zIndex: 1000,
+                }}>
+                  <div style={{ padding: '0.75rem 1rem', borderBottom: `1px solid ${SB.border}` }}>
+                    <p style={{ margin: 0, color: '#fff', fontWeight: 600, fontSize: '0.88rem' }}>
+                      {user.isLoggedIn ? user.name : 'Guest'}
+                    </p>
+                    <p style={{ margin: '2px 0 0', color: SB.muted, fontSize: '0.75rem', textTransform: 'capitalize' }}>
+                      {user.isLoggedIn ? (user.type === 'user' ? 'Bug Bounty Hunter' : user.type) : 'Not logged in'}
+                    </p>
+                  </div>
+
+                  {user.isLoggedIn ? (
+                    <>
+                      {[
+                        { label: 'Profile', to: '/profile' },
+                      ].map(l => (
+                        <Link key={l.label} to={l.to} onClick={() => setProfileMenuOpen(false)} style={{
+                          display: 'block', padding: '0.55rem 1rem', color: SB.muted,
+                          textDecoration: 'none', fontSize: '0.84rem', borderBottom: `1px solid ${SB.border}`,
+                          transition: 'color 0.15s',
+                        }}
+                          onMouseEnter={e => (e.currentTarget as HTMLElement).style.color = '#fff'}
+                          onMouseLeave={e => (e.currentTarget as HTMLElement).style.color = SB.muted}
+                        >{l.label}</Link>
+                      ))}
+                      <button
+                        onClick={() => { logout(); setProfileMenuOpen(false); navigate('/'); }}
+                        style={{
+                          width: '100%', padding: '0.55rem 1rem', background: 'transparent',
+                          color: '#ef4444', border: 'none', textAlign: 'left',
+                          cursor: 'pointer', fontSize: '0.84rem', fontWeight: 600,
+                        }}
+                        onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = 'rgba(239,68,68,0.08)'}
+                        onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = 'transparent'}
+                      >Logout</button>
+                    </>
+                  ) : (
+                    <Link to="/login" onClick={() => setProfileMenuOpen(false)} style={{
+                      display: 'block', padding: '0.55rem 1rem', color: SB.active,
+                      textDecoration: 'none', fontWeight: 600, fontSize: '0.84rem',
+                    }}>Login</Link>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div style={{ flex: 1 }}>
+            <Outlet />
+          </div>
         </main>
       </div>
     </div>

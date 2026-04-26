@@ -91,6 +91,61 @@ namespace Bug_Bounty_Platform.BusinessLogic.Core
             return tokenService.GenerateToken(user);
         }
 
+        internal UserProfileDto? GetProfileByIdExecution(int userId)
+        {
+            using var db = new UserContext();
+            var user = db.Users.FirstOrDefault(x => x.Id == userId);
+            if (user == null) return null;
+            return new UserProfileDto
+            {
+                Id = user.Id,
+                UserName = user.UserName,
+                Email = user.Email,
+                Role = user.Role.ToString(),
+                RegisteredOn = user.RegisteredOn,
+            };
+        }
+
+        internal (ActionResponce response, string? token) UpdateProfileExecution(int userId, UserUpdateDto dto)
+        {
+            UserData user;
+            using (var db = new UserContext())
+            {
+                var found = db.Users.FirstOrDefault(x => x.Id == userId);
+                if (found == null)
+                    return (new ActionResponce { IsSuccess = false, Message = "User not found." }, null);
+
+                if (!string.IsNullOrWhiteSpace(dto.NewPassword))
+                {
+                    if (found.Password != dto.CurrentPassword)
+                        return (new ActionResponce { IsSuccess = false, Message = "Current password is incorrect." }, null);
+                    found.Password = dto.NewPassword;
+                }
+
+                if (!string.IsNullOrWhiteSpace(dto.UserName) && dto.UserName != found.UserName)
+                {
+                    var taken = db.Users.Any(x => x.UserName == dto.UserName && x.Id != userId);
+                    if (taken)
+                        return (new ActionResponce { IsSuccess = false, Message = "Username already taken." }, null);
+                    found.UserName = dto.UserName;
+                }
+
+                if (!string.IsNullOrWhiteSpace(dto.Email) && dto.Email != found.Email)
+                {
+                    var taken = db.Users.Any(x => x.Email == dto.Email && x.Id != userId);
+                    if (taken)
+                        return (new ActionResponce { IsSuccess = false, Message = "Email already in use." }, null);
+                    found.Email = dto.Email;
+                }
+
+                db.SaveChanges();
+                user = found;
+            }
+
+            var newToken = BuildToken(user);
+            return (new ActionResponce { IsSuccess = true, Message = "Profile updated." }, newToken);
+        }
+
         internal ActionResponce UserRegDataValidationAction(UserRegisterDto uReg)
         {
             UserData? user;
