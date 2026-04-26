@@ -260,6 +260,10 @@ namespace Bug_Bounty_Platform.DataAccess.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("AvatarUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasMaxLength(60)

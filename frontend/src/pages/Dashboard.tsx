@@ -59,24 +59,23 @@ const Dashboard = () => {
     <div style={{ width: '100%', maxWidth: '1400px', margin: '0 auto' }}>
       {/* Hero Section */}
       <section style={{
-        marginBottom: '3rem',
-        padding: '3rem 2rem',
-        background: 'linear-gradient(135deg, #1B3A57 0%, #0C1A30 100%)',
-        borderRadius: '0.75rem',
-        border: '1px solid #009B77',
+        marginBottom: '2rem',
+        padding: '2.5rem 2rem',
+        background: 'linear-gradient(135deg, #3F3AFC 0%, #E81C79 100%)',
+        borderRadius: '12px',
         position: 'relative',
-        overflow: 'hidden'
+        overflow: 'hidden',
       }}>
-        <div style={{ position: 'absolute', top: '-30px', right: '3%', opacity: 0.07, fontSize: '14rem', lineHeight: 1, userSelect: 'none', pointerEvents: 'none' }}>🛡</div>
+        <div style={{ position: 'absolute', top: '-20px', right: '3%', opacity: 0.08, fontSize: '13rem', lineHeight: 1, userSelect: 'none', pointerEvents: 'none' }}>🛡</div>
         <h1 style={{
-          fontSize: 'clamp(1.5rem, 3vw, 2.1rem)', fontWeight: 800,
-          color: '#fff', lineHeight: 1.3, margin: 0, maxWidth: '640px',
+          fontSize: 'clamp(1.4rem, 3vw, 2rem)', fontWeight: 800,
+          color: '#fff', lineHeight: 1.35, margin: 0, maxWidth: '640px',
           letterSpacing: '-0.02em',
         }}>
           The platform's leading dynamic repository<br />
           <span style={{
-            background: '#E81C79', color: '#fff',
-            padding: '0.05em 0.2em', borderRadius: '3px', fontStyle: 'italic',
+            background: 'rgba(255,255,255,0.18)', color: '#fff',
+            padding: '0.05em 0.25em', borderRadius: '4px', fontStyle: 'italic',
           }}>for security vulnerabilities.</span>
         </h1>
       </section>

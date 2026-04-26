@@ -52,5 +52,10 @@ namespace Bug_Bounty_Platform.BusinessLogic
         {
             return new CompanyProfileExecution();
         }
+
+        public IUserProfileAction UserProfileAction()
+        {
+            return new UserProfileExecution(_configuration);
+        }
     }
 }

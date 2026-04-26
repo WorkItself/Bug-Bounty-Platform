@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import axiosInstance from '../utils/axiosInstance';
 
 const inputStyle: React.CSSProperties = {
@@ -17,7 +17,7 @@ const Section = ({ title }: { title: string }) => (
 );
 
 const CompanyApply = () => {
-  const navigate = useNavigate();
+
   const [form, setForm] = useState({
     userName: '', email: '', password: '', confirmPassword: '',
     legalName: '', displayName: '', legalAddress: '', city: '', country: '',
