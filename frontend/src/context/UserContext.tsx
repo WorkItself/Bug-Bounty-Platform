@@ -16,7 +16,7 @@ interface UserContextType {
   user: User;
   login: (credential: string, password: string) => Promise<boolean>;
   logout: () => void;
-  register: (userName: string, email: string, password: string, role: string) => Promise<{ success: boolean; message: string }>;
+  register: (data: { userName: string; email: string; password: string; role: string; firstName: string; lastName: string; phone?: string }) => Promise<{ success: boolean; message: string }>;
   getAllUsers: () => any[];
   searchUsers: (query: string) => any[];
   banUser: (userId: string) => void;
@@ -102,13 +102,10 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const register = async (
-    userName: string,
-    email: string,
-    password: string,
-    role: string
+    data: { userName: string; email: string; password: string; role: string; firstName: string; lastName: string; phone?: string }
   ): Promise<{ success: boolean; message: string }> => {
     try {
-      const res = await axiosInstance.post('/reg', { userName, email, password, role });
+      const res = await axiosInstance.post('/reg', data);
       return { success: true, message: res.data?.message ?? 'Registration successful.' };
     } catch (err: any) {
       const d = err.response?.data;

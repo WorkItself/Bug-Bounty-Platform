@@ -42,6 +42,7 @@ const MainLayout = () => {
     { icon: Users,           to: '/company/dashboard',   label: 'Company' },
     { icon: LayoutDashboard, to: '/company/add-project', label: 'Add Program' },
     { icon: FileText,        to: '/company/reports',     label: 'Reports' },
+    { icon: ShieldAlert,     to: '/company/profile',     label: 'Company Profile' },
   ] : [];
   const adminNav = user.isLoggedIn && user.type === 'admin' ? [
     { icon: ShieldAlert, to: '/admin', label: 'Admin Panel' },

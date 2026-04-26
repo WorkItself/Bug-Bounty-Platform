@@ -59,6 +59,7 @@ namespace Bug_Bounty_Platform.BusinessLogic.Core
                     ProgramName = data.ProgramName,
                     ProgramDescription = data.ProgramDescription,
                     ProgramScope = data.ProgramScope,
+                    Website = data.Website,
                     RewardCritical = data.RewardCritical,
                     RewardHigh = data.RewardHigh,
                     RewardMedium = data.RewardMedium,
@@ -94,6 +95,7 @@ namespace Bug_Bounty_Platform.BusinessLogic.Core
             localData.ProgramName = data.ProgramName;
             localData.ProgramDescription = data.ProgramDescription;
             localData.ProgramScope = data.ProgramScope;
+            localData.Website = data.Website;
             localData.RewardCritical = data.RewardCritical;
             localData.RewardHigh = data.RewardHigh;
             localData.RewardMedium = data.RewardMedium;

@@ -156,6 +156,9 @@ namespace Bug_Bounty_Platform.BusinessLogic.Core
                 Id = user.Id,
                 UserName = user.UserName,
                 Email = user.Email,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Phone = user.Phone,
                 Role = user.Role.ToString(),
                 RegisteredOn = user.RegisteredOn,
             };
@@ -192,6 +195,10 @@ namespace Bug_Bounty_Platform.BusinessLogic.Core
                         return (new ActionResponce { IsSuccess = false, Message = "Email already in use." }, null);
                     found.Email = dto.Email;
                 }
+
+                if (!string.IsNullOrWhiteSpace(dto.FirstName)) found.FirstName = dto.FirstName;
+                if (!string.IsNullOrWhiteSpace(dto.LastName)) found.LastName = dto.LastName;
+                if (dto.Phone != null) found.Phone = string.IsNullOrWhiteSpace(dto.Phone) ? null : dto.Phone;
 
                 db.SaveChanges();
                 user = found;

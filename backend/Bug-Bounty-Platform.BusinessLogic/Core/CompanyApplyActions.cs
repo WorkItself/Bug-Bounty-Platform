@@ -15,6 +15,12 @@ namespace Bug_Bounty_Platform.BusinessLogic.Core
                     return new ActionResponce { IsSuccess = false, Message = "Username or email already in use." };
             }
 
+            using (var db = new CompanyProfileContext())
+            {
+                if (db.CompanyProfiles.Any(p => p.Handle == dto.Handle))
+                    return new ActionResponce { IsSuccess = false, Message = "That handle is already taken." };
+            }
+
             var user = new UserData
             {
                 UserName = dto.UserName,
@@ -36,13 +42,13 @@ namespace Bug_Bounty_Platform.BusinessLogic.Core
             var profile = new CompanyProfile
             {
                 UserId = userId,
+                Handle = dto.Handle,
                 LegalName = dto.LegalName,
                 DisplayName = dto.DisplayName,
                 LegalAddress = dto.LegalAddress,
                 City = dto.City,
                 Country = dto.Country,
                 PostalCode = dto.PostalCode,
-                Website = dto.Website,
                 Description = dto.Description,
                 IsVerified = false,
                 CreatedAt = DateTime.UtcNow
@@ -85,11 +91,11 @@ namespace Bug_Bounty_Platform.BusinessLogic.Core
                     u.UserName,
                     u.Email,
                     u.RegisteredOn,
+                    Handle = profile?.Handle ?? "",
                     LegalName = profile?.LegalName ?? "",
                     LegalAddress = profile?.LegalAddress ?? "",
                     City = profile?.City ?? "",
-                    Country = profile?.Country ?? "",
-                    Website = profile?.Website
+                    Country = profile?.Country ?? ""
                 };
             }).ToList();
         }

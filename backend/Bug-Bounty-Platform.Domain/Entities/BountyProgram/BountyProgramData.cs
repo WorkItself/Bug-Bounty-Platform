@@ -19,6 +19,9 @@ namespace Bug_Bounty_Platform.Domain.Entities.BountyProgram
         [StringLength(500)]
         public string? ProgramScope { get; set; }
 
+        [StringLength(200)]
+        public string? Website { get; set; }
+
         [Column(TypeName = "decimal(18,2)")]
         public decimal? RewardCritical { get; set; }
 

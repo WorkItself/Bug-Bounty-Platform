@@ -39,10 +39,10 @@ const btnPrimary = (disabled: boolean): React.CSSProperties => ({
 const Profile = () => {
   const { user } = useUser();
 
-  const [profile, setProfile] = useState({ userName: '', email: '' });
+  const [profile, setProfile] = useState({ userName: '', email: '', firstName: '', lastName: '', phone: '' });
   const [loadError, setLoadError] = useState('');
 
-  const [accountForm, setAccountForm] = useState({ userName: '', email: '' });
+  const [accountForm, setAccountForm] = useState({ userName: '', email: '', firstName: '', lastName: '', phone: '' });
   const [accountMsg, setAccountMsg] = useState('');
   const [accountError, setAccountError] = useState('');
   const [accountLoading, setAccountLoading] = useState(false);
@@ -57,8 +57,8 @@ const Profile = () => {
     axiosInstance.get('/users/me')
       .then(res => {
         const d = res.data;
-        setProfile({ userName: d.userName, email: d.email });
-        setAccountForm({ userName: d.userName, email: d.email });
+        setProfile({ userName: d.userName, email: d.email, firstName: d.firstName ?? '', lastName: d.lastName ?? '', phone: d.phone ?? '' });
+        setAccountForm({ userName: d.userName, email: d.email, firstName: d.firstName ?? '', lastName: d.lastName ?? '', phone: d.phone ?? '' });
       })
       .catch(() => setLoadError('Failed to load profile.'));
   }, [user.isLoggedIn]);
@@ -73,6 +73,9 @@ const Profile = () => {
       const res = await axiosInstance.put('/users/me', {
         userName: accountForm.userName || null,
         email: accountForm.email || null,
+        firstName: accountForm.firstName || null,
+        lastName: accountForm.lastName || null,
+        phone: accountForm.phone || null,
       });
       if (res.data?.isSuccess) {
         if (res.data.token) {
@@ -80,7 +83,7 @@ const Profile = () => {
           window.location.reload();
         }
         setAccountMsg('Profile updated successfully.');
-        setProfile({ userName: accountForm.userName, email: accountForm.email });
+        setProfile({ ...accountForm });
       } else {
         setAccountError(res.data?.message ?? 'Update failed.');
       }
@@ -145,6 +148,16 @@ const Profile = () => {
       <div style={cardStyle}>
         <p style={sectionTitle}>Account Information</p>
         <form onSubmit={handleAccountSave}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '1rem' }}>
+            <div>
+              <label style={labelStyle}>First Name</label>
+              <input value={accountForm.firstName} onChange={e => setAccountForm(p => ({ ...p, firstName: e.target.value }))} onFocus={focus} onBlur={blur} placeholder="John" style={inputStyle} />
+            </div>
+            <div>
+              <label style={labelStyle}>Last Name</label>
+              <input value={accountForm.lastName} onChange={e => setAccountForm(p => ({ ...p, lastName: e.target.value }))} onFocus={focus} onBlur={blur} placeholder="Doe" style={inputStyle} />
+            </div>
+          </div>
           <div style={{ marginBottom: '1rem' }}>
             <label style={labelStyle}>Username</label>
             <input
@@ -155,7 +168,7 @@ const Profile = () => {
               style={inputStyle}
             />
           </div>
-          <div style={{ marginBottom: '1.25rem' }}>
+          <div style={{ marginBottom: '1rem' }}>
             <label style={labelStyle}>Email</label>
             <input
               type="email"
@@ -165,6 +178,10 @@ const Profile = () => {
               placeholder="your@email.com"
               style={inputStyle}
             />
+          </div>
+          <div style={{ marginBottom: '1.25rem' }}>
+            <label style={labelStyle}>Phone <span style={{ fontWeight: 400, color: '#9CA3AF' }}>(optional)</span></label>
+            <input type="tel" value={accountForm.phone} onChange={e => setAccountForm(p => ({ ...p, phone: e.target.value }))} onFocus={focus} onBlur={blur} placeholder="+1 555 000 0000" style={inputStyle} />
           </div>
           {accountError && <p style={{ color: '#ef4444', fontSize: '0.88rem', margin: '0 0 0.75rem' }}>{accountError}</p>}
           {accountMsg && <p style={{ color: '#10b981', fontSize: '0.88rem', margin: '0 0 0.75rem' }}>{accountMsg}</p>}

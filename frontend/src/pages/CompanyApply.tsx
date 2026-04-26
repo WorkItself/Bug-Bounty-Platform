@@ -16,20 +16,34 @@ const Section = ({ title }: { title: string }) => (
   </div>
 );
 
-const CompanyApply = () => {
+const toSlug = (str: string) =>
+  str.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
 
+const CompanyApply = () => {
   const [form, setForm] = useState({
     userName: '', email: '', password: '', confirmPassword: '',
-    legalName: '', displayName: '', legalAddress: '', city: '', country: '',
-    postalCode: '', website: '', description: '',
+    handle: '', legalName: '', displayName: '', legalAddress: '',
+    city: '', country: '', postalCode: '', description: '',
   });
+  const [handleTouched, setHandleTouched] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setForm(prev => ({ ...prev, [name]: value }));
+    setForm(prev => {
+      const next = { ...prev, [name]: value };
+      if (name === 'displayName' && !handleTouched) {
+        next.handle = toSlug(value);
+      }
+      return next;
+    });
+  };
+
+  const handleHandleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setHandleTouched(true);
+    setForm(prev => ({ ...prev, handle: toSlug(e.target.value) }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -38,11 +52,17 @@ const CompanyApply = () => {
     setLoading(true); setError('');
     try {
       await axiosInstance.post('/company/apply', {
-        userName: form.userName, email: form.email, password: form.password,
-        legalName: form.legalName, displayName: form.displayName || null,
-        legalAddress: form.legalAddress, city: form.city, country: form.country,
+        userName: form.userName,
+        email: form.email,
+        password: form.password,
+        handle: form.handle,
+        legalName: form.legalName,
+        displayName: form.displayName,
+        legalAddress: form.legalAddress,
+        city: form.city,
+        country: form.country,
         postalCode: form.postalCode || null,
-        website: form.website || null, description: form.description || null,
+        description: form.description || null,
       });
       setSubmitted(true);
     } catch (err: any) {
@@ -100,7 +120,7 @@ const CompanyApply = () => {
 
           <div style={{ marginBottom: '1rem' }}>
             <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#374151', marginBottom: '0.35rem' }}>Username *</label>
-            <input name="userName" value={form.userName} onChange={handleChange} onFocus={focus} onBlur={blur} placeholder="Choose a username" required style={inputStyle} />
+            <input name="userName" value={form.userName} onChange={handleChange} onFocus={focus} onBlur={blur} placeholder="Used to log in" required style={inputStyle} />
           </div>
           <div style={{ marginBottom: '1rem' }}>
             <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#374151', marginBottom: '0.35rem' }}>Email *</label>
@@ -117,18 +137,39 @@ const CompanyApply = () => {
             </div>
           </div>
 
-          <Section title="Legal information" />
+          <Section title="Company identity" />
 
           <div style={{ marginBottom: '1rem' }}>
+            <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#374151', marginBottom: '0.35rem' }}>Display Name * <span style={{ fontWeight: 400, color: '#9CA3AF', fontSize: '0.8rem' }}>(public name on the platform)</span></label>
+            <input name="displayName" value={form.displayName} onChange={handleChange} onFocus={focus} onBlur={blur} placeholder="Acme Corp" required style={inputStyle} />
+          </div>
+          <div style={{ marginBottom: '1rem' }}>
+            <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#374151', marginBottom: '0.35rem' }}>
+              Handle *
+              <span style={{ fontWeight: 400, color: '#9CA3AF', fontSize: '0.8rem' }}> — your public URL: /programs/</span>
+              <span style={{ color: '#E81C79', fontSize: '0.8rem' }}>{form.handle || 'your-handle'}</span>
+            </label>
+            <input
+              name="handle"
+              value={form.handle}
+              onChange={handleHandleChange}
+              onFocus={focus} onBlur={blur}
+              placeholder="acme-corp"
+              required
+              pattern="[a-z0-9-]+"
+              title="Lowercase letters, numbers and hyphens only"
+              style={inputStyle}
+            />
+          </div>
+          <div style={{ marginBottom: '1rem' }}>
             <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#374151', marginBottom: '0.35rem' }}>Legal Company Name *</label>
-            <input name="legalName" value={form.legalName} onChange={handleChange} onFocus={focus} onBlur={blur} placeholder="Acme Corp LLC" required style={inputStyle} />
+            <input name="legalName" value={form.legalName} onChange={handleChange} onFocus={focus} onBlur={blur} placeholder="Acme Corporation LLC" required style={inputStyle} />
           </div>
+
+          <Section title="Legal address" />
+
           <div style={{ marginBottom: '1rem' }}>
-            <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#374151', marginBottom: '0.35rem' }}>Display Name</label>
-            <input name="displayName" value={form.displayName} onChange={handleChange} onFocus={focus} onBlur={blur} placeholder="How it appears on the platform (optional)" style={inputStyle} />
-          </div>
-          <div style={{ marginBottom: '1rem' }}>
-            <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#374151', marginBottom: '0.35rem' }}>Legal Address *</label>
+            <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#374151', marginBottom: '0.35rem' }}>Street Address *</label>
             <input name="legalAddress" value={form.legalAddress} onChange={handleChange} onFocus={focus} onBlur={blur} placeholder="123 Main Street" required style={inputStyle} />
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.75rem', marginBottom: '1rem' }}>
@@ -145,10 +186,7 @@ const CompanyApply = () => {
               <input name="postalCode" value={form.postalCode} onChange={handleChange} onFocus={focus} onBlur={blur} placeholder="10001" style={inputStyle} />
             </div>
           </div>
-          <div style={{ marginBottom: '1rem' }}>
-            <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#374151', marginBottom: '0.35rem' }}>Website</label>
-            <input name="website" value={form.website} onChange={handleChange} onFocus={focus} onBlur={blur} placeholder="https://acme.com" style={inputStyle} />
-          </div>
+
           <div style={{ marginBottom: '1.5rem' }}>
             <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#374151', marginBottom: '0.35rem' }}>About Your Company</label>
             <textarea name="description" value={form.description} onChange={handleChange} onFocus={focus} onBlur={blur} placeholder="Brief description of your company and security program goals (optional)" rows={3} style={{ ...inputStyle, resize: 'vertical' }} />
