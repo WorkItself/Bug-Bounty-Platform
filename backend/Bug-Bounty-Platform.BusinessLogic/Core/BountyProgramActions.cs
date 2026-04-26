@@ -22,7 +22,7 @@ namespace Bug_Bounty_Platform.BusinessLogic.Core
             using (var db = new BountyProgramContext())
             {
                 bpData = db.BountyPrograms.
-                    Where(x => !x.IsDeleted).ToList();
+                    Where(x => !x.IsHidden).ToList();
             }
 
             if (bpData.Count <= 0) return data;
@@ -37,7 +37,7 @@ namespace Bug_Bounty_Platform.BusinessLogic.Core
             {
                 bpData = db.BountyPrograms
                     .FirstOrDefault(x =>
-                        x.Id == id && !x.IsDeleted);
+                        x.Id == id && !x.IsHidden);
             }
 
             if (bpData == null) return null;
@@ -52,15 +52,6 @@ namespace Bug_Bounty_Platform.BusinessLogic.Core
                 return status;
             }
 
-            if (data.MaxReward < data.MinReward)
-            {
-                return new ActionResponce
-                {
-                    IsSuccess = false,
-                    Message = "MaxReward must be greater than or equal to MinReward."
-                };
-            }
-
             using (var db = new BountyProgramContext())
             {
                 var bpData = new BountyProgramData
@@ -68,8 +59,11 @@ namespace Bug_Bounty_Platform.BusinessLogic.Core
                     ProgramName = data.ProgramName,
                     ProgramDescription = data.ProgramDescription,
                     ProgramScope = data.ProgramScope,
-                    MinReward = data.MinReward,
-                    MaxReward = data.MaxReward,
+                    RewardCritical = data.RewardCritical,
+                    RewardHigh = data.RewardHigh,
+                    RewardMedium = data.RewardMedium,
+                    RewardLow = data.RewardLow,
+                    RewardInformational = data.RewardInformational,
                     OwnerId = data.OwnerId,
                     IsActive = true,
                     CreatedAt = DateTime.UtcNow
@@ -100,8 +94,11 @@ namespace Bug_Bounty_Platform.BusinessLogic.Core
             localData.ProgramName = data.ProgramName;
             localData.ProgramDescription = data.ProgramDescription;
             localData.ProgramScope = data.ProgramScope;
-            localData.MinReward = data.MinReward;
-            localData.MaxReward = data.MaxReward;
+            localData.RewardCritical = data.RewardCritical;
+            localData.RewardHigh = data.RewardHigh;
+            localData.RewardMedium = data.RewardMedium;
+            localData.RewardLow = data.RewardLow;
+            localData.RewardInformational = data.RewardInformational;
             localData.IsActive = data.IsActive;
 
             localData.UpdatedAt = DateTime.UtcNow;
@@ -131,7 +128,7 @@ namespace Bug_Bounty_Platform.BusinessLogic.Core
                 };
             }
 
-            localData.IsDeleted = true;
+            localData.IsHidden = true;
 
             using (var db = new BountyProgramContext())
             {
@@ -171,7 +168,7 @@ namespace Bug_Bounty_Platform.BusinessLogic.Core
             {
                 localData = db.BountyPrograms
                 .FirstOrDefault(x =>
-                        x.ProgramName.ToLower() == data.ProgramName.ToLower() && !x.IsDeleted);
+                        x.ProgramName.ToLower() == data.ProgramName.ToLower() && !x.IsHidden);
             }
 
             if (localData != null)

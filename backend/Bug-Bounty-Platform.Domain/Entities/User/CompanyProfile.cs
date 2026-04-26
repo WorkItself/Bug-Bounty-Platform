@@ -34,9 +34,6 @@ namespace Bug_Bounty_Platform.Domain.Entities.User
         [StringLength(20)]
         public string? PostalCode { get; set; }
 
-        [StringLength(50)]
-        public string? TaxId { get; set; }
-
         [StringLength(200)]
         public string? Website { get; set; }
 

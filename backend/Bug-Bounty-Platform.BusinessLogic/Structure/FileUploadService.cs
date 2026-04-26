@@ -83,7 +83,7 @@ namespace Bug_Bounty_Platform.BusinessLogic.Structure
         {
             using var db = new BugReportAttachmentContext();
             return db.BugReportAttachments
-                .Where(x => x.BugReportId == bugReportId && !x.IsDeleted)
+                .Where(x => x.BugReportId == bugReportId && !x.IsHidden)
                 .Select(x => new BugReportAttachmentDto
                 {
                     Id            = x.Id,
@@ -103,7 +103,7 @@ namespace Bug_Bounty_Platform.BusinessLogic.Structure
             if (entity == null)
                 return Fail("Attachment not found.");
 
-            entity.IsDeleted = true;
+            entity.IsHidden = true;
             db.SaveChanges();
             return new ActionResponce { IsSuccess = true, Message = "Attachment removed." };
         }

@@ -7,13 +7,24 @@ interface Program {
   programName: string;
   programDescription?: string;
   programScope?: string;
-  minReward: number;
-  maxReward: number;
+  rewardCritical?: number;
+  rewardHigh?: number;
+  rewardMedium?: number;
+  rewardLow?: number;
+  rewardInformational?: number;
   ownerId: number;
   isActive: boolean;
 }
 
 const fmt = (n: number) => n >= 1000 ? '$' + (n / 1000).toFixed(n % 1000 === 0 ? 0 : 1) + 'k' : '$' + n;
+
+const TIERS = [
+  { key: 'rewardCritical',      label: 'Critical',      color: '#dc2626', bg: '#FEF2F2' },
+  { key: 'rewardHigh',          label: 'High',          color: '#ea580c', bg: '#FFF7ED' },
+  { key: 'rewardMedium',        label: 'Medium',        color: '#d97706', bg: '#FFFBEB' },
+  { key: 'rewardLow',           label: 'Low',           color: '#1091cc', bg: '#EFF6FF' },
+  { key: 'rewardInformational', label: 'Informational', color: '#6b7280', bg: '#F9FAFB' },
+] as const;
 
 const BountyDetail = () => {
   const { id } = useParams();
@@ -28,13 +39,11 @@ const BountyDetail = () => {
       .finally(() => setLoading(false));
   }, [id]);
 
-  if (loading) {
-    return <div style={{ padding: '3rem', textAlign: 'center', color: '#6B7280' }}>Loading…</div>;
-  }
+  if (loading) return <div style={{ padding: '3rem', textAlign: 'center', color: '#6B7280' }}>Loading…</div>;
 
   if (!program) {
     return (
-      <div style={{ width: '100%', maxWidth: '1000px', margin: '0 auto', textAlign: 'center', padding: '3rem' }}>
+      <div style={{ maxWidth: '1000px', margin: '0 auto', textAlign: 'center', padding: '3rem' }}>
         <h1 style={{ color: '#ef4444' }}>Program Not Found</h1>
         <button onClick={() => navigate('/bounties')} style={{ padding: '0.75rem 1.5rem', background: '#3F3AFC', color: '#fff', border: 'none', borderRadius: '0.5rem', cursor: 'pointer', fontWeight: 600 }}>
           Back to Programs
@@ -48,6 +57,8 @@ const BountyDetail = () => {
     padding: '1.75rem 2rem', marginBottom: '1.25rem',
     boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
   };
+
+  const activeTiers = TIERS.filter(t => program[t.key] != null);
 
   return (
     <div style={{ width: '100%', maxWidth: '900px', margin: '0 auto', padding: '1.5rem 1rem' }}>
@@ -68,18 +79,25 @@ const BountyDetail = () => {
             {program.isActive ? 'Active' : 'Inactive'}
           </span>
         </div>
+      </div>
 
-        <div style={{ display: 'flex', gap: '3rem', marginTop: '1.75rem' }}>
-          <div>
-            <p style={{ margin: '0 0 0.25rem', fontSize: '0.75rem', fontWeight: 700, opacity: 0.7, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Max Bounty</p>
-            <p style={{ margin: 0, fontSize: '1.8rem', fontWeight: 800 }}>{fmt(program.maxReward)}</p>
-          </div>
-          <div>
-            <p style={{ margin: '0 0 0.25rem', fontSize: '0.75rem', fontWeight: 700, opacity: 0.7, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Min Bounty</p>
-            <p style={{ margin: 0, fontSize: '1.8rem', fontWeight: 800 }}>{fmt(program.minReward)}</p>
+      {/* Reward tiers */}
+      {activeTiers.length > 0 && (
+        <div style={card}>
+          <h2 style={{ margin: '0 0 1rem', fontSize: '1.1rem', fontWeight: 700, color: '#111' }}>Reward Tiers</h2>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            {activeTiers.map(({ key, label, color, bg }) => (
+              <div key={key} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.65rem 1rem', borderRadius: '8px', background: bg }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: color, display: 'inline-block' }} />
+                  <span style={{ fontWeight: 600, color: '#374151', fontSize: '0.9rem' }}>{label}</span>
+                </div>
+                <span style={{ fontWeight: 800, fontSize: '1.1rem', color }}>{fmt(program[key]!)}</span>
+              </div>
+            ))}
           </div>
         </div>
-      </div>
+      )}
 
       {/* Scope */}
       {program.programScope && (
@@ -97,7 +115,7 @@ const BountyDetail = () => {
         </p>
         <button
           onClick={() => navigate(`/submit?programId=${program.id}`)}
-          style={{ padding: '0.7rem 2rem', background: '#3F3AFC', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 700, fontSize: '0.97rem', transition: 'background 0.2s' }}
+          style={{ padding: '0.7rem 2rem', background: '#3F3AFC', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 700, fontSize: '0.97rem' }}
           onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = '#2F2AEC'}
           onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = '#3F3AFC'}
         >

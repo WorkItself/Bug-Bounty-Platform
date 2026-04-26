@@ -42,7 +42,6 @@ namespace Bug_Bounty_Platform.BusinessLogic.Core
                 City = dto.City,
                 Country = dto.Country,
                 PostalCode = dto.PostalCode,
-                TaxId = dto.TaxId,
                 Website = dto.Website,
                 Description = dto.Description,
                 IsVerified = false,

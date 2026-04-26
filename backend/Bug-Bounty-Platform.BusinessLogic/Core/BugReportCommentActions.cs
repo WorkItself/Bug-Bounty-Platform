@@ -19,7 +19,7 @@ namespace Bug_Bounty_Platform.BusinessLogic.Core
             using (var db = new BugReportCommentContext())
             {
                 comments = db.BugReportComments
-                    .Where(x => x.BugReportId == bugReportId && !x.IsDeleted)
+                    .Where(x => x.BugReportId == bugReportId && !x.IsHidden)
                     .OrderBy(x => x.CreatedAt)
                     .ToList();
             }
@@ -64,7 +64,7 @@ namespace Bug_Bounty_Platform.BusinessLogic.Core
                 if (entity == null)
                     return new ActionResponce { IsSuccess = false, Message = "Comment not found." };
 
-                entity.IsDeleted = true;
+                entity.IsHidden = true;
                 db.SaveChanges();
             }
 
