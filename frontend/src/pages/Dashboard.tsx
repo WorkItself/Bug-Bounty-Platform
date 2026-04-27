@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import axiosInstance from '../utils/axiosInstance';
 
 interface ActivityReport {
@@ -10,6 +10,7 @@ interface ActivityReport {
   status: number;
   programId: number;
   programName: string;
+  programHandle?: string;
   reporterId: number;
   reporterName: string;
   isPublic: boolean;
@@ -65,7 +66,7 @@ const Dashboard = () => {
           Activity Feed
         </h1>
         <p style={{ margin: 0, color: 'rgba(255,255,255,0.8)', fontSize: '0.95rem' }}>
-          Accepted vulnerability reports from active bug bounty programs.
+          Resolved vulnerability reports from active BountyOS programs.
         </p>
       </section>
 
@@ -122,7 +123,17 @@ const Dashboard = () => {
                   <div style={{ flex: 1, minWidth: 0 }}>
                     {/* Program + status row */}
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.3rem', flexWrap: 'wrap' }}>
-                      <span style={{ fontSize: '0.75rem', fontWeight: 600, color: '#374151', background: '#F3F4F6', padding: '1px 8px', borderRadius: '4px' }}>{r.programName}</span>
+                      {r.programHandle ? (
+                        <Link
+                          to={`/programs/${r.programHandle}`}
+                          onClick={e => e.stopPropagation()}
+                          style={{ fontSize: '0.75rem', fontWeight: 600, color: '#374151', background: '#F3F4F6', padding: '1px 8px', borderRadius: '4px', textDecoration: 'none' }}
+                          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#EEF2FF'; (e.currentTarget as HTMLElement).style.color = '#3F3AFC'; }}
+                          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = '#F3F4F6'; (e.currentTarget as HTMLElement).style.color = '#374151'; }}
+                        >{r.programName}</Link>
+                      ) : (
+                        <span style={{ fontSize: '0.75rem', fontWeight: 600, color: '#374151', background: '#F3F4F6', padding: '1px 8px', borderRadius: '4px' }}>{r.programName}</span>
+                      )}
                       <span style={{ fontSize: '0.72rem', fontWeight: 600, color: status.color }}>● {status.label}</span>
                       {!r.isPublic && (
                         <span style={{ fontSize: '0.7rem', color: '#9CA3AF', background: '#F9FAFB', border: '1px solid #E5E7EB', padding: '1px 7px', borderRadius: '4px' }}>Private</span>
@@ -140,7 +151,13 @@ const Dashboard = () => {
                     )}
                     {/* Meta */}
                     <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', fontSize: '0.75rem', color: '#9CA3AF', flexWrap: 'wrap' }}>
-                      <span>by <span style={{ color: '#3F3AFC', fontWeight: 600 }}>{r.reporterName}</span></span>
+                      <span>by <Link
+                        to={`/u/${r.reporterName}`}
+                        onClick={e => e.stopPropagation()}
+                        style={{ color: '#3F3AFC', fontWeight: 600, textDecoration: 'none' }}
+                        onMouseEnter={e => (e.currentTarget as HTMLElement).style.textDecoration = 'underline'}
+                        onMouseLeave={e => (e.currentTarget as HTMLElement).style.textDecoration = 'none'}
+                      >{r.reporterName}</Link></span>
                       <span>·</span>
                       <span>{fmtDate(r.resolvedAt)}</span>
                     </div>
