@@ -139,7 +139,7 @@ const Profile = () => {
         <div>
           <p style={{ margin: 0, fontWeight: 700, color: '#111', fontSize: '1.05rem' }}>{profile.userName || user.name}</p>
           <p style={{ margin: '2px 0 0', color: '#6B7280', fontSize: '0.85rem' }}>
-            {user.type === 'user' ? 'Bug Bounty Hunter' : user.type === 'company' ? 'Company' : user.type === 'admin' ? 'Administrator' : ''}
+            {user.type === 'user' ? 'Security Researcher' : user.type === 'company' ? 'Company' : user.type === 'admin' ? 'Administrator' : ''}
           </p>
         </div>
       </div>

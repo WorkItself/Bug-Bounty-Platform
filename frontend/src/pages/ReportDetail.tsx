@@ -259,7 +259,7 @@ const ReportDetail = () => {
           <div ref={bottomRef} />
         </div>
 
-        {/* Can company always comment? Yes. Can hacker comment on their own report? Yes. */}
+        {/* Can company always comment? Yes. Can user comment on their own report? Yes. */}
         {(isCompany || isOwnReport) && (
           <div style={{ padding: '1rem 1.5rem', borderTop: '1px solid #F3F4F6', background: '#FAFAFA' }}>
             {!isCompany && (
@@ -273,7 +273,7 @@ const ReportDetail = () => {
                 value={text}
                 onChange={e => setText(e.target.value)}
                 onKeyDown={e => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) handleSend(); }}
-                placeholder={isCompany ? 'Write feedback for the hacker…' : 'Write a message…'}
+                placeholder={isCompany ? 'Write feedback for the researcher…' : 'Write a message…'}
                 rows={3}
                 style={{ flex: 1, padding: '0.6rem 0.85rem', border: '1px solid #D1D5DB', borderRadius: '8px', fontSize: '0.88rem', fontFamily: 'inherit', resize: 'vertical', outline: 'none' }}
               />

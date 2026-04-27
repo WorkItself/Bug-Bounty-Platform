@@ -201,14 +201,14 @@ const AdminPanel = () => {
 
 /* ── Overview ────────────────────────────────────────────── */
 function OverviewSection({ users, pending }: { users: PlatformUser[]; pending: PendingCompany[] }) {
-  const hackers = users.filter(u => u.role === 'User').length;
+  const researchers = users.filter(u => u.role === 'User').length;
   const companies = users.filter(u => u.role === 'Company').length;
   return (
     <div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
         <StatCard label="Total Users" value={users.length} sub="Registered accounts" color={C.active} />
         <StatCard label="Pending" value={pending.length} sub="Awaiting approval" color="#E81C79" />
-        <StatCard label="Researchers" value={hackers} sub="Active hunters" color="#3F3AFC" />
+        <StatCard label="Researchers" value={researchers} sub="Security researchers" color="#3F3AFC" />
         <StatCard label="Companies" value={companies} sub="Approved orgs" color="#f59e0b" />
       </div>
       <div style={{ background: '#fff', borderRadius: '10px', border: '1px solid #E5E7EB', padding: '1.5rem' }}>
