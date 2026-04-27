@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { Search, ChevronUp, ChevronDown } from 'lucide-react';
 import axiosInstance from '../utils/axiosInstance';
 
@@ -7,23 +7,30 @@ interface Program {
   id: number;
   programName: string;
   programDescription?: string;
-  programScope?: string;
-  minReward: number;
-  maxReward: number;
+  rewardCritical?: number;
+  rewardHigh?: number;
+  rewardMedium?: number;
+  rewardLow?: number;
+  rewardInformational?: number;
   ownerId: number;
   isActive: boolean;
+  ownerDisplayName?: string;
+  ownerHandle?: string;
 }
 
-type SortKey = 'programName' | 'maxReward' | 'minReward';
+type SortKey = 'programName' | 'topReward';
 
 const fmt = (n: number) => n >= 1000 ? '$' + (n / 1000).toFixed(n % 1000 === 0 ? 0 : 1) + 'k' : '$' + n;
+
+const topReward = (p: Program) =>
+  p.rewardCritical ?? p.rewardHigh ?? p.rewardMedium ?? p.rewardLow ?? p.rewardInformational ?? 0;
 
 const BountyList = () => {
   const navigate = useNavigate();
   const [programs, setPrograms] = useState<Program[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
-  const [sortKey, setSortKey] = useState<SortKey>('maxReward');
+  const [sortKey, setSortKey] = useState<SortKey>('topReward');
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
 
   useEffect(() => {
@@ -41,10 +48,11 @@ const BountyList = () => {
   const filtered = programs
     .filter(p => p.programName.toLowerCase().includes(search.toLowerCase()))
     .sort((a, b) => {
-      const va = a[sortKey];
-      const vb = b[sortKey];
-      if (typeof va === 'string') return sortDir === 'asc' ? va.localeCompare(vb as string) : (vb as string).localeCompare(va);
-      return sortDir === 'asc' ? (va as number) - (vb as number) : (vb as number) - (va as number);
+      if (sortKey === 'programName') {
+        return sortDir === 'asc' ? a.programName.localeCompare(b.programName) : b.programName.localeCompare(a.programName);
+      }
+      const va = topReward(a), vb = topReward(b);
+      return sortDir === 'asc' ? va - vb : vb - va;
     });
 
   const SortBtn = ({ k, label }: { k: SortKey; label: string }) => (
@@ -88,16 +96,15 @@ const BountyList = () => {
             <thead>
               <tr style={{ background: '#F9FAFB', borderBottom: '1px solid #E5E7EB' }}>
                 <th style={{ padding: '0.75rem 1rem', fontSize: '0.78rem', fontWeight: 600, color: '#374151' }}>Program</th>
-                <SortBtn k="maxReward" label="Max Bounty" />
-                <SortBtn k="minReward" label="Min Bounty" />
+                <SortBtn k="topReward" label="Top Reward" />
                 <th style={{ padding: '0.75rem 1rem', fontSize: '0.78rem', fontWeight: 600, color: '#374151', textAlign: 'right' }}>Status</th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan={4} style={{ padding: '2rem', textAlign: 'center', color: '#6B7280', fontSize: '0.9rem' }}>Loading programs…</td></tr>
+                <tr><td colSpan={3} style={{ padding: '2rem', textAlign: 'center', color: '#6B7280', fontSize: '0.9rem' }}>Loading programs…</td></tr>
               ) : filtered.length === 0 ? (
-                <tr><td colSpan={4} style={{ padding: '2rem', textAlign: 'center', color: '#6B7280', fontSize: '0.9rem' }}>No programs found.</td></tr>
+                <tr><td colSpan={3} style={{ padding: '2rem', textAlign: 'center', color: '#6B7280', fontSize: '0.9rem' }}>No programs found.</td></tr>
               ) : filtered.map(p => (
                 <tr key={p.id} onClick={() => navigate(`/bounties/${p.id}`)}
                   style={{ borderBottom: '1px solid #F3F4F6', cursor: 'pointer', transition: 'background 0.2s' }}
@@ -111,16 +118,26 @@ const BountyList = () => {
                       </div>
                       <div>
                         <span style={{ fontWeight: 600, fontSize: '0.88rem', color: '#111' }}>{p.programName}</span>
-                        {p.programDescription && (
-                          <div style={{ fontSize: '0.75rem', color: '#6B7280', marginTop: '0.15rem', maxWidth: '300px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                            {p.programDescription}
-                          </div>
-                        )}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginTop: '0.15rem', flexWrap: 'wrap' }}>
+                          {p.ownerDisplayName && p.ownerHandle ? (
+                            <Link to={`/programs/${p.ownerHandle}`} onClick={e => e.stopPropagation()}
+                              style={{ fontSize: '0.75rem', color: '#3F3AFC', fontWeight: 500, textDecoration: 'none' }}
+                              onMouseEnter={e => (e.currentTarget as HTMLElement).style.textDecoration = 'underline'}
+                              onMouseLeave={e => (e.currentTarget as HTMLElement).style.textDecoration = 'none'}
+                            >{p.ownerDisplayName}</Link>
+                          ) : null}
+                          {p.programDescription && (
+                            <span style={{ fontSize: '0.75rem', color: '#6B7280', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '260px' }}>
+                              {p.ownerDisplayName ? '· ' : ''}{p.programDescription}
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </td>
-                  <td style={{ padding: '0.9rem 1rem', fontSize: '0.84rem', color: '#374151', fontWeight: 600, textAlign: 'right' }}>{fmt(p.maxReward)}</td>
-                  <td style={{ padding: '0.9rem 1rem', fontSize: '0.84rem', color: '#374151', textAlign: 'right' }}>{fmt(p.minReward)}</td>
+                  <td style={{ padding: '0.9rem 1rem', fontSize: '0.84rem', fontWeight: 700, color: '#dc2626', textAlign: 'right' }}>
+                    {topReward(p) > 0 ? fmt(topReward(p)) : '—'}
+                  </td>
                   <td style={{ padding: '0.9rem 1rem', textAlign: 'right' }}>
                     <span style={{ fontSize: '0.72rem', padding: '2px 8px', borderRadius: '10px', background: p.isActive ? '#DCFCE7' : '#F3F4F6', color: p.isActive ? '#16A34A' : '#6B7280', fontWeight: 600 }}>
                       {p.isActive ? 'Active' : 'Inactive'}

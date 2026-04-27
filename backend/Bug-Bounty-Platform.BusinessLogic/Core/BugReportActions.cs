@@ -18,14 +18,14 @@ namespace Bug_Bounty_Platform.BusinessLogic.Core
         protected List<BugReportDto> GetByReporterExecution(int reporterId)
         {
             using var db = new BugReportContext();
-            var data = db.BugReports.Where(x => x.ReporterId == reporterId && !x.IsDeleted).ToList();
+            var data = db.BugReports.Where(x => x.ReporterId == reporterId && !x.IsHidden).ToList();
             return _mapper.Map<List<BugReportDto>>(data);
         }
 
         protected List<BugReportDto> GetByProgramExecution(int programId)
         {
             using var db = new BugReportContext();
-            var data = db.BugReports.Where(x => x.ProgramId == programId && !x.IsDeleted).ToList();
+            var data = db.BugReports.Where(x => x.ProgramId == programId && !x.IsHidden).ToList();
             return _mapper.Map<List<BugReportDto>>(data);
         }
 
@@ -36,7 +36,7 @@ namespace Bug_Bounty_Platform.BusinessLogic.Core
             using (var db = new BugReportContext())
             {
                 brData = db.BugReports.
-                    Where(x => !x.IsDeleted).ToList();
+                    Where(x => !x.IsHidden).ToList();
             }
 
             if (brData.Count <= 0) return data;
@@ -51,7 +51,7 @@ namespace Bug_Bounty_Platform.BusinessLogic.Core
             {
                 brData = db.BugReports
                     .FirstOrDefault(x =>
-                        x.Id == id && !x.IsDeleted);
+                        x.Id == id && !x.IsHidden);
             }
 
             if (brData == null) return null;
@@ -66,6 +66,7 @@ namespace Bug_Bounty_Platform.BusinessLogic.Core
                 return status;
             }
 
+            int createdId;
             using (var db = new BugReportContext())
             {
                 var brData = new BugReportData
@@ -76,16 +77,19 @@ namespace Bug_Bounty_Platform.BusinessLogic.Core
                     Status = BugStatus.New,
                     ProgramId = data.ProgramId,
                     ReporterId = data.ReporterId,
+                    IsPublic = data.IsPublic,
                     SubmittedAt = DateTime.UtcNow
                 };
                 db.BugReports.Add(brData);
                 db.SaveChanges();
+                createdId = brData.Id;
             }
 
             return new ActionResponce
             {
                 IsSuccess = true,
-                Message = "Bug report submitted successfully."
+                Message = "Bug report submitted successfully.",
+                Id = createdId
             };
         }
 
@@ -98,6 +102,29 @@ namespace Bug_Bounty_Platform.BusinessLogic.Core
                 {
                     IsSuccess = false,
                     Message = "Bug report not found."
+                };
+            }
+
+            var currentStatus = (int)localData.Status;
+            var newStatus = (int)data.Status;
+
+            // Terminal states: Fixed=4, Rewarded=5, Rejected=6 — cannot be changed
+            if (currentStatus >= 4)
+            {
+                return new ActionResponce
+                {
+                    IsSuccess = false,
+                    Message = "This report is in a terminal state and its status cannot be changed."
+                };
+            }
+
+            // Cannot move backwards
+            if (newStatus < currentStatus)
+            {
+                return new ActionResponce
+                {
+                    IsSuccess = false,
+                    Message = "Status cannot be moved backwards."
                 };
             }
 
@@ -135,7 +162,7 @@ namespace Bug_Bounty_Platform.BusinessLogic.Core
                 };
             }
 
-            localData.IsDeleted = true;
+            localData.IsHidden = true;
 
             using (var db = new BugReportContext())
             {
@@ -148,6 +175,16 @@ namespace Bug_Bounty_Platform.BusinessLogic.Core
                 IsSuccess = true,
                 Message = "Bug Report Deleted"
             };
+        }
+
+        protected List<BugReportDto> GetActivityFeedExecution()
+        {
+            using var db = new BugReportContext();
+            var resolved = db.BugReports
+                .Where(r => !r.IsHidden && (int)r.Status == 3)
+                .OrderByDescending(r => r.UpdatedAt ?? r.SubmittedAt)
+                .ToList();
+            return _mapper.Map<List<BugReportDto>>(resolved);
         }
 
         /// <summary>
@@ -177,7 +214,7 @@ namespace Bug_Bounty_Platform.BusinessLogic.Core
                 .FirstOrDefault(x =>
                         x.Title.ToLower() == data.Title.ToLower() &&
                         x.ProgramId == data.ProgramId &&
-                        !x.IsDeleted);
+                        !x.IsHidden);
             }
 
             if (localData != null)

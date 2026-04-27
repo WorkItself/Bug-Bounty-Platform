@@ -11,5 +11,6 @@ namespace Bug_Bounty_Platform.Domain.Models.BugReport
         public BugStatus Status { get; set; }
         public int ProgramId { get; set; }
         public int ReporterId { get; set; }
+        public bool IsPublic { get; set; }
     }
 }

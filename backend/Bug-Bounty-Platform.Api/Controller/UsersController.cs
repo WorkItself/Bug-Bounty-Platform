@@ -28,6 +28,24 @@ namespace Bug_Bounty_Platform.Api.Controller
             return Ok(_userList.GetAllUsersAction());
         }
 
+        [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
+        public IActionResult Delete(int id)
+        {
+            var result = _userList.DeleteUserAction(id);
+            if (!result.IsSuccess) return NotFound(new { message = result.Message });
+            return NoContent();
+        }
+
+        [HttpPut("{id}")]
+        [Authorize(Roles = "Admin")]
+        public IActionResult Update(int id, [FromBody] UserUpdateDto dto)
+        {
+            var result = _userList.UpdateUserAction(id, dto);
+            if (!result.IsSuccess) return BadRequest(new { message = result.Message });
+            return Ok(new { message = result.Message });
+        }
+
         [HttpGet("me")]
         [Authorize]
         public IActionResult GetMe()

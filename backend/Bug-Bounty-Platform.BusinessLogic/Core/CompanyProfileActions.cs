@@ -43,14 +43,19 @@ namespace Bug_Bounty_Platform.BusinessLogic.Core
             if (profile == null)
                 return new ActionResponce { IsSuccess = false, Message = "Profile not found." };
 
+            if (!string.IsNullOrWhiteSpace(dto.Handle) && dto.Handle != profile.Handle)
+            {
+                if (db.CompanyProfiles.Any(p => p.Handle == dto.Handle && p.UserId != dto.UserId))
+                    return new ActionResponce { IsSuccess = false, Message = "That handle is already taken." };
+                profile.Handle = dto.Handle;
+            }
+
             profile.LegalName = dto.LegalName;
             profile.DisplayName = dto.DisplayName;
             profile.LegalAddress = dto.LegalAddress;
             profile.City = dto.City;
             profile.Country = dto.Country;
             profile.PostalCode = dto.PostalCode;
-            profile.TaxId = dto.TaxId;
-            profile.Website = dto.Website;
             profile.Description = dto.Description;
 
             db.SaveChanges();
@@ -71,6 +76,19 @@ namespace Bug_Bounty_Platform.BusinessLogic.Core
             db.SaveChanges();
 
             return new ActionResponce { IsSuccess = true, Message = "Company verified." };
+        }
+
+        protected ActionResponce RevokeVerificationExecution(int userId)
+        {
+            using var db = new CompanyProfileContext();
+            var profile = db.CompanyProfiles.FirstOrDefault(x => x.UserId == userId);
+            if (profile == null)
+                return new ActionResponce { IsSuccess = false, Message = "Profile not found." };
+            profile.IsVerified = false;
+            profile.VerifiedAt = null;
+            db.SaveChanges();
+
+            return new ActionResponce { IsSuccess = true, Message = "Verification revoked." };
         }
 
         protected bool IsVerifiedExecution(int userId)

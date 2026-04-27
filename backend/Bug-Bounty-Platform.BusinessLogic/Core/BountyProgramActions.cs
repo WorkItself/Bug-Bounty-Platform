@@ -4,6 +4,7 @@ using Bug_Bounty_Platform.DataAccess.Context;
 using Bug_Bounty_Platform.Domain.Entities.BountyProgram;
 using Bug_Bounty_Platform.Domain.Models.BountyProgram;
 using Bug_Bounty_Platform.Domain.Models.Responces;
+using Microsoft.EntityFrameworkCore;
 
 namespace Bug_Bounty_Platform.BusinessLogic.Core
 {
@@ -17,31 +18,47 @@ namespace Bug_Bounty_Platform.BusinessLogic.Core
 
         protected List<BountyProgramDto> GetAllBountyProgramActionExecution()
         {
-            var data = new List<BountyProgramDto>();
             List<BountyProgramData> bpData;
             using (var db = new BountyProgramContext())
-            {
-                bpData = db.BountyPrograms.
-                    Where(x => !x.IsDeleted).ToList();
-            }
+                bpData = db.BountyPrograms.Where(x => !x.IsHidden).ToList();
 
-            if (bpData.Count <= 0) return data;
-            data = _mapper.Map<List<BountyProgramDto>>(bpData);
-            return data;
+            if (bpData.Count == 0) return new List<BountyProgramDto>();
+
+            var dtos = _mapper.Map<List<BountyProgramDto>>(bpData);
+            EnrichWithOwnerInfo(dtos);
+            return dtos;
         }
 
         protected BountyProgramDto? GetBountyProgramByIdActionExecution(int id)
         {
             BountyProgramData? bpData;
             using (var db = new BountyProgramContext())
-            {
-                bpData = db.BountyPrograms
-                    .FirstOrDefault(x =>
-                        x.Id == id && !x.IsDeleted);
-            }
+                bpData = db.BountyPrograms.FirstOrDefault(x => x.Id == id && !x.IsHidden);
 
             if (bpData == null) return null;
-            return _mapper.Map<BountyProgramDto>(bpData);
+            var dto = _mapper.Map<BountyProgramDto>(bpData);
+            EnrichWithOwnerInfo(new List<BountyProgramDto> { dto });
+            return dto;
+        }
+
+        private static void EnrichWithOwnerInfo(List<BountyProgramDto> dtos)
+        {
+            var ownerIds = dtos.Select(d => d.OwnerId).Distinct().ToList();
+            using var db = new CompanyProfileContext();
+            var profiles = db.CompanyProfiles
+                .Where(p => ownerIds.Contains(p.UserId))
+                .Select(p => new { p.UserId, p.DisplayName, p.Handle })
+                .ToList();
+
+            var lookup = profiles.ToDictionary(p => p.UserId);
+            foreach (var dto in dtos)
+            {
+                if (lookup.TryGetValue(dto.OwnerId, out var p))
+                {
+                    dto.OwnerDisplayName = p.DisplayName;
+                    dto.OwnerHandle      = p.Handle;
+                }
+            }
         }
 
         protected ActionResponce CreateBountyProgramActionExecution(BountyProgramDto data)
@@ -52,15 +69,6 @@ namespace Bug_Bounty_Platform.BusinessLogic.Core
                 return status;
             }
 
-            if (data.MaxReward < data.MinReward)
-            {
-                return new ActionResponce
-                {
-                    IsSuccess = false,
-                    Message = "MaxReward must be greater than or equal to MinReward."
-                };
-            }
-
             using (var db = new BountyProgramContext())
             {
                 var bpData = new BountyProgramData
@@ -68,8 +76,12 @@ namespace Bug_Bounty_Platform.BusinessLogic.Core
                     ProgramName = data.ProgramName,
                     ProgramDescription = data.ProgramDescription,
                     ProgramScope = data.ProgramScope,
-                    MinReward = data.MinReward,
-                    MaxReward = data.MaxReward,
+                    Website = data.Website,
+                    RewardCritical = data.RewardCritical,
+                    RewardHigh = data.RewardHigh,
+                    RewardMedium = data.RewardMedium,
+                    RewardLow = data.RewardLow,
+                    RewardInformational = data.RewardInformational,
                     OwnerId = data.OwnerId,
                     IsActive = true,
                     CreatedAt = DateTime.UtcNow
@@ -100,8 +112,12 @@ namespace Bug_Bounty_Platform.BusinessLogic.Core
             localData.ProgramName = data.ProgramName;
             localData.ProgramDescription = data.ProgramDescription;
             localData.ProgramScope = data.ProgramScope;
-            localData.MinReward = data.MinReward;
-            localData.MaxReward = data.MaxReward;
+            localData.Website = data.Website;
+            localData.RewardCritical = data.RewardCritical;
+            localData.RewardHigh = data.RewardHigh;
+            localData.RewardMedium = data.RewardMedium;
+            localData.RewardLow = data.RewardLow;
+            localData.RewardInformational = data.RewardInformational;
             localData.IsActive = data.IsActive;
 
             localData.UpdatedAt = DateTime.UtcNow;
@@ -131,7 +147,7 @@ namespace Bug_Bounty_Platform.BusinessLogic.Core
                 };
             }
 
-            localData.IsDeleted = true;
+            localData.IsHidden = true;
 
             using (var db = new BountyProgramContext())
             {
@@ -171,7 +187,7 @@ namespace Bug_Bounty_Platform.BusinessLogic.Core
             {
                 localData = db.BountyPrograms
                 .FirstOrDefault(x =>
-                        x.ProgramName.ToLower() == data.ProgramName.ToLower() && !x.IsDeleted);
+                        x.ProgramName.ToLower() == data.ProgramName.ToLower() && !x.IsHidden);
             }
 
             if (localData != null)

@@ -36,14 +36,8 @@ namespace Bug_Bounty_Platform.DataAccess.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
 
-                    b.Property<bool>("IsDeleted")
+                    b.Property<bool>("IsHidden")
                         .HasColumnType("boolean");
-
-                    b.Property<decimal>("MaxReward")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal>("MinReward")
-                        .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("OwnerId")
                         .HasColumnType("integer");
@@ -61,8 +55,27 @@ namespace Bug_Bounty_Platform.DataAccess.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
 
+                    b.Property<decimal?>("RewardCritical")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal?>("RewardHigh")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal?>("RewardInformational")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal?>("RewardLow")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal?>("RewardMedium")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Website")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
 
                     b.HasKey("Id");
 
@@ -92,7 +105,7 @@ namespace Bug_Bounty_Platform.DataAccess.Migrations
                     b.Property<long>("FileSizeBytes")
                         .HasColumnType("bigint");
 
-                    b.Property<bool>("IsDeleted")
+                    b.Property<bool>("IsHidden")
                         .HasColumnType("boolean");
 
                     b.Property<string>("StoragePath")
@@ -130,7 +143,7 @@ namespace Bug_Bounty_Platform.DataAccess.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<bool>("IsDeleted")
+                    b.Property<bool>("IsHidden")
                         .HasColumnType("boolean");
 
                     b.Property<bool>("IsInternal")
@@ -156,7 +169,10 @@ namespace Bug_Bounty_Platform.DataAccess.Migrations
                         .HasMaxLength(2000)
                         .HasColumnType("character varying(2000)");
 
-                    b.Property<bool>("IsDeleted")
+                    b.Property<bool>("IsHidden")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsPublic")
                         .HasColumnType("boolean");
 
                     b.Property<int>("ProgramId")
@@ -213,8 +229,14 @@ namespace Bug_Bounty_Platform.DataAccess.Migrations
                         .HasColumnType("character varying(1000)");
 
                     b.Property<string>("DisplayName")
+                        .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
+
+                    b.Property<string>("Handle")
+                        .IsRequired()
+                        .HasMaxLength(60)
+                        .HasColumnType("character varying(60)");
 
                     b.Property<bool>("IsVerified")
                         .HasColumnType("boolean");
@@ -233,21 +255,16 @@ namespace Bug_Bounty_Platform.DataAccess.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)");
 
-                    b.Property<string>("TaxId")
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
-
                     b.Property<int>("UserId")
                         .HasColumnType("integer");
 
                     b.Property<DateTime?>("VerifiedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("Website")
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)");
-
                     b.HasKey("Id");
+
+                    b.HasIndex("Handle")
+                        .IsUnique();
 
                     b.ToTable("CompanyProfiles");
                 });
@@ -260,16 +277,13 @@ namespace Bug_Bounty_Platform.DataAccess.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("AvatarUrl")
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)");
-
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasMaxLength(60)
                         .HasColumnType("character varying(60)");
 
                     b.Property<string>("FirstName")
+                        .IsRequired()
                         .HasMaxLength(30)
                         .HasColumnType("character varying(30)");
 
@@ -277,6 +291,7 @@ namespace Bug_Bounty_Platform.DataAccess.Migrations
                         .HasColumnType("boolean");
 
                     b.Property<string>("LastName")
+                        .IsRequired()
                         .HasMaxLength(30)
                         .HasColumnType("character varying(30)");
 

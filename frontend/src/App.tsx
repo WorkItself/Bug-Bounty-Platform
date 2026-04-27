@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 
 // Layouts
 import MainLayout from './layout/MainLayout';
@@ -27,6 +27,10 @@ import SupportRequests from './pages/SupportRequests';
 import ChooseRole from './pages/ChooseRole';
 import CompanyApply from './pages/CompanyApply';
 import ContactUs from './pages/ContactUs';
+import CompanyProfilePage from './pages/CompanyProfilePage';
+import PublicHackerProfile from './pages/PublicHackerProfile';
+import PublicCompanyPage from './pages/PublicCompanyPage';
+import ReportDetail from './pages/ReportDetail';
 
 function App() {
   return (
@@ -39,15 +43,20 @@ function App() {
         <Route path="/company/apply" element={<CompanyApply />} />
         <Route path="/contact-us" element={<ContactUs />} />
         <Route element={<MainLayout />}>
-          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/dashboard" element={<Navigate to="/bounties" replace />} />
+          <Route path="/activity" element={<Dashboard />} />
           <Route path="/bounties" element={<BountyList />} />
           <Route path="/bounties/:id" element={<BountyDetail />} />
           <Route path="/leaderboard" element={<Leaderboard />} />
+          {/* Public profile routes */}
+          <Route path="/u/:username" element={<PublicHackerProfile />} />
+          <Route path="/programs/:handle" element={<PublicCompanyPage />} />
         </Route>
         <Route element={<ProtectedRoute />}>
           <Route element={<MainLayout />}>
             <Route path="/profile" element={<Profile />} />
             <Route path="/support" element={<ContactSupport />} />
+            <Route path="/report/:id" element={<ReportDetail />} />
 
             {/* Hacker Routes */}
             <Route element={<RoleBasedRoute allowedRoles={['user']} />}>
@@ -58,6 +67,7 @@ function App() {
             {/* Company Routes */}
             <Route element={<RoleBasedRoute allowedRoles={['company']} />}>
               <Route path="/company/dashboard" element={<CompanyDashboard />} />
+              <Route path="/company/profile" element={<CompanyProfilePage />} />
               <Route path="/company/add-project" element={<AddProject />} />
               <Route path="/company/reports" element={<ViewReports />} />
             </Route>

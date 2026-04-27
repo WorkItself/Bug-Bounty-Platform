@@ -42,5 +42,14 @@ namespace Bug_Bounty_Platform.Api.Controller
             if (!result.IsSuccess) return NotFound(new { message = result.Message });
             return Ok(new { message = result.Message });
         }
+
+        [HttpDelete("deny/{userId}")]
+        [Authorize(Roles = "Admin")]
+        public IActionResult Deny(int userId)
+        {
+            var result = _apply.DenyAction(userId);
+            if (!result.IsSuccess) return NotFound(new { message = result.Message });
+            return NoContent();
+        }
     }
 }

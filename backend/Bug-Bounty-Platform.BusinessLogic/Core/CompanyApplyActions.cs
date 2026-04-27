@@ -15,6 +15,12 @@ namespace Bug_Bounty_Platform.BusinessLogic.Core
                     return new ActionResponce { IsSuccess = false, Message = "Username or email already in use." };
             }
 
+            using (var db = new CompanyProfileContext())
+            {
+                if (db.CompanyProfiles.Any(p => p.Handle == dto.Handle))
+                    return new ActionResponce { IsSuccess = false, Message = "That handle is already taken." };
+            }
+
             var user = new UserData
             {
                 UserName = dto.UserName,
@@ -36,14 +42,13 @@ namespace Bug_Bounty_Platform.BusinessLogic.Core
             var profile = new CompanyProfile
             {
                 UserId = userId,
+                Handle = dto.Handle,
                 LegalName = dto.LegalName,
                 DisplayName = dto.DisplayName,
                 LegalAddress = dto.LegalAddress,
                 City = dto.City,
                 Country = dto.Country,
                 PostalCode = dto.PostalCode,
-                TaxId = dto.TaxId,
-                Website = dto.Website,
                 Description = dto.Description,
                 IsVerified = false,
                 CreatedAt = DateTime.UtcNow
@@ -86,13 +91,33 @@ namespace Bug_Bounty_Platform.BusinessLogic.Core
                     u.UserName,
                     u.Email,
                     u.RegisteredOn,
+                    Handle = profile?.Handle ?? "",
                     LegalName = profile?.LegalName ?? "",
                     LegalAddress = profile?.LegalAddress ?? "",
                     City = profile?.City ?? "",
-                    Country = profile?.Country ?? "",
-                    Website = profile?.Website
+                    Country = profile?.Country ?? ""
                 };
             }).ToList();
+        }
+
+        protected ActionResponce DenyExecution(int userId)
+        {
+            using (var profileDb = new CompanyProfileContext())
+            {
+                var profile = profileDb.CompanyProfiles.FirstOrDefault(p => p.UserId == userId);
+                if (profile != null) { profileDb.CompanyProfiles.Remove(profile); profileDb.SaveChanges(); }
+            }
+
+            using (var userDb = new UserContext())
+            {
+                var user = userDb.Users.FirstOrDefault(u => u.Id == userId && u.Role == UserRole.Company);
+                if (user == null)
+                    return new ActionResponce { IsSuccess = false, Message = "Company account not found." };
+                userDb.Users.Remove(user);
+                userDb.SaveChanges();
+            }
+
+            return new ActionResponce { IsSuccess = true, Message = "Company application denied and removed." };
         }
 
         protected ActionResponce ApproveExecution(int userId)

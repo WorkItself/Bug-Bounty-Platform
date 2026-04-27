@@ -10,5 +10,6 @@ namespace Bug_Bounty_Platform.BusinessLogic.Structure
         public ActionResponce ApplyAction(CompanyApplyDto dto) => ApplyExecution(dto);
         public List<object> GetPendingAction() => GetPendingExecution();
         public ActionResponce ApproveAction(int userId) => ApproveExecution(userId);
+        public ActionResponce DenyAction(int userId) => DenyExecution(userId);
     }
 }

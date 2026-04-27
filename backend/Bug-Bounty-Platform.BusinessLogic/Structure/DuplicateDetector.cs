@@ -14,7 +14,7 @@ namespace Bug_Bounty_Platform.BusinessLogic.Structure
             using (var db = new BugReportContext())
             {
                 existing = db.BugReports
-                    .Where(x => x.ProgramId == incoming.ProgramId && !x.IsDeleted)
+                    .Where(x => x.ProgramId == incoming.ProgramId && !x.IsHidden)
                     .Select(x => new BugReportDto
                     {
                         Id = x.Id,

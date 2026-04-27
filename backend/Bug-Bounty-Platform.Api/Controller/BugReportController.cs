@@ -58,7 +58,7 @@ namespace Bug_Bounty_Platform.Api.Controller
         {
             var result = _report.CreateBugReportAction(data);
             if (!result.IsSuccess) return BadRequest(new { message = result.Message });
-            return StatusCode(201, new { message = result.Message });
+            return StatusCode(201, new { message = result.Message, id = result.Id });
         }
 
         [HttpPut]
