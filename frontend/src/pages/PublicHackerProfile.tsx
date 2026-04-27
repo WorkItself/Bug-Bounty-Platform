@@ -21,7 +21,7 @@ const PublicHackerProfile = () => {
   const [notFound, setNotFound] = useState(false);
 
   useEffect(() => {
-    axiosInstance.get(`/public/hacker/${username}`)
+    axiosInstance.get(`/public/user/${username}`)
       .then(res => setProfile(res.data))
       .catch(err => { if (err.response?.status === 404) setNotFound(true); })
       .finally(() => setLoading(false));

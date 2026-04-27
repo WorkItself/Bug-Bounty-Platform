@@ -6,20 +6,21 @@ using Microsoft.Extensions.Configuration;
 
 namespace Bug_Bounty_Platform.Api.Controller
 {
-    [Route("api/session")]
+    [Route("api/auth")]
     [ApiController]
     [AllowAnonymous]
     public class AuthController : ControllerBase
     {
-        internal IUserLoginAction _userAction;
+        private readonly IUserLoginAction _userAction;
+
         public AuthController(IConfiguration configuration)
         {
             var bl = new BusinessLogic.BusinessLogic(configuration);
             _userAction = bl.UserLoginAction();
         }
 
-        [HttpPost("auth")]
-        public IActionResult Auth([FromBody] UserLoginDto udata)
+        [HttpPost("login")]
+        public IActionResult Login([FromBody] UserLoginDto udata)
         {
             var data = _userAction.UserLoginDataValidation(udata);
             if (data == null)

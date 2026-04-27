@@ -10,10 +10,11 @@ namespace Bug_Bounty_Platform.Api.Controller
     [Route("api/report")]
     [ApiController]
     [Authorize]
-    public class BugReportController : ControllerBase
+    public class ReportController : ControllerBase
     {
-        private IBugReportAction _report;
-        public BugReportController(IConfiguration configuration)
+        private readonly IBugReportAction _report;
+
+        public ReportController(IConfiguration configuration)
         {
             var bl = new BusinessLogic.BusinessLogic(configuration);
             _report = bl.BugReportAction();
