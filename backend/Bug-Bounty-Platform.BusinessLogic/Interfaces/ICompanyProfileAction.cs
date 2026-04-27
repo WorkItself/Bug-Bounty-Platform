@@ -9,6 +9,7 @@ namespace Bug_Bounty_Platform.BusinessLogic.Interfaces
         ActionResponce CreateProfileAction(CompanyProfileDto dto);
         ActionResponce UpdateProfileAction(CompanyProfileDto dto);
         ActionResponce VerifyCompanyAction(int userId);
+        ActionResponce RevokeVerificationAction(int userId);
         bool IsVerifiedAction(int userId);
     }
 }

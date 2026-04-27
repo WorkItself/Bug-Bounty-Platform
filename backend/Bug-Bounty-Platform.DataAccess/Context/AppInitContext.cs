@@ -21,5 +21,12 @@ namespace Bug_Bounty_Platform.DataAccess.Context
         {
             optionsBuilder.UseNpgsql(DbSession.ConnectionString);
         }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<CompanyProfile>()
+                .HasIndex(p => p.Handle)
+                .IsUnique();
+        }
     }
 }

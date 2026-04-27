@@ -43,6 +43,18 @@ namespace Bug_Bounty_Platform.Api.Controller
             return Ok(attachments);
         }
 
+        [HttpGet("file/{attachmentId}")]
+        [Authorize(Roles = "User,Company,Admin")]
+        public IActionResult DownloadFile(int attachmentId)
+        {
+            var (fullPath, contentType, fileName) = _service.GetAttachmentFile(attachmentId);
+            if (fullPath == null || !System.IO.File.Exists(fullPath))
+                return NotFound(new { message = "File not found." });
+
+            var stream = System.IO.File.OpenRead(fullPath);
+            return File(stream, contentType ?? "application/octet-stream", fileName);
+        }
+
         [HttpDelete("{attachmentId}")]
         [Authorize(Roles = "Company,Admin")]
         public IActionResult Delete(int attachmentId)

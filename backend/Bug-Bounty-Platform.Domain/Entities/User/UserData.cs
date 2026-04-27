@@ -9,11 +9,13 @@ namespace Bug_Bounty_Platform.Domain.Entities.User
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
 
+        [Required]
         [StringLength(30)]
-        public string? FirstName { get; set; }
+        public string FirstName { get; set; } = string.Empty;
 
+        [Required]
         [StringLength(30)]
-        public string? LastName { get; set; }
+        public string LastName { get; set; } = string.Empty;
 
         [Required]
         [StringLength(30, MinimumLength = 4)]

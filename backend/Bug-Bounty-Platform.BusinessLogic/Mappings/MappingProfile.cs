@@ -18,14 +18,14 @@ namespace Bug_Bounty_Platform.BusinessLogic.Mappings
             CreateMap<BugReportDto, BugReportData>()
                 .ForMember(dest => dest.SubmittedAt, opt => opt.Ignore())
                 .ForMember(dest => dest.UpdatedAt,   opt => opt.Ignore())
-                .ForMember(dest => dest.IsDeleted,   opt => opt.Ignore());
+                .ForMember(dest => dest.IsHidden,   opt => opt.Ignore());
 
             // BountyProgram
             CreateMap<BountyProgramData, BountyProgramDto>();
             CreateMap<BountyProgramDto, BountyProgramData>()
                 .ForMember(dest => dest.CreatedAt,  opt => opt.Ignore())
                 .ForMember(dest => dest.UpdatedAt,  opt => opt.Ignore())
-                .ForMember(dest => dest.IsDeleted,  opt => opt.Ignore());
+                .ForMember(dest => dest.IsHidden,  opt => opt.Ignore());
 
             // BugReportComment
             CreateMap<BugReportComment, BugReportCommentDto>();

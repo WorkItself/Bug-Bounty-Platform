@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useUser } from '../context/UserContext';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import styles from './Register.module.css';
 
 const inputStyle: React.CSSProperties = {
@@ -17,7 +17,9 @@ const Register = () => {
   const location = useLocation();
   const role: string = (location.state as any)?.role ?? 'user';
 
-  const [formData, setFormData] = useState({ userName: '', email: '', password: '', confirmPassword: '' });
+  const [formData, setFormData] = useState({
+    firstName: '', lastName: '', userName: '', email: '', password: '', confirmPassword: '', phone: '',
+  });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -32,11 +34,19 @@ const Register = () => {
       setError('Passwords do not match');
       return;
     }
-    if (!formData.userName || !formData.email || !formData.password) return;
+    if (!formData.firstName || !formData.lastName || !formData.userName || !formData.email || !formData.password) return;
 
     setLoading(true);
     setError('');
-    const result = await register(formData.userName, formData.email, formData.password, role);
+    const result = await register({
+      firstName: formData.firstName,
+      lastName: formData.lastName,
+      userName: formData.userName,
+      email: formData.email,
+      password: formData.password,
+      phone: formData.phone || undefined,
+      role,
+    });
     setLoading(false);
 
     if (result.success) {
@@ -52,30 +62,49 @@ const Register = () => {
   return (
     <div className={styles.container}>
       <div className={styles.formWrapper}>
+        <Link to="/" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', color: '#6B7280', textDecoration: 'none', fontSize: '0.85rem', marginBottom: '1.25rem' }}>
+          ← Back to home
+        </Link>
         <h1 className={styles.title}>Create Account</h1>
         <p className={styles.subtitle}>
           {role === 'company' ? 'Join BountyOS as a company' : 'Join BountyOS as a security researcher'}
         </p>
 
         <form onSubmit={handleSubmit} className={styles.form}>
-          <div>
-            <label className={styles.label}>Username</label>
-            <input name="userName" value={formData.userName} onChange={handleChange} placeholder="Choose a username" style={inputStyle} onFocus={focusHandler} onBlur={blurHandler} />
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+            <div>
+              <label className={styles.label}>First Name *</label>
+              <input name="firstName" value={formData.firstName} onChange={handleChange} placeholder="John" required style={inputStyle} onFocus={focusHandler} onBlur={blurHandler} />
+            </div>
+            <div>
+              <label className={styles.label}>Last Name *</label>
+              <input name="lastName" value={formData.lastName} onChange={handleChange} placeholder="Doe" required style={inputStyle} onFocus={focusHandler} onBlur={blurHandler} />
+            </div>
           </div>
 
           <div>
-            <label className={styles.label}>Email</label>
-            <input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="your@email.com" style={inputStyle} onFocus={focusHandler} onBlur={blurHandler} />
+            <label className={styles.label}>Username *</label>
+            <input name="userName" value={formData.userName} onChange={handleChange} placeholder="Choose a username" required style={inputStyle} onFocus={focusHandler} onBlur={blurHandler} />
           </div>
 
           <div>
-            <label className={styles.label}>Password</label>
-            <input type="password" name="password" value={formData.password} onChange={handleChange} placeholder="Enter your password" style={inputStyle} onFocus={focusHandler} onBlur={blurHandler} />
+            <label className={styles.label}>Email *</label>
+            <input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="your@email.com" required style={inputStyle} onFocus={focusHandler} onBlur={blurHandler} />
           </div>
 
           <div>
-            <label className={styles.label}>Confirm Password</label>
-            <input type="password" name="confirmPassword" value={formData.confirmPassword} onChange={handleChange} placeholder="Confirm your password" style={inputStyle} onFocus={focusHandler} onBlur={blurHandler} />
+            <label className={styles.label}>Phone <span style={{ fontWeight: 400, color: '#9CA3AF' }}>(optional)</span></label>
+            <input type="tel" name="phone" value={formData.phone} onChange={handleChange} placeholder="+1 555 000 0000" style={inputStyle} onFocus={focusHandler} onBlur={blurHandler} />
+          </div>
+
+          <div>
+            <label className={styles.label}>Password *</label>
+            <input type="password" name="password" value={formData.password} onChange={handleChange} placeholder="Enter your password" required style={inputStyle} onFocus={focusHandler} onBlur={blurHandler} />
+          </div>
+
+          <div>
+            <label className={styles.label}>Confirm Password *</label>
+            <input type="password" name="confirmPassword" value={formData.confirmPassword} onChange={handleChange} placeholder="Confirm your password" required style={inputStyle} onFocus={focusHandler} onBlur={blurHandler} />
           </div>
 
           {error && <p className={styles.error}>{error}</p>}
@@ -99,7 +128,7 @@ const Register = () => {
 
         <div className={styles.loginLinkWrapper}>
           <p>Already have an account?</p>
-          <a href="/login" className={styles.loginLink}>Login here</a>
+          <Link to="/login" className={styles.loginLink}>Login here</Link>
         </div>
       </div>
     </div>
