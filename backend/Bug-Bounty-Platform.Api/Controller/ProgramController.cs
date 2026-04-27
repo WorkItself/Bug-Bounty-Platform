@@ -10,15 +10,15 @@ namespace Bug_Bounty_Platform.Api.Controller
     [Route("api/program")]
     [ApiController]
     [Authorize]
-    public class BountyProgramController : ControllerBase
+    public class ProgramController : ControllerBase
     {
         private readonly IBountyProgramAction _program;
         private readonly ICompanyProfileAction _companyProfile;
 
-        public BountyProgramController(IConfiguration configuration)
+        public ProgramController(IConfiguration configuration)
         {
             var bl = new BusinessLogic.BusinessLogic(configuration);
-            _program = bl.BountyProgramAction();
+            _program        = bl.BountyProgramAction();
             _companyProfile = bl.CompanyProfileAction();
         }
 

@@ -18,10 +18,34 @@ namespace Bug_Bounty_Platform.BusinessLogic.Core
             using (var bugDb = new BugReportContext())
                 userReports = bugDb.BugReports
                     .Where(r => r.ReporterId == user.Id && !r.IsHidden)
-                    .Select(r => new BugReportData { Severity = r.Severity, Status = r.Status })
                     .ToList();
 
             var acceptedStatuses = new[] { BugStatus.Accepted, BugStatus.Fixed, BugStatus.Rewarded };
+
+            var recentReportData = userReports
+                .Where(r => acceptedStatuses.Contains(r.Status))
+                .OrderByDescending(r => r.UpdatedAt ?? r.SubmittedAt)
+                .Take(8)
+                .ToList();
+
+            var programIds = recentReportData.Select(r => r.ProgramId).Distinct().ToList();
+            Dictionary<int, string> programNames;
+            using (var bpDb = new BountyProgramContext())
+                programNames = bpDb.BountyPrograms
+                    .Where(p => programIds.Contains(p.Id))
+                    .ToDictionary(p => p.Id, p => p.ProgramName);
+
+            var recentReports = recentReportData.Select(r => new
+            {
+                r.Id,
+                r.Title,
+                r.Severity,
+                r.Status,
+                r.IsPublic,
+                r.ProgramId,
+                ProgramName = programNames.GetValueOrDefault(r.ProgramId, $"#{r.ProgramId}"),
+                ResolvedAt  = r.UpdatedAt ?? r.SubmittedAt,
+            }).ToList<object>();
 
             return new
             {
@@ -34,6 +58,7 @@ namespace Bug_Bounty_Platform.BusinessLogic.Core
                 AcceptedCount   = userReports.Count(r => acceptedStatuses.Contains(r.Status)),
                 CriticalCount   = userReports.Count(r => r.Severity == BugSeverity.Critical
                                                       && acceptedStatuses.Contains(r.Status)),
+                RecentReports   = recentReports,
             };
         }
 
@@ -81,7 +106,7 @@ namespace Bug_Bounty_Platform.BusinessLogic.Core
             using (var bugDb = new BugReportContext())
             {
                 resolved = bugDb.BugReports
-                    .Where(r => !r.IsHidden && (int)r.Status == 3)
+                    .Where(r => !r.IsHidden && r.Status != BugStatus.New && r.Status != BugStatus.Triaged)
                     .OrderByDescending(r => r.UpdatedAt ?? r.SubmittedAt)
                     .ToList();
             }
@@ -100,26 +125,44 @@ namespace Bug_Bounty_Platform.BusinessLogic.Core
             }
 
             Dictionary<int, string> programNames;
+            Dictionary<int, int>    programOwnerIds;
             using (var bpDb = new BountyProgramContext())
             {
-                programNames = bpDb.BountyPrograms
+                var programs = bpDb.BountyPrograms
                     .Where(p => programIds.Contains(p.Id))
-                    .ToDictionary(p => p.Id, p => p.ProgramName);
+                    .Select(p => new { p.Id, p.ProgramName, p.OwnerId })
+                    .ToList();
+                programNames    = programs.ToDictionary(p => p.Id, p => p.ProgramName);
+                programOwnerIds = programs.ToDictionary(p => p.Id, p => p.OwnerId);
             }
 
-            return resolved.Select(r => (object)new
+            var ownerIds = programOwnerIds.Values.Distinct().ToList();
+            Dictionary<int, string> ownerHandles;
+            using (var profileDb = new CompanyProfileContext())
             {
-                r.Id,
-                r.Title,
-                Description = r.IsPublic ? r.Description : null,
-                r.Severity,
-                r.Status,
-                r.ProgramId,
-                ProgramName = programNames.GetValueOrDefault(r.ProgramId, $"#{r.ProgramId}"),
-                r.ReporterId,
-                ReporterName = reporterNames.GetValueOrDefault(r.ReporterId, $"#{r.ReporterId}"),
-                r.IsPublic,
-                ResolvedAt = r.UpdatedAt ?? r.SubmittedAt,
+                ownerHandles = profileDb.CompanyProfiles
+                    .Where(cp => ownerIds.Contains(cp.UserId))
+                    .ToDictionary(cp => cp.UserId, cp => cp.Handle);
+            }
+
+            return resolved.Select(r =>
+            {
+                var ownerId = programOwnerIds.GetValueOrDefault(r.ProgramId);
+                return (object)new
+                {
+                    r.Id,
+                    r.Title,
+                    Description    = r.IsPublic ? r.Description : null,
+                    r.Severity,
+                    r.Status,
+                    r.ProgramId,
+                    ProgramName    = programNames.GetValueOrDefault(r.ProgramId, $"#{r.ProgramId}"),
+                    ProgramHandle  = ownerId != 0 ? ownerHandles.GetValueOrDefault(ownerId) : null,
+                    r.ReporterId,
+                    ReporterName   = reporterNames.GetValueOrDefault(r.ReporterId, $"#{r.ReporterId}"),
+                    r.IsPublic,
+                    ResolvedAt     = r.UpdatedAt ?? r.SubmittedAt,
+                };
             }).ToList();
         }
     }
