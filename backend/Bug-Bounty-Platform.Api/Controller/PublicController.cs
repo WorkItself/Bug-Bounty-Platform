@@ -11,8 +11,8 @@ namespace Bug_Bounty_Platform.Api.Controller
     {
         private readonly PublicProfileActions _actions = new();
 
-        [HttpGet("hacker/{username}")]
-        public IActionResult GetHackerProfile(string username)
+        [HttpGet("user/{username}")]
+        public IActionResult GetUserProfile(string username)
         {
             var result = _actions.GetPublicHackerProfile(username);
             if (result == null) return NotFound(new { message = "User not found." });

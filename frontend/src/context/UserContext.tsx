@@ -83,7 +83,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = async (credential: string, password: string): Promise<boolean> => {
     try {
-      const res = await axiosInstance.post('/session/auth', { credential, password });
+      const res = await axiosInstance.post('/auth/login', { credential, password });
       const token = res.data?.token;
       if (!token) return false;
       localStorage.setItem('token', token);
@@ -105,7 +105,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     data: { userName: string; email: string; password: string; role: string; firstName: string; lastName: string; phone?: string }
   ): Promise<{ success: boolean; message: string }> => {
     try {
-      const res = await axiosInstance.post('/reg', data);
+      const res = await axiosInstance.post('/auth/register', data);
       return { success: true, message: res.data?.message ?? 'Registration successful.' };
     } catch (err: any) {
       const d = err.response?.data;

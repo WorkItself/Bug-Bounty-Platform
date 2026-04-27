@@ -6,19 +6,20 @@ using Microsoft.Extensions.Configuration;
 
 namespace Bug_Bounty_Platform.Api.Controller
 {
-    [Route("api/reg")]
+    [Route("api/auth")]
     [ApiController]
     [AllowAnonymous]
     public class RegisterController : ControllerBase
     {
-        internal IUserRegAction _userReg;
+        private readonly IUserRegAction _userReg;
+
         public RegisterController(IConfiguration configuration)
         {
             var bl = new BusinessLogic.BusinessLogic(configuration);
             _userReg = bl.UserRegAction();
         }
 
-        [HttpPost]
+        [HttpPost("register")]
         public IActionResult Register([FromBody] UserRegisterDto uRegData)
         {
             var data = _userReg.UserRegDataValidation(uRegData);
