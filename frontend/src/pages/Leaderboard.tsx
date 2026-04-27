@@ -58,7 +58,7 @@ const Leaderboard = () => {
       {/* Header */}
       <div style={{ marginBottom: '1.75rem' }}>
         <h1 style={{ margin: '0 0 0.3rem', fontSize: '1.7rem', fontWeight: 800, color: '#111', letterSpacing: '-0.02em' }}>Leaderboard</h1>
-        <p style={{ margin: 0, color: '#6B7280', fontSize: '0.9rem' }}>Top bug hunters ranked by their submission activity.</p>
+        <p style={{ margin: 0, color: '#6B7280', fontSize: '0.9rem' }}>Top security researchers ranked by their submission activity.</p>
       </div>
 
       {/* Sort tabs */}
@@ -80,8 +80,8 @@ const Leaderboard = () => {
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
             <tr style={{ background: '#F9FAFB' }}>
-              {['Rank', 'Hunter', 'Submitted', 'Accepted', 'Critical'].map(h => (
-                <th key={h} style={{ padding: '0.65rem 1.25rem', textAlign: h === 'Hunter' ? 'left' : 'right', fontSize: '0.72rem', fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.06em', borderBottom: '1px solid #E5E7EB', whiteSpace: 'nowrap' }}>
+              {['Rank', 'Researcher', 'Submitted', 'Accepted', 'Critical'].map(h => (
+                <th key={h} style={{ padding: '0.65rem 1.25rem', textAlign: h === 'Researcher' ? 'left' : 'right', fontSize: '0.72rem', fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.06em', borderBottom: '1px solid #E5E7EB', whiteSpace: 'nowrap' }}>
                   {h}
                 </th>
               ))}

@@ -7,7 +7,7 @@ import {
   Medal, ArrowUpCircle, Twitter, Linkedin, Github,
 } from 'lucide-react';
 
-/* ─────────────── colour tokens (HackerOne-ish palette) ─────────────── */
+/* ─────────────── colour tokens ─────────────── */
 const C = {
   navBg:      '#1C1F35',
   heroBg:     '#1C1F35',
@@ -218,7 +218,7 @@ export default function LandingPage() {
           <div>
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', background: 'rgba(63,58,252,0.15)', border: `1px solid rgba(63,58,252,0.35)`, borderRadius: '999px', padding: '0.3rem 0.8rem', marginBottom: '1.5rem' }}>
               <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: C.trustedBlue, display: 'inline-block' }} />
-              <span style={{ fontSize: '0.78rem', color: '#9CA3F0', fontWeight: 600, letterSpacing: '0.03em' }}>BUG BOUNTY PLATFORM</span>
+              <span style={{ fontSize: '0.78rem', color: '#9CA3F0', fontWeight: 600, letterSpacing: '0.03em' }}>BOUNTYOS</span>
             </div>
             <h1 style={{
               fontSize: 'clamp(2.2rem, 4.5vw, 3.4rem)',
@@ -230,7 +230,7 @@ export default function LandingPage() {
               <span style={{ background: `linear-gradient(90deg, ${C.trustedBlue} 0%, ${C.pink} 100%)`, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>rewarded at scale</span>
             </h1>
             <p style={{ color: C.textMuted, fontSize: '1.05rem', lineHeight: 1.65, marginBottom: '2rem', maxWidth: '480px' }}>
-              Connect ethical hackers with organisations that care about security. Find vulnerabilities, submit reports, and get paid — all on one trusted platform.
+              Connect security researchers with organisations that care about security. Find vulnerabilities, submit reports, and get paid — all on one trusted platform.
             </p>
             <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center' }}>
               {user.isLoggedIn ? (
@@ -586,7 +586,7 @@ export default function LandingPage() {
             {/* Company col */}
             <div>
               <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#fff', letterSpacing: '0.06em', textTransform: 'capitalize', marginBottom: '1rem' }}>Company</div>
-              {[{ label: 'Leaderboard', to: '/leaderboard' }, { label: 'Support', to: '/support' }, { label: 'Contact Us', to: '/contact-us' }].map(l => (
+              {[{ label: 'Leaderboard', to: '/leaderboard' }, { label: 'Support', to: '/support' }].map(l => (
                 <Link key={l.label} to={l.to} style={{ display: 'block', color: C.textMuted, textDecoration: 'none', fontSize: '0.88rem', marginBottom: '0.55rem', transition: 'color 0.2s' }}
                   onMouseEnter={e => (e.currentTarget as HTMLElement).style.color = '#fff'}
                   onMouseLeave={e => (e.currentTarget as HTMLElement).style.color = C.textMuted}
@@ -611,7 +611,7 @@ export default function LandingPage() {
           {/* Bottom bar */}
           <div style={{ borderTop: `1px solid ${C.borderMuted}`, padding: '1.5rem 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem' }}>
             <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap' }}>
-              {[{ label: 'Contact', to: '/contact-us' }, { label: 'Support', to: '/support' }].map(l => (
+              {[{ label: 'Support', to: '/support' }].map(l => (
                 <Link key={l.label} to={l.to} style={{ color: C.textMuted, textDecoration: 'none', fontSize: '0.8rem', transition: 'color 0.2s' }}
                   onMouseEnter={e => (e.currentTarget as HTMLElement).style.color = '#fff'}
                   onMouseLeave={e => (e.currentTarget as HTMLElement).style.color = C.textMuted}

@@ -26,9 +26,8 @@ import ContactSupport from './pages/ContactSupport';
 import SupportRequests from './pages/SupportRequests';
 import ChooseRole from './pages/ChooseRole';
 import CompanyApply from './pages/CompanyApply';
-import ContactUs from './pages/ContactUs';
 import CompanyProfilePage from './pages/CompanyProfilePage';
-import PublicHackerProfile from './pages/PublicHackerProfile';
+import PublicUserProfile from './pages/PublicHackerProfile';
 import PublicCompanyPage from './pages/PublicCompanyPage';
 import ReportDetail from './pages/ReportDetail';
 
@@ -41,7 +40,7 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/choose-role" element={<ChooseRole />} />
         <Route path="/company/apply" element={<CompanyApply />} />
-        <Route path="/contact-us" element={<ContactUs />} />
+        <Route path="/contact-us" element={<Navigate to="/support" replace />} />
         <Route element={<MainLayout />}>
           <Route path="/dashboard" element={<Navigate to="/bounties" replace />} />
           <Route path="/activity" element={<Dashboard />} />
@@ -49,7 +48,7 @@ function App() {
           <Route path="/bounties/:id" element={<BountyDetail />} />
           <Route path="/leaderboard" element={<Leaderboard />} />
           {/* Public profile routes */}
-          <Route path="/u/:username" element={<PublicHackerProfile />} />
+          <Route path="/u/:username" element={<PublicUserProfile />} />
           <Route path="/programs/:handle" element={<PublicCompanyPage />} />
         </Route>
         <Route element={<ProtectedRoute />}>
@@ -58,7 +57,7 @@ function App() {
             <Route path="/support" element={<ContactSupport />} />
             <Route path="/report/:id" element={<ReportDetail />} />
 
-            {/* Hacker Routes */}
+            {/* User Routes */}
             <Route element={<RoleBasedRoute allowedRoles={['user']} />}>
               <Route path="/submit" element={<SubmitReport />} />
               <Route path="/my-submissions" element={<MySubmissions />} />
