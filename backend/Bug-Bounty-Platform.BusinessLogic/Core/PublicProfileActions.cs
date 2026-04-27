@@ -14,9 +14,14 @@ namespace Bug_Bounty_Platform.BusinessLogic.Core
 
             if (user == null) return null;
 
-            int submissionCount;
+            List<BugReportData> userReports;
             using (var bugDb = new BugReportContext())
-                submissionCount = bugDb.BugReports.Count(r => r.ReporterId == user.Id && !r.IsHidden);
+                userReports = bugDb.BugReports
+                    .Where(r => r.ReporterId == user.Id && !r.IsHidden)
+                    .Select(r => new BugReportData { Severity = r.Severity, Status = r.Status })
+                    .ToList();
+
+            var acceptedStatuses = new[] { BugStatus.Accepted, BugStatus.Fixed, BugStatus.Rewarded };
 
             return new
             {
@@ -24,8 +29,11 @@ namespace Bug_Bounty_Platform.BusinessLogic.Core
                 user.UserName,
                 user.FirstName,
                 user.LastName,
-                MemberSince = user.RegisteredOn,
-                SubmissionCount = submissionCount,
+                MemberSince     = user.RegisteredOn,
+                SubmissionCount = userReports.Count,
+                AcceptedCount   = userReports.Count(r => acceptedStatuses.Contains(r.Status)),
+                CriticalCount   = userReports.Count(r => r.Severity == BugSeverity.Critical
+                                                      && acceptedStatuses.Contains(r.Status)),
             };
         }
 

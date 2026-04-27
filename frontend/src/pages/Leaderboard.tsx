@@ -1,137 +1,186 @@
-import { useState } from 'react';
-import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import axiosInstance from '../utils/axiosInstance';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
-type Trend = 'up' | 'down' | 'flat';
-interface LeaderRow { rank: number; name: string; country: string; val1: number; val2?: number; val3?: number; trend: Trend; }
+interface LeaderboardEntry {
+  rank: number;
+  userName: string;
+  totalSubmitted: number;
+  totalAccepted: number;
+  totalCritical: number;
+}
 
-const HIGHEST_REP: LeaderRow[] = [
-  { rank:1, name:'haxta4ok00', country:'UA', val1:3892, val2:0.93, val3:0.78, trend:'up' },
-  { rank:2, name:'xploited', country:'DE', val1:3450, val2:0.88, val3:0.72, trend:'flat' },
-  { rank:3, name:'w2bb1t', country:'RO', val1:3211, val2:0.91, val3:0.65, trend:'up' },
-  { rank:4, name:'dee__dee__', country:'IN', val1:3008, val2:0.85, val3:0.61, trend:'down' },
-  { rank:5, name:'fisher_sec', country:'PL', val1:2980, val2:0.79, val3:0.58, trend:'up' },
-];
-const UP_AND_COMERS: LeaderRow[] = [
-  { rank:1, name:'locus-x64', country:'BR', val1:842, trend:'up' },
-  { rank:2, name:'hossam25', country:'EG', val1:810, trend:'up' },
-  { rank:3, name:'pr1vate_eye', country:'MA', val1:776, trend:'up' },
-  { rank:4, name:'y_security', country:'FR', val1:741, trend:'flat' },
-  { rank:5, name:'brewm4ster', country:'US', val1:699, trend:'up' },
-];
-const HIGHEST_CRIT: LeaderRow[] = [
-  { rank:1, name:'hunter_zero', country:'NL', val1:1204, val2:0.95, val3:0.90, trend:'up' },
-  { rank:2, name:'zacoerp', country:'PK', val1:1180, val2:0.92, val3:0.87, trend:'flat' },
-  { rank:3, name:'rogue_sec', country:'TR', val1:1140, val2:0.89, val3:0.84, trend:'down' },
-  { rank:4, name:'xploit_nl', country:'NL', val1:1090, val2:0.87, val3:0.80, trend:'up' },
-  { rank:5, name:'zer0_day', country:'RU', val1:1010, val2:0.85, val3:0.76, trend:'down' },
-];
-const MOST_UPVOTED: LeaderRow[] = [
-  { rank:1, name:'haxta4ok00', country:'UA', val1:2341, trend:'up' },
-  { rank:2, name:'xploited', country:'DE', val1:2102, trend:'flat' },
-  { rank:3, name:'hunter_zero', country:'NL', val1:1980, trend:'up' },
-  { rank:4, name:'dee__dee__', country:'IN', val1:1854, trend:'down' },
-  { rank:5, name:'fisher_sec', country:'PL', val1:1701, trend:'up' },
+interface LeaderboardResult {
+  entries: LeaderboardEntry[];
+  totalCount: number;
+  page: number;
+  pageSize: number;
+}
+
+type SortMode = 'submitted' | 'accepted' | 'critical';
+
+const PAGE_SIZE = 10;
+
+const SORT_OPTIONS: { value: SortMode; label: string }[] = [
+  { value: 'submitted', label: 'Most Submitted' },
+  { value: 'accepted',  label: 'Most Accepted'  },
+  { value: 'critical',  label: 'Most Critical'  },
 ];
 
-const TrendIcon = ({ trend }: { trend: Trend }) => {
-  if (trend === 'up') return <TrendingUp size={13} color="#16a34a" />;
-  if (trend === 'down') return <TrendingDown size={13} color="#dc2626" />;
-  return <Minus size={13} color="#9CA3AF" />;
-};
-
-interface LeaderTableProps { title: string; subtitle?: string; rows: LeaderRow[]; cols: string[]; viewAll?: string; }
-const LeaderTable = ({ title, subtitle, rows, cols, viewAll }: LeaderTableProps) => (
-  <div style={{ background:'#fff', border:'1px solid #E5E7EB', borderRadius:'10px', overflow:'hidden' }}>
-    <div style={{ padding:'1rem 1.25rem', borderBottom:'1px solid #E5E7EB' }}>
-      <h3 style={{ margin:0, fontSize:'1rem', fontWeight:700, color:'#111' }}>{title}</h3>
-      {subtitle && <p style={{ margin:'0.15rem 0 0', fontSize:'0.78rem', color:'#6B7280' }}>{subtitle}</p>}
-    </div>
-    <table style={{ width:'100%', borderCollapse:'collapse' }}>
-      <thead>
-        <tr style={{ background:'#F9FAFB' }}>
-          <th style={{ padding:'0.5rem 1.25rem', fontSize:'0.72rem', fontWeight:600, color:'#6B7280', textAlign:'left' }}>{cols[0]}</th>
-          {cols.slice(1).map(c => (
-            <th key={c} style={{ padding:'0.5rem 0.75rem', fontSize:'0.72rem', fontWeight:600, color:'#6B7280', textAlign:'right' }}>{c}</th>
-          ))}
-          <th style={{ width:'28px' }} />
-        </tr>
-      </thead>
-      <tbody>
-        {rows.map((r, idx) => (
-          <tr key={r.rank} style={{ borderTop:'1px solid #F3F4F6', background: idx % 2 === 0 ? '#fff' : '#FAFAFA' }}>
-            <td style={{ padding:'0.65rem 1.25rem', fontSize:'0.84rem' }}>
-              <span style={{ fontWeight:700, color:'#6B7280', minWidth:'1.4rem', display:'inline-block' }}>{r.rank}.</span>{' '}
-              <span style={{ color:'#2563EB', fontWeight:500, cursor:'pointer' }}>{r.name}</span>{' '}
-              <span style={{ fontSize:'0.7rem', color:'#9CA3AF' }}>{r.country}</span>
-            </td>
-            <td style={{ padding:'0.65rem 0.75rem', fontSize:'0.84rem', color:'#374151', fontWeight:600, textAlign:'right' }}>{r.val1.toLocaleString()}</td>
-            {r.val2 != null && <td style={{ padding:'0.65rem 0.75rem', fontSize:'0.84rem', color:'#374151', textAlign:'right' }}>{r.val2.toFixed(2)}</td>}
-            {r.val3 != null && <td style={{ padding:'0.65rem 0.75rem', fontSize:'0.84rem', color:'#374151', textAlign:'right' }}>{r.val3.toFixed(2)}</td>}
-            <td style={{ padding:'0.65rem 0.5rem', textAlign:'center' }}><TrendIcon trend={r.trend} /></td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-    {viewAll && (
-      <div style={{ padding:'0.6rem 1.25rem', borderTop:'1px solid #E5E7EB', background:'#FAFAFA', textAlign:'center' }}>
-        <span style={{ fontSize:'0.75rem', color:'#2563EB', fontWeight:600, cursor:'pointer' }}>{viewAll} &rarr;</span>
-      </div>
-    )}
-  </div>
-);
+const MEDAL: Record<number, string> = { 1: '🥇', 2: '🥈', 3: '🥉' };
 
 const Leaderboard = () => {
-  const [period, setPeriod] = useState('Quarter');
+  const [sort, setSort]       = useState<SortMode>('submitted');
+  const [page, setPage]       = useState(1);
+  const [data, setData]       = useState<LeaderboardResult | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    setLoading(true);
+    axiosInstance.get(`/leaderboard?sort=${sort}&page=${page}&pageSize=${PAGE_SIZE}`)
+      .then(res => setData(res.data))
+      .catch(() => setData(null))
+      .finally(() => setLoading(false));
+  }, [sort, page]);
+
+  const handleSort = (s: SortMode) => {
+    if (s === sort) return;
+    setSort(s);
+    setPage(1);
+  };
+
+  const totalPages = data ? Math.ceil(data.totalCount / PAGE_SIZE) : 1;
 
   return (
-    <div style={{ maxWidth:'1100px', margin:'0 auto', padding:'2rem 1rem' }}>
-      <header style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-end', marginBottom:'2rem' }}>
-        <div>
-          <h1 style={{ fontSize:'2rem', fontWeight:800, margin:'0 0 0.4rem', color:'#111', letterSpacing:'-0.02em' }}>Leaderboards</h1>
-          <p style={{ margin:0, color:'#6B7280', fontSize:'0.95rem' }}>Top performing hackers across our network.</p>
-        </div>
-        <div style={{ display:'flex', background:'#E5E7EB', padding:'2px', borderRadius:'6px' }}>
-          {['All Time', 'Year', 'Quarter', 'Month'].map(p => (
-            <button key={p} onClick={() => setPeriod(p)} style={{
-              border:'none', background: period === p ? '#fff' : 'transparent',
-              boxShadow: period === p ? '0 1px 2px rgba(0,0,0,0.1)' : 'none',
-              padding:'0.4rem 0.8rem', borderRadius:'4px', fontSize:'0.75rem', fontWeight:600,
-              color: period === p ? '#111' : '#6B7280', cursor:'pointer', transition:'all 0.2s'
-            }}>
-              {p}
-            </button>
-          ))}
-        </div>
-      </header>
+    <div style={{ maxWidth: '800px', margin: '0 auto', padding: '2rem 1rem', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif' }}>
 
-      {/* 2x2 grid */}
-      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'1.25rem' }}>
-        <LeaderTable
-          title="Highest Reputation"
-          rows={HIGHEST_REP}
-          cols={['Hacker','Reputation','Signal','Impact']}
-          viewAll="View all-time leaderboard"
-        />
-        <LeaderTable
-          title="Up and Comers"
-          subtitle="Hackers who earned the most reputation this period"
-          rows={UP_AND_COMERS}
-          cols={['Hacker','Reputation']}
-          viewAll="View all rankings"
-        />
-        <LeaderTable
-          title="Highest Critical Reputation"
-          subtitle="Earned from critical vulnerability reports"
-          rows={HIGHEST_CRIT}
-          cols={['Hacker','Reputation','Signal','Impact']}
-        />
-        <LeaderTable
-          title="Most Upvoted"
-          subtitle="Hackers whose reports received the most community upvotes"
-          rows={MOST_UPVOTED}
-          cols={['Hacker','Upvotes']}
-        />
+      {/* Header */}
+      <div style={{ marginBottom: '1.75rem' }}>
+        <h1 style={{ margin: '0 0 0.3rem', fontSize: '1.7rem', fontWeight: 800, color: '#111', letterSpacing: '-0.02em' }}>Leaderboard</h1>
+        <p style={{ margin: 0, color: '#6B7280', fontSize: '0.9rem' }}>Top bug hunters ranked by their submission activity.</p>
       </div>
+
+      {/* Sort tabs */}
+      <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.25rem' }}>
+        {SORT_OPTIONS.map(({ value, label }) => (
+          <button key={value} onClick={() => handleSort(value)} style={{
+            padding: '0.4rem 1rem', border: 'none', borderRadius: '6px', cursor: 'pointer',
+            fontWeight: 600, fontSize: '0.85rem', transition: 'all 0.15s',
+            background: sort === value ? '#3F3AFC' : '#F3F4F6',
+            color: sort === value ? '#fff' : '#374151',
+          }}>
+            {label}
+          </button>
+        ))}
+      </div>
+
+      {/* Table */}
+      <div style={{ background: '#fff', border: '1px solid #E5E7EB', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <thead>
+            <tr style={{ background: '#F9FAFB' }}>
+              {['Rank', 'Hunter', 'Submitted', 'Accepted', 'Critical'].map(h => (
+                <th key={h} style={{ padding: '0.65rem 1.25rem', textAlign: h === 'Hunter' ? 'left' : 'right', fontSize: '0.72rem', fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.06em', borderBottom: '1px solid #E5E7EB', whiteSpace: 'nowrap' }}>
+                  {h}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {loading ? (
+              <tr><td colSpan={5} style={{ padding: '3rem', textAlign: 'center', color: '#9CA3AF', fontSize: '0.9rem' }}>Loading…</td></tr>
+            ) : !data || data.entries.length === 0 ? (
+              <tr><td colSpan={5} style={{ padding: '3rem', textAlign: 'center', color: '#9CA3AF', fontSize: '0.9rem' }}>No data yet.</td></tr>
+            ) : data.entries.map((row, i) => {
+              const isTop = row.rank <= 3;
+              return (
+                <tr key={row.userName}
+                  style={{ borderBottom: i < data.entries.length - 1 ? '1px solid #F3F4F6' : 'none', transition: 'background 0.1s' }}
+                  onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = '#FAFAFA'}
+                  onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = 'transparent'}
+                >
+                  {/* Rank */}
+                  <td style={{ padding: '0.85rem 1.25rem', textAlign: 'right', width: '60px' }}>
+                    {MEDAL[row.rank]
+                      ? <span style={{ fontSize: '1.1rem' }}>{MEDAL[row.rank]}</span>
+                      : <span style={{ fontWeight: 700, color: '#9CA3AF', fontSize: '0.88rem' }}>{row.rank}</span>
+                    }
+                  </td>
+                  {/* Username */}
+                  <td style={{ padding: '0.85rem 1.25rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                      <div style={{
+                        width: '32px', height: '32px', borderRadius: '50%', flexShrink: 0,
+                        background: isTop ? 'linear-gradient(135deg, #3F3AFC, #E81C79)' : '#EEF2FF',
+                        color: isTop ? '#fff' : '#3F3AFC',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        fontWeight: 800, fontSize: '0.82rem',
+                      }}>
+                        {row.userName.charAt(0).toUpperCase()}
+                      </div>
+                      <Link to={`/u/${row.userName}`} style={{ fontWeight: 600, fontSize: '0.9rem', color: '#111', textDecoration: 'none' }}
+                        onMouseEnter={e => (e.currentTarget as HTMLElement).style.color = '#3F3AFC'}
+                        onMouseLeave={e => (e.currentTarget as HTMLElement).style.color = '#111'}
+                      >
+                        {row.userName}
+                      </Link>
+                    </div>
+                  </td>
+                  {/* Stats */}
+                  <td style={{ padding: '0.85rem 1.25rem', textAlign: 'right', fontWeight: sort === 'submitted' ? 700 : 400, fontSize: '0.88rem', color: sort === 'submitted' ? '#3F3AFC' : '#374151' }}>
+                    {row.totalSubmitted}
+                  </td>
+                  <td style={{ padding: '0.85rem 1.25rem', textAlign: 'right', fontWeight: sort === 'accepted' ? 700 : 400, fontSize: '0.88rem', color: sort === 'accepted' ? '#3F3AFC' : '#374151' }}>
+                    {row.totalAccepted}
+                  </td>
+                  <td style={{ padding: '0.85rem 1.25rem', textAlign: 'right', fontWeight: sort === 'critical' ? 700 : 400, fontSize: '0.88rem', color: sort === 'critical' ? '#dc2626' : '#374151' }}>
+                    {row.totalCritical}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Pagination */}
+      {data && data.totalCount > PAGE_SIZE && (
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '1rem' }}>
+          <span style={{ fontSize: '0.82rem', color: '#6B7280' }}>
+            Showing {(page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, data.totalCount)} of {data.totalCount}
+          </span>
+          <div style={{ display: 'flex', gap: '0.4rem' }}>
+            <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}
+              style={{ padding: '0.35rem 0.6rem', border: '1px solid #E5E7EB', borderRadius: '6px', background: page === 1 ? '#F9FAFB' : '#fff', cursor: page === 1 ? 'not-allowed' : 'pointer', color: page === 1 ? '#D1D5DB' : '#374151', display: 'flex', alignItems: 'center' }}>
+              <ChevronLeft size={15} />
+            </button>
+            {Array.from({ length: totalPages }, (_, i) => i + 1)
+              .filter(p => p === 1 || p === totalPages || Math.abs(p - page) <= 1)
+              .reduce<(number | '...')[]>((acc, p, i, arr) => {
+                if (i > 0 && (p as number) - (arr[i - 1] as number) > 1) acc.push('...');
+                acc.push(p);
+                return acc;
+              }, [])
+              .map((p, i) =>
+                p === '...'
+                  ? <span key={`e${i}`} style={{ padding: '0.35rem 0.5rem', fontSize: '0.82rem', color: '#9CA3AF' }}>…</span>
+                  : <button key={p} onClick={() => setPage(p as number)} style={{
+                      padding: '0.35rem 0.65rem', border: '1px solid', borderRadius: '6px', cursor: 'pointer',
+                      borderColor: page === p ? '#3F3AFC' : '#E5E7EB',
+                      background: page === p ? '#3F3AFC' : '#fff',
+                      color: page === p ? '#fff' : '#374151',
+                      fontWeight: page === p ? 700 : 400, fontSize: '0.82rem',
+                    }}>{p}</button>
+              )
+            }
+            <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages}
+              style={{ padding: '0.35rem 0.6rem', border: '1px solid #E5E7EB', borderRadius: '6px', background: page === totalPages ? '#F9FAFB' : '#fff', cursor: page === totalPages ? 'not-allowed' : 'pointer', color: page === totalPages ? '#D1D5DB' : '#374151', display: 'flex', alignItems: 'center' }}>
+              <ChevronRight size={15} />
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

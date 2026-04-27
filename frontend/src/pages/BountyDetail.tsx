@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import axiosInstance from '../utils/axiosInstance';
 
 interface Program {
@@ -15,6 +15,8 @@ interface Program {
   rewardInformational?: number;
   ownerId: number;
   isActive: boolean;
+  ownerDisplayName?: string;
+  ownerHandle?: string;
 }
 
 const fmt = (n: number) => n >= 1000 ? '$' + (n / 1000).toFixed(n % 1000 === 0 ? 0 : 1) + 'k' : '$' + n;
@@ -71,7 +73,15 @@ const BountyDetail = () => {
       <div style={{ ...card, background: 'linear-gradient(135deg, #3F3AFC 0%, #1e1acc 100%)', border: 'none', color: '#fff' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
           <div>
-            <h1 style={{ margin: '0 0 0.5rem', fontSize: '2rem', fontWeight: 800 }}>{program.programName}</h1>
+            <h1 style={{ margin: '0 0 0.35rem', fontSize: '2rem', fontWeight: 800 }}>{program.programName}</h1>
+            {program.ownerDisplayName && program.ownerHandle && (
+              <Link to={`/programs/${program.ownerHandle}`} style={{ display: 'inline-block', marginBottom: '0.4rem', color: 'rgba(255,255,255,0.75)', fontSize: '0.85rem', textDecoration: 'none', fontWeight: 500, borderBottom: '1px solid rgba(255,255,255,0.35)' }}
+                onMouseEnter={e => (e.currentTarget as HTMLElement).style.color = '#fff'}
+                onMouseLeave={e => (e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.75)'}
+              >
+                by {program.ownerDisplayName}
+              </Link>
+            )}
             {program.programDescription && (
               <p style={{ margin: 0, opacity: 0.85, fontSize: '0.97rem', lineHeight: 1.6, maxWidth: '600px' }}>{program.programDescription}</p>
             )}

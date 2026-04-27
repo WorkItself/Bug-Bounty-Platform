@@ -4,6 +4,7 @@ using Bug_Bounty_Platform.DataAccess.Context;
 using Bug_Bounty_Platform.Domain.Entities.BountyProgram;
 using Bug_Bounty_Platform.Domain.Models.BountyProgram;
 using Bug_Bounty_Platform.Domain.Models.Responces;
+using Microsoft.EntityFrameworkCore;
 
 namespace Bug_Bounty_Platform.BusinessLogic.Core
 {
@@ -17,31 +18,47 @@ namespace Bug_Bounty_Platform.BusinessLogic.Core
 
         protected List<BountyProgramDto> GetAllBountyProgramActionExecution()
         {
-            var data = new List<BountyProgramDto>();
             List<BountyProgramData> bpData;
             using (var db = new BountyProgramContext())
-            {
-                bpData = db.BountyPrograms.
-                    Where(x => !x.IsHidden).ToList();
-            }
+                bpData = db.BountyPrograms.Where(x => !x.IsHidden).ToList();
 
-            if (bpData.Count <= 0) return data;
-            data = _mapper.Map<List<BountyProgramDto>>(bpData);
-            return data;
+            if (bpData.Count == 0) return new List<BountyProgramDto>();
+
+            var dtos = _mapper.Map<List<BountyProgramDto>>(bpData);
+            EnrichWithOwnerInfo(dtos);
+            return dtos;
         }
 
         protected BountyProgramDto? GetBountyProgramByIdActionExecution(int id)
         {
             BountyProgramData? bpData;
             using (var db = new BountyProgramContext())
-            {
-                bpData = db.BountyPrograms
-                    .FirstOrDefault(x =>
-                        x.Id == id && !x.IsHidden);
-            }
+                bpData = db.BountyPrograms.FirstOrDefault(x => x.Id == id && !x.IsHidden);
 
             if (bpData == null) return null;
-            return _mapper.Map<BountyProgramDto>(bpData);
+            var dto = _mapper.Map<BountyProgramDto>(bpData);
+            EnrichWithOwnerInfo(new List<BountyProgramDto> { dto });
+            return dto;
+        }
+
+        private static void EnrichWithOwnerInfo(List<BountyProgramDto> dtos)
+        {
+            var ownerIds = dtos.Select(d => d.OwnerId).Distinct().ToList();
+            using var db = new CompanyProfileContext();
+            var profiles = db.CompanyProfiles
+                .Where(p => ownerIds.Contains(p.UserId))
+                .Select(p => new { p.UserId, p.DisplayName, p.Handle })
+                .ToList();
+
+            var lookup = profiles.ToDictionary(p => p.UserId);
+            foreach (var dto in dtos)
+            {
+                if (lookup.TryGetValue(dto.OwnerId, out var p))
+                {
+                    dto.OwnerDisplayName = p.DisplayName;
+                    dto.OwnerHandle      = p.Handle;
+                }
+            }
         }
 
         protected ActionResponce CreateBountyProgramActionExecution(BountyProgramDto data)

@@ -14,5 +14,7 @@ namespace Bug_Bounty_Platform.Domain.Models.BountyProgram
         public decimal? RewardInformational { get; set; }
         public int OwnerId { get; set; }
         public bool IsActive { get; set; }
+        public string? OwnerDisplayName { get; set; }
+        public string? OwnerHandle { get; set; }
     }
 }

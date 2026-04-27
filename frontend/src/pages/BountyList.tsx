@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { Search, ChevronUp, ChevronDown } from 'lucide-react';
 import axiosInstance from '../utils/axiosInstance';
 
@@ -14,6 +14,8 @@ interface Program {
   rewardInformational?: number;
   ownerId: number;
   isActive: boolean;
+  ownerDisplayName?: string;
+  ownerHandle?: string;
 }
 
 type SortKey = 'programName' | 'topReward';
@@ -116,11 +118,20 @@ const BountyList = () => {
                       </div>
                       <div>
                         <span style={{ fontWeight: 600, fontSize: '0.88rem', color: '#111' }}>{p.programName}</span>
-                        {p.programDescription && (
-                          <div style={{ fontSize: '0.75rem', color: '#6B7280', marginTop: '0.15rem', maxWidth: '300px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                            {p.programDescription}
-                          </div>
-                        )}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginTop: '0.15rem', flexWrap: 'wrap' }}>
+                          {p.ownerDisplayName && p.ownerHandle ? (
+                            <Link to={`/programs/${p.ownerHandle}`} onClick={e => e.stopPropagation()}
+                              style={{ fontSize: '0.75rem', color: '#3F3AFC', fontWeight: 500, textDecoration: 'none' }}
+                              onMouseEnter={e => (e.currentTarget as HTMLElement).style.textDecoration = 'underline'}
+                              onMouseLeave={e => (e.currentTarget as HTMLElement).style.textDecoration = 'none'}
+                            >{p.ownerDisplayName}</Link>
+                          ) : null}
+                          {p.programDescription && (
+                            <span style={{ fontSize: '0.75rem', color: '#6B7280', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '260px' }}>
+                              {p.ownerDisplayName ? '· ' : ''}{p.programDescription}
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </td>
