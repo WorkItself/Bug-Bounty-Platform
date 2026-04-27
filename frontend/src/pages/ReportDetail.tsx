@@ -13,6 +13,15 @@ interface Report {
   reporterId: number;
 }
 
+interface Attachment {
+  id: number;
+  bugReportId: number;
+  fileName: string;
+  contentType?: string;
+  fileSizeBytes: number;
+  uploadedAt: string;
+}
+
 interface Comment {
   id: number;
   bugReportId: number;
@@ -47,9 +56,10 @@ const ReportDetail = () => {
   const { user } = useUser();
   const isCompany = user.type === 'company' || user.type === 'admin';
 
-  const [report, setReport]     = useState<Report | null>(null);
-  const [comments, setComments] = useState<Comment[]>([]);
-  const [loading, setLoading]   = useState(true);
+  const [report, setReport]           = useState<Report | null>(null);
+  const [comments, setComments]       = useState<Comment[]>([]);
+  const [attachments, setAttachments] = useState<Attachment[]>([]);
+  const [loading, setLoading]         = useState(true);
   const [notFound, setNotFound] = useState(false);
 
   const [text, setText]         = useState('');
@@ -66,10 +76,12 @@ const ReportDetail = () => {
     Promise.all([
       axiosInstance.get(`/report?id=${id}`),
       axiosInstance.get(`/comment/${id}`),
+      axiosInstance.get(`/upload/${id}`),
     ])
-      .then(([rRes, cRes]) => {
+      .then(([rRes, cRes, aRes]) => {
         setReport(rRes.data);
         setComments(cRes.data ?? []);
+        setAttachments(aRes.data ?? []);
       })
       .catch(err => { if (err.response?.status === 404) setNotFound(true); })
       .finally(() => setLoading(false));
@@ -198,6 +210,20 @@ const ReportDetail = () => {
         })()}
       </div>
 
+      {/* Attachments */}
+      {attachments.length > 0 && (
+        <div style={{ background: '#fff', border: '1px solid #E5E7EB', borderRadius: '12px', padding: '1.5rem 2rem', marginBottom: '1.25rem', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
+          <h2 style={{ margin: '0 0 1rem', fontSize: '1rem', fontWeight: 700, color: '#111' }}>
+            Attachments <span style={{ fontWeight: 400, color: '#9CA3AF', fontSize: '0.85rem' }}>({attachments.length})</span>
+          </h2>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem' }}>
+            {attachments.map(a => (
+              <AttachmentItem key={a.id} attachment={a} />
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Feedback thread */}
       <div style={{ background: '#fff', border: '1px solid #E5E7EB', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
         <div style={{ padding: '1rem 1.5rem', borderBottom: '1px solid #F3F4F6', background: '#F9FAFB' }}>
@@ -264,6 +290,52 @@ const ReportDetail = () => {
     </div>
   );
 };
+
+/* ── Attachment item — fetches via axiosInstance to include auth header ── */
+function AttachmentItem({ attachment: a }: { attachment: Attachment }) {
+  const isImage = a.contentType?.startsWith('image/');
+  const [blobUrl, setBlobUrl] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    axiosInstance.get(`/upload/file/${a.id}`, { responseType: 'blob' })
+      .then(res => setBlobUrl(URL.createObjectURL(res.data)))
+      .catch(() => setBlobUrl(null))
+      .finally(() => setLoading(false));
+    return () => { if (blobUrl) URL.revokeObjectURL(blobUrl); };
+  }, [a.id]);
+
+  const sizeMb = (a.fileSizeBytes / 1024 / 1024).toFixed(2);
+
+  if (loading) return (
+    <div style={{ width: isImage ? '160px' : undefined, height: isImage ? '100px' : '40px', borderRadius: '8px', background: '#F3F4F6', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <span style={{ fontSize: '0.75rem', color: '#9CA3AF' }}>Loading…</span>
+    </div>
+  );
+
+  if (!blobUrl) return (
+    <div style={{ padding: '0.55rem 1rem', background: '#FEF2F2', border: '1px solid #FCA5A5', borderRadius: '8px', fontSize: '0.82rem', color: '#dc2626' }}>
+      Failed to load: {a.fileName}
+    </div>
+  );
+
+  if (isImage) return (
+    <a href={blobUrl} target="_blank" rel="noreferrer"
+      style={{ display: 'block', borderRadius: '8px', overflow: 'hidden', border: '1px solid #E5E7EB', flexShrink: 0 }}>
+      <img src={blobUrl} alt={a.fileName}
+        style={{ display: 'block', maxWidth: '280px', maxHeight: '200px', objectFit: 'cover' }} />
+    </a>
+  );
+
+  return (
+    <a href={blobUrl} download={a.fileName}
+      style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.55rem 1rem', background: '#F9FAFB', border: '1px solid #E5E7EB', borderRadius: '8px', color: '#374151', textDecoration: 'none', fontSize: '0.84rem', fontWeight: 500 }}>
+      <span style={{ fontSize: '1.1rem' }}>📎</span>
+      <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '200px' }}>{a.fileName}</span>
+      <span style={{ color: '#9CA3AF', fontSize: '0.75rem', whiteSpace: 'nowrap' }}>{sizeMb} MB</span>
+    </a>
+  );
+}
 
 /* ── Status-change confirmation modal ── */
 function StatusModal({ modal, comment, onCommentChange, onCancel, onConfirm, saving }: {

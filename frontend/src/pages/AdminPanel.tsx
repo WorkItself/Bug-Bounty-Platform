@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useUser } from '../context/UserContext';
 import axiosInstance from '../utils/axiosInstance';
 import {
   LayoutDashboard, Users, Building2, HeadphonesIcon,
   ShieldCheck, Search, ChevronRight, TrendingUp,
-  Pencil, Trash2, Check, X, ShieldOff,
+  Pencil, Trash2, Check, X, ShieldOff, FileText,
 } from 'lucide-react';
 
 interface PendingCompany {
@@ -18,7 +19,7 @@ interface PlatformUser {
   registeredOn: string; isVerified: boolean; isApproved: boolean;
 }
 
-type Section = 'overview' | 'users' | 'pending';
+type Section = 'overview' | 'users' | 'pending' | 'reports';
 
 const C = {
   sidebarBg: '#ffffff', sidebarBorder: '#E5E7EB', contentBg: '#F7F9FC',
@@ -134,8 +135,9 @@ const AdminPanel = () => {
     overview: ['Admin', 'Overview'],
     users: ['Admin', 'Management', 'All Users'],
     pending: ['Admin', 'Management', 'Pending Companies'],
+    reports: ['Admin', 'Management', 'All Reports'],
   };
-  const titles: Record<Section, string> = { overview: 'Overview', users: 'All Users', pending: 'Pending Companies' };
+  const titles: Record<Section, string> = { overview: 'Overview', users: 'All Users', pending: 'Pending Companies', reports: 'All Reports' };
 
   return (
     <div style={{ display: 'flex', minHeight: 'calc(100vh - 38px)', background: C.contentBg }}>
@@ -160,6 +162,7 @@ const AdminPanel = () => {
           <SidebarSection title="Management">
             <SidebarItem icon={<Users size={15} />} label="All Users" active={section === 'users'} onClick={() => setSection('users')} />
             <SidebarItem icon={<Building2 size={15} />} label="Pending Companies" active={section === 'pending'} onClick={() => setSection('pending')} badge={pending.length} />
+            <SidebarItem icon={<FileText size={15} />} label="All Reports" active={section === 'reports'} onClick={() => setSection('reports')} />
           </SidebarSection>
           <SidebarSection title="Support">
             <SidebarItem icon={<HeadphonesIcon size={15} />} label="Support Requests" active={false} onClick={() => window.location.href = '/admin/support'} />
@@ -189,6 +192,7 @@ const AdminPanel = () => {
           {section === 'pending' && (
             <PendingSection pending={pending} loading={pendingLoading} onApprove={handleApprove} onDeny={handleDeny} />
           )}
+          {section === 'reports' && <ReportsSection />}
         </div>
       </div>
     </div>
@@ -449,6 +453,201 @@ function PendingSection({ pending, loading, onApprove, onDeny }: {
           </div>
         </div>
       ))}
+    </div>
+  );
+}
+
+/* ── Admin Reports section ───────────────────────────────── */
+interface AdminProgram { id: number; programName: string; ownerId: number; }
+interface AdminReport {
+  id: number; title: string; severity: number; status: number;
+  reporterId: number; programId: number;
+}
+
+const SEV: Record<number, { label: string; color: string; bg: string }> = {
+  1: { label: 'Low',      color: '#16a34a', bg: '#DCFCE7' },
+  2: { label: 'Medium',   color: '#d97706', bg: '#FEF3C7' },
+  3: { label: 'High',     color: '#ea580c', bg: '#FFEDD5' },
+  4: { label: 'Critical', color: '#dc2626', bg: '#FEE2E2' },
+};
+const STATUS_LABEL: Record<number, { label: string; color: string }> = {
+  1: { label: 'New',      color: '#6B7280' },
+  2: { label: 'Triaged',  color: '#3b82f6' },
+  3: { label: 'Accepted', color: '#16a34a' },
+  4: { label: 'Fixed',    color: '#0ea5e9' },
+  5: { label: 'Rewarded', color: '#8b5cf6' },
+  6: { label: 'Rejected', color: '#dc2626' },
+};
+
+function ReportsSection() {
+  const navigate = useNavigate();
+  const [programs, setPrograms]               = useState<AdminProgram[]>([]);
+  const [selectedProgram, setSelectedProgram] = useState<number | null>(null);
+  const [reports, setReports]                 = useState<AdminReport[]>([]);
+  const [search, setSearch]                   = useState('');
+  const [statusFilter, setStatusFilter]       = useState<number | 'all'>('all');
+  const [loadingPrograms, setLoadingPrograms] = useState(true);
+  const [loadingReports, setLoadingReports]   = useState(false);
+
+  useEffect(() => {
+    axiosInstance.get('/program/getAll')
+      .then(res => {
+        const all = res.data ?? [];
+        setPrograms(all);
+        if (all.length > 0) setSelectedProgram(all[0].id);
+      })
+      .catch(() => {})
+      .finally(() => setLoadingPrograms(false));
+  }, []);
+
+  useEffect(() => {
+    if (!selectedProgram) return;
+    setLoadingReports(true);
+    axiosInstance.get(`/report/program/${selectedProgram}`)
+      .then(res => setReports(res.data ?? []))
+      .catch(() => setReports([]))
+      .finally(() => setLoadingReports(false));
+  }, [selectedProgram]);
+
+  const filtered = reports
+    .filter(r => statusFilter === 'all' || r.status === statusFilter)
+    .filter(r => !search || r.title.toLowerCase().includes(search.toLowerCase()));
+
+  const statusCounts = ([1,2,3,4,5,6] as number[]).reduce((acc, s) => {
+    acc[s] = reports.filter(r => r.status === s).length;
+    return acc;
+  }, {} as Record<number, number>);
+
+  return (
+    <div style={{ display: 'flex', gap: '1.25rem', alignItems: 'flex-start' }}>
+      {/* Left sidebar */}
+      <div style={{ width: '200px', flexShrink: 0, display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+        {/* Programs */}
+        <div style={{ background: '#fff', borderRadius: '10px', border: '1px solid #E5E7EB' }}>
+          <p style={{ margin: 0, padding: '0.75rem 1rem 0.4rem', fontSize: '0.7rem', fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.07em' }}>Program</p>
+          {loadingPrograms ? (
+            <p style={{ padding: '0.75rem 1rem', color: C.muted, fontSize: '0.82rem' }}>Loading…</p>
+          ) : programs.length === 0 ? (
+            <p style={{ padding: '0.75rem 1rem', color: C.muted, fontSize: '0.82rem' }}>No programs.</p>
+          ) : programs.map(p => {
+            const active = selectedProgram === p.id;
+            return (
+              <button key={p.id} onClick={() => setSelectedProgram(p.id)} style={{
+                width: '100%', display: 'flex', alignItems: 'center', gap: '0.5rem',
+                padding: '0.5rem 1rem', border: 'none', cursor: 'pointer', textAlign: 'left',
+                background: active ? C.activeBg : 'transparent',
+                color: active ? C.active : C.text,
+                fontWeight: active ? 700 : 500, fontSize: '0.85rem',
+                borderLeft: active ? `2px solid ${C.active}` : '2px solid transparent',
+              }}
+                onMouseEnter={e => { if (!active) (e.currentTarget as HTMLElement).style.background = C.hover; }}
+                onMouseLeave={e => { if (!active) (e.currentTarget as HTMLElement).style.background = 'transparent'; }}
+              >
+                <div style={{ width: '22px', height: '22px', borderRadius: '5px', background: active ? C.active : '#E5E7EB', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.62rem', fontWeight: 800, color: active ? '#fff' : C.text }}>
+                  {p.programName.charAt(0).toUpperCase()}
+                </div>
+                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.programName}</span>
+              </button>
+            );
+          })}
+          <div style={{ height: '0.5rem' }} />
+        </div>
+
+        {/* Status filter */}
+        <div style={{ background: '#fff', borderRadius: '10px', border: '1px solid #E5E7EB' }}>
+          <p style={{ margin: 0, padding: '0.75rem 1rem 0.4rem', fontSize: '0.7rem', fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.07em' }}>Status</p>
+          {([{ value: 'all', label: 'All' }, { value: 1, label: 'New' }, { value: 2, label: 'Triaged' }, { value: 3, label: 'Accepted' }, { value: 4, label: 'Fixed' }, { value: 5, label: 'Rewarded' }, { value: 6, label: 'Rejected' }] as const).map(({ value, label }) => {
+            const count = value === 'all' ? reports.length : (statusCounts[value as number] ?? 0);
+            const active = statusFilter === value;
+            return (
+              <button key={value} onClick={() => setStatusFilter(value as any)} style={{
+                width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                padding: '0.45rem 1rem', border: 'none', cursor: 'pointer',
+                background: active ? C.activeBg : 'transparent',
+                color: active ? C.active : C.text,
+                fontWeight: active ? 700 : 500, fontSize: '0.85rem',
+                borderLeft: active ? `2px solid ${C.active}` : '2px solid transparent',
+              }}
+                onMouseEnter={e => { if (!active) (e.currentTarget as HTMLElement).style.background = C.hover; }}
+                onMouseLeave={e => { if (!active) (e.currentTarget as HTMLElement).style.background = 'transparent'; }}
+              >
+                <span>{label}</span>
+                {count > 0 && (
+                  <span style={{ background: active ? C.active : '#E5E7EB', color: active ? '#fff' : C.muted, borderRadius: '10px', padding: '1px 7px', fontSize: '0.68rem', fontWeight: 700 }}>{count}</span>
+                )}
+              </button>
+            );
+          })}
+          <div style={{ height: '0.5rem' }} />
+        </div>
+      </div>
+
+      {/* Table */}
+      <div style={{ flex: 1, minWidth: 0, background: '#fff', borderRadius: '10px', border: '1px solid #E5E7EB', overflow: 'hidden' }}>
+        <div style={{ padding: '0.875rem 1.25rem', borderBottom: '1px solid #F3F4F6', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '0.5rem', border: '1px solid #E5E7EB', borderRadius: '7px', padding: '0.45rem 0.75rem', background: '#F9FAFB' }}>
+            <Search size={14} color={C.muted} style={{ flexShrink: 0 }} />
+            <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search reports…"
+              style={{ border: 'none', outline: 'none', background: 'transparent', fontSize: '0.85rem', color: C.text, flex: 1 }} />
+          </div>
+          <span style={{ fontSize: '0.8rem', color: C.muted, whiteSpace: 'nowrap' }}>{filtered.length} result{filtered.length !== 1 ? 's' : ''}</span>
+        </div>
+
+        {loadingReports ? (
+          <p style={{ padding: '2rem', textAlign: 'center', color: C.muted, fontSize: '0.88rem' }}>Loading reports…</p>
+        ) : !selectedProgram ? (
+          <p style={{ padding: '2rem', textAlign: 'center', color: C.muted, fontSize: '0.88rem' }}>Select a program.</p>
+        ) : filtered.length === 0 ? (
+          <p style={{ padding: '2rem', textAlign: 'center', color: C.muted, fontSize: '0.88rem' }}>
+            {search ? 'No reports match your search.' : 'No reports in this category.'}
+          </p>
+        ) : (
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem' }}>
+              <thead>
+                <tr style={{ background: '#F9FAFB' }}>
+                  {['Report', 'Severity', 'Status', ''].map(h => (
+                    <th key={h} style={{ padding: '0.6rem 1rem', textAlign: 'left', fontSize: '0.7rem', fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.06em', borderBottom: '1px solid #E5E7EB', whiteSpace: 'nowrap' }}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {filtered.map((r, i) => {
+                  const sev = SEV[r.severity] ?? { label: '?', color: C.muted, bg: '#F3F4F6' };
+                  const st  = STATUS_LABEL[r.status] ?? { label: 'Unknown', color: C.muted };
+                  return (
+                    <tr key={r.id} style={{ borderBottom: i < filtered.length - 1 ? '1px solid #F9FAFB' : 'none' }}
+                      onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = '#FAFAFA'}
+                      onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = 'transparent'}
+                    >
+                      <td style={{ padding: '0.85rem 1rem', maxWidth: '320px' }}>
+                        <p style={{ margin: '0 0 0.1rem', fontWeight: 600, fontSize: '0.88rem', color: C.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.title}</p>
+                        <p style={{ margin: 0, fontSize: '0.75rem', color: C.muted }}>Reporter #{r.reporterId}</p>
+                      </td>
+                      <td style={{ padding: '0.85rem 1rem', whiteSpace: 'nowrap' }}>
+                        <span style={{ padding: '2px 9px', borderRadius: '4px', background: sev.bg, color: sev.color, fontSize: '0.72rem', fontWeight: 700 }}>{sev.label}</span>
+                      </td>
+                      <td style={{ padding: '0.85rem 1rem', whiteSpace: 'nowrap' }}>
+                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.78rem', fontWeight: 600, color: st.color }}>
+                          <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: st.color, display: 'inline-block' }} />
+                          {st.label}
+                        </span>
+                      </td>
+                      <td style={{ padding: '0.85rem 1rem', textAlign: 'right' }}>
+                        <button onClick={() => navigate(`/report/${r.id}`)}
+                          style={{ padding: '0.3rem 0.8rem', background: 'transparent', border: '1px solid #D1D5DB', borderRadius: '6px', color: C.text, cursor: 'pointer', fontSize: '0.78rem', fontWeight: 600, transition: 'all 0.1s' }}
+                          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = C.activeBg; (e.currentTarget as HTMLElement).style.borderColor = C.active; (e.currentTarget as HTMLElement).style.color = C.active; }}
+                          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent'; (e.currentTarget as HTMLElement).style.borderColor = '#D1D5DB'; (e.currentTarget as HTMLElement).style.color = C.text; }}
+                        >View →</button>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

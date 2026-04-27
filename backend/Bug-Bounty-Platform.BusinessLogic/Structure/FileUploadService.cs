@@ -96,6 +96,16 @@ namespace Bug_Bounty_Platform.BusinessLogic.Structure
                 .ToList();
         }
 
+        public (string? FullPath, string? ContentType, string? FileName) GetAttachmentFile(int attachmentId)
+        {
+            using var db = new BugReportAttachmentContext();
+            var entity = db.BugReportAttachments.FirstOrDefault(x => x.Id == attachmentId && !x.IsHidden);
+            if (entity == null) return (null, null, null);
+
+            string fullPath = Path.Combine(_storageRoot, entity.StoragePath);
+            return (fullPath, entity.ContentType, entity.FileName);
+        }
+
         public ActionResponce DeleteAttachment(int attachmentId)
         {
             using var db = new BugReportAttachmentContext();

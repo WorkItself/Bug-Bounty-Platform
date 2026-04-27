@@ -1,6 +1,7 @@
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useState, useRef, useEffect } from 'react';
 import { useUser } from '../context/UserContext';
+import axiosInstance from '../utils/axiosInstance';
 import {
   Globe, BarChart2, Activity,
   FileText, Users, ShieldAlert,
@@ -18,7 +19,16 @@ const MainLayout = () => {
   const navigate = useNavigate();
   const { user, logout } = useUser();
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
+  const [companyHandle, setCompanyHandle] = useState<string | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (user.isLoggedIn && user.type === 'company') {
+      axiosInstance.get('/company/profile')
+        .then(res => setCompanyHandle(res.data?.handle ?? null))
+        .catch(() => {});
+    }
+  }, [user.isLoggedIn, user.type]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -154,6 +164,7 @@ const MainLayout = () => {
                       {[
                         { label: 'Profile', to: '/profile' },
                         ...(user.type === 'user' ? [{ label: 'My Public Profile', to: `/u/${user.name}` }] : []),
+                        ...(user.type === 'company' && companyHandle ? [{ label: 'View Public Page', to: `/programs/${companyHandle}` }] : []),
                       ].map(l => (
                         <Link key={l.label} to={l.to} onClick={() => setProfileMenuOpen(false)} style={{
                           display: 'block', padding: '0.55rem 1rem', color: SB.muted,

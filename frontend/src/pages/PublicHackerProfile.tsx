@@ -10,6 +10,8 @@ interface HackerProfile {
   lastName: string;
   memberSince: string;
   submissionCount: number;
+  acceptedCount: number;
+  criticalCount: number;
 }
 
 const PublicHackerProfile = () => {
@@ -59,10 +61,16 @@ const PublicHackerProfile = () => {
 
       {/* Stats */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: '1rem' }}>
-        <div style={{ background: '#fff', borderRadius: '12px', border: '1px solid #E5E7EB', padding: '1.25rem 1.5rem', textAlign: 'center' }}>
-          <p style={{ margin: '0 0 0.25rem', fontSize: '2rem', fontWeight: 800, color: '#3F3AFC' }}>{profile.submissionCount}</p>
-          <p style={{ margin: 0, fontSize: '0.8rem', color: '#6B7280', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Submissions</p>
-        </div>
+        {[
+          { value: profile.submissionCount, label: 'Submitted',  color: '#3F3AFC' },
+          { value: profile.acceptedCount,   label: 'Accepted',   color: '#16a34a' },
+          { value: profile.criticalCount,   label: 'Critical',   color: '#dc2626' },
+        ].map(({ value, label, color }) => (
+          <div key={label} style={{ background: '#fff', borderRadius: '12px', border: '1px solid #E5E7EB', padding: '1.25rem 1.5rem', textAlign: 'center' }}>
+            <p style={{ margin: '0 0 0.25rem', fontSize: '2rem', fontWeight: 800, color }}>{value}</p>
+            <p style={{ margin: 0, fontSize: '0.8rem', color: '#6B7280', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{label}</p>
+          </div>
+        ))}
       </div>
     </div>
   );
