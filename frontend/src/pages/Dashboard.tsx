@@ -25,6 +25,9 @@ const SEV: Record<number, { label: string; color: string; bg: string }> = {
 
 const STATUS: Record<number, { label: string; color: string }> = {
   3: { label: 'Accepted', color: '#16a34a' },
+  4: { label: 'Fixed',    color: '#0ea5e9' },
+  5: { label: 'Rewarded', color: '#8b5cf6' },
+  6: { label: 'Rejected', color: '#dc2626' },
 };
 
 const fmtDate = (iso: string) =>

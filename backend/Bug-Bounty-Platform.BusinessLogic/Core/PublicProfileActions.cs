@@ -81,7 +81,7 @@ namespace Bug_Bounty_Platform.BusinessLogic.Core
             using (var bugDb = new BugReportContext())
             {
                 resolved = bugDb.BugReports
-                    .Where(r => !r.IsHidden && (int)r.Status == 3)
+                    .Where(r => !r.IsHidden && r.Status != BugStatus.New && r.Status != BugStatus.Triaged)
                     .OrderByDescending(r => r.UpdatedAt ?? r.SubmittedAt)
                     .ToList();
             }

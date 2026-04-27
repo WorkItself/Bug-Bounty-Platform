@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import axiosInstance from '../utils/axiosInstance';
 import { ShieldCheck } from 'lucide-react';
 
-interface HackerProfile {
+interface UserProfile {
   id: number;
   userName: string;
   firstName: string;
@@ -14,9 +14,9 @@ interface HackerProfile {
   criticalCount: number;
 }
 
-const PublicHackerProfile = () => {
+const PublicUserProfile = () => {
   const { username } = useParams<{ username: string }>();
-  const [profile, setProfile] = useState<HackerProfile | null>(null);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
 
@@ -34,7 +34,7 @@ const PublicHackerProfile = () => {
   if (notFound || !profile) return (
     <div style={{ padding: '4rem 2rem', textAlign: 'center', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif' }}>
       <ShieldCheck size={48} color="#D1D5DB" style={{ marginBottom: '1rem' }} />
-      <h2 style={{ color: '#111', margin: '0 0 0.5rem' }}>Hacker not found</h2>
+      <h2 style={{ color: '#111', margin: '0 0 0.5rem' }}>User not found</h2>
       <p style={{ color: '#6B7280', margin: '0 0 1.5rem' }}>No researcher with username <strong>@{username}</strong> exists.</p>
       <Link to="/bounties" style={{ color: '#3F3AFC', textDecoration: 'none', fontWeight: 600 }}>Browse Programs</Link>
     </div>
@@ -76,4 +76,4 @@ const PublicHackerProfile = () => {
   );
 };
 
-export default PublicHackerProfile;
+export default PublicUserProfile;

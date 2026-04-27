@@ -45,7 +45,7 @@ const MainLayout = () => {
     { icon: Activity,  to: '/activity',    label: 'Activity' },
     { icon: BarChart2, to: '/leaderboard', label: 'Leaderboard' },
   ];
-  const hackerNav = user.isLoggedIn && user.type === 'user' ? [
+  const userNav = user.isLoggedIn && user.type === 'user' ? [
     { icon: FileText, to: '/my-submissions',  label: 'My Submissions' },
   ] : [];
   const companyNav = user.isLoggedIn && user.type === 'company' ? [
@@ -57,7 +57,7 @@ const MainLayout = () => {
   const adminNav = user.isLoggedIn && user.type === 'admin' ? [
     { icon: ShieldAlert, to: '/admin', label: 'Admin Panel' },
   ] : [];
-  const allNav = [...coreNav, ...hackerNav, ...companyNav, ...adminNav];
+  const allNav = [...coreNav, ...userNav, ...companyNav, ...adminNav];
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif' }}>
@@ -73,7 +73,7 @@ const MainLayout = () => {
           <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem' }}>
             <span style={{ fontSize: '0.8rem', color: '#4F46E5' }}>ⓘ</span>
             <span style={{ fontSize: '0.78rem', color: '#3730A3', fontWeight: 500 }}>
-              Learn more about BountyOS — the trusted bug bounty platform
+              Learn more about BountyOS — the trusted security research platform
             </span>
           </div>
           <Link to="/login" style={{
