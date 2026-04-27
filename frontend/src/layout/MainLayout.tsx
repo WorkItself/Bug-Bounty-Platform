@@ -155,7 +155,7 @@ const MainLayout = () => {
                       {user.isLoggedIn ? user.name : 'Guest'}
                     </p>
                     <p style={{ margin: '2px 0 0', color: SB.muted, fontSize: '0.75rem', textTransform: 'capitalize' }}>
-                      {user.isLoggedIn ? (user.type === 'user' ? 'Bug Bounty Hunter' : user.type) : 'Not logged in'}
+                      {user.isLoggedIn ? (user.type === 'user' ? 'Security Researcher' : user.type) : 'Not logged in'}
                     </p>
                   </div>
 
