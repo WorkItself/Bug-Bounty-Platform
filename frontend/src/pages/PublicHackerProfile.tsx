@@ -54,7 +54,7 @@ const PublicHackerProfile = () => {
           {fullName && <p style={{ margin: '0 0 0.15rem', fontWeight: 700, color: '#111', fontSize: '1.15rem' }}>{fullName}</p>}
           <p style={{ margin: 0, color: '#6B7280', fontSize: '0.95rem' }}>@{profile.userName}</p>
           <p style={{ margin: '0.25rem 0 0', color: '#9CA3AF', fontSize: '0.8rem' }}>
-            Bug Bounty Hunter · Member since {new Date(profile.memberSince).toLocaleDateString('en-US', { year: 'numeric', month: 'long' })}
+            Security Researcher · Member since {new Date(profile.memberSince).toLocaleDateString('en-US', { year: 'numeric', month: 'long' })}
           </p>
         </div>
       </div>
