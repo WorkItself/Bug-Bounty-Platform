@@ -67,6 +67,11 @@ docker-compose.override.yml
 docker-compose.*.local.yml
 
 # =====================
+# Claude Code
+# =====================
+.claude/
+
+# =====================
 # IDE / OS junk
 # =====================
 .DS_Store
