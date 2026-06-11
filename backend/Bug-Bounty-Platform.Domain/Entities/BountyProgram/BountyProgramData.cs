@@ -13,14 +13,17 @@ namespace Bug_Bounty_Platform.Domain.Entities.BountyProgram
         [StringLength(100)]
         public string ProgramName { get; set; } = string.Empty;
 
+        [Required]
         [StringLength(500)]
-        public string? ProgramDescription { get; set; }
+        public string? ProgramDescription { get; set; } = string.Empty;
 
+        [Required]
         [StringLength(500)]
-        public string? ProgramScope { get; set; }
+        public string? ProgramScope { get; set; } = string.Empty;
 
+        [Required]
         [StringLength(200)]
-        public string? Website { get; set; }
+        public string? Website { get; set; } = string.Empty;
 
         [Column(TypeName = "decimal(18,2)")]
         public decimal? RewardCritical { get; set; }
